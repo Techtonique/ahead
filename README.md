@@ -71,7 +71,7 @@ For univariate and multivariate time series.
 
 #### 2 - Multivariate time series
 
-With `ridge2f` (see 'Reference' in the navigation bar), the model from : 
+With `ridge2f` (type `?ridge2f` in R console for more details), the model from : 
 
  Moudiki, T., Planchet, F., & Cousin, A. (2018).
  Multiple time series forecasting using quasi-randomized
