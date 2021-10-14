@@ -1,0 +1,116 @@
+[
+    {
+        "file": "/Users/t/Documents/R_Packages/ahead/src/embedc.cpp",
+        "file_last_write": 1588295852.0,
+        "definitions": [
+            {
+                "usr": "c:@F@embedc#I#I#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "embedc(Rcpp::NumericVector, int)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/embedc.cpp",
+                "line": 15,
+                "column": 15
+            }
+        ]
+    },
+    {
+        "file": "/Users/t/Documents/R_Packages/ahead/src/rcpp_hello_world.cpp",
+        "file_last_write": 1616344856.0,
+        "definitions": [
+            {
+                "usr": "c:@F@rcpp_hello_world#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "rcpp_hello_world",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/rcpp_hello_world.cpp",
+                "line": 6,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "/Users/t/Documents/R_Packages/ahead/src/utils_armagarch.cpp",
+        "file_last_write": 1619349060.0,
+        "definitions": [
+            {
+                "usr": "c:@F@forecast_innovs_loop_cpp#I#I#d#d#d#d#i#i#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "forecast_innovs_loop_cpp(Rcpp::NumericVector, Rcpp::NumericVector, double, double, double, double, unsigned int, unsigned int)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/utils_armagarch.cpp",
+                "line": 8,
+                "column": 15
+            },
+            {
+                "usr": "c:@F@forecast_innovs_loop_cpp2#I#I#d#d#d#d#i#i#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "forecast_innovs_loop_cpp2(Rcpp::NumericVector, Rcpp::NumericVector, double, double, double, double, unsigned int, unsigned int)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/utils_armagarch.cpp",
+                "line": 37,
+                "column": 15
+            }
+        ]
+    },
+    {
+        "file": "/Users/t/Documents/R_Packages/ahead/src/utils_matrix.cpp",
+        "file_last_write": 1619349060.0,
+        "definitions": [
+            {
+                "usr": "c:@F@create_lags_cpp#I#I#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "create_lags_cpp(Rcpp::NumericVector, int)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/utils_matrix.cpp",
+                "line": 5,
+                "column": 15
+            },
+            {
+                "usr": "c:@F@create_train_inputs_cpp#I#I#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "create_train_inputs_cpp(Rcpp::NumericMatrix, int)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/utils_matrix.cpp",
+                "line": 23,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@reformat_cpp#I#l#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "reformat_cpp(Rcpp::NumericMatrix, unsigned long)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/utils_matrix.cpp",
+                "line": 50,
+                "column": 15
+            },
+            {
+                "usr": "c:@F@rev_matrix_cpp#I#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "rev_matrix_cpp(Rcpp::NumericMatrix)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/utils_matrix.cpp",
+                "line": 69,
+                "column": 15
+            },
+            {
+                "usr": "c:@F@rbind_vecmat_cpp#I#I#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "rbind_vecmat_cpp(Rcpp::NumericVector, Rcpp::NumericMatrix)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/utils_matrix.cpp",
+                "line": 87,
+                "column": 15
+            },
+            {
+                "usr": "c:@F@cbind_cpp#I#I#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "cbind_cpp(Rcpp::NumericMatrix, Rcpp::NumericMatrix)",
+                "file": "/Users/t/Documents/R_Packages/ahead/src/utils_matrix.cpp",
+                "line": 110,
+                "column": 15
+            }
+        ]
+    }
+]

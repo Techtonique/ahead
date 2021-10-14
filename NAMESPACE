@@ -1,0 +1,18 @@
+useDynLib(ahead, .registration=TRUE)
+S3method(plot, mtsforecast)
+importFrom(Rcpp, evalCpp)
+importFrom("stats", "as.ts", "complete.cases", "end", "frequency",
+               "median", "predict", "predict.lm", "qnorm", "quantile",
+               "residuals", "rnorm", "rt", "sd", "start", "ts", "tsp",
+               "tsp<-")
+importFrom("utils", "tail")
+importFrom("graphics", "lines")
+importFrom("stats", "is.ts", "runif")
+export("armagarchf")
+export("eatf")
+export("dynrmf")
+export("ridge2f")
+export("varf")
+# export("fit_ridge")
+# export("predict_ridge")
+#exportPattern("^[[:alpha:]]+")

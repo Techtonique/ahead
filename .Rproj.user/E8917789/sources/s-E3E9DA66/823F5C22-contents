@@ -1,0 +1,7 @@
+template:
+  params:
+    bootswatch: darkly
+url: https://techtonique.github.io/ahead/
+authors:
+  T. Moudiki:
+    href: https://thierrymoudiki.github.io/
