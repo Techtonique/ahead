@@ -32,7 +32,7 @@ For univariate and multivariate time series.
 
 #### 1 - Univariate time series 
 
-##### 1 - 1 Example 1: with `dynrmf` (see 'Reference' in the navigation bar) and Random Forest
+##### 1 - 1 Example 1: with `dynrmf` (type `?dynrmf` in R console for more details) and Random Forest
 
 ```R
  require(fpp)
