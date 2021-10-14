@@ -53,9 +53,6 @@ plot(res, "income")
 
 }
 \references{
-Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting:
-principles and practice. OTexts. \cr
-
 Bernhard Pfaff (2008). VAR, SVAR and SVEC Models: Implementation
 Within R Package vars. Journal of Statistical Software 27(4). URL
 http://www.jstatsoft.org/v27/i04/. \cr

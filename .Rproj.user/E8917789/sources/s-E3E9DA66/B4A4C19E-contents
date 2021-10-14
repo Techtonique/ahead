@@ -13,5 +13,8 @@ RoxygenNote: 7.1.1
 Suggests: 
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    fpp,
+    e1071,
+    randomForest
 VignetteBuilder: knitr

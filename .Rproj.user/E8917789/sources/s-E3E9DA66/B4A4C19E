@@ -3,7 +3,7 @@
     "path": "~/Documents/R_Packages/ahead/DESCRIPTION",
     "project_path": "DESCRIPTION",
     "type": "dcf",
-    "hash": "58680779",
+    "hash": "2153787959",
     "contents": "",
     "dirty": false,
     "created": 1634059119669.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "4,16",
+        "cursorPosition": "18,16",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1634141764,
+    "lastKnownWriteTime": 1634228591,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1634141764685,
+    "last_content_update": 1634228591213,
     "read_only": false,
     "read_only_alternatives": []
 }
