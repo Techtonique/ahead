@@ -3,7 +3,7 @@
     "path": "~/Documents/R_Packages/ahead/DESCRIPTION",
     "project_path": "DESCRIPTION",
     "type": "dcf",
-    "hash": "2153787959",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1634059119669.0,
@@ -16,11 +16,11 @@
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1634228591,
+    "lastKnownWriteTime": 1634462554,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1634228591213,
+    "last_content_update": 1634462554,
     "read_only": false,
     "read_only_alternatives": []
 }

@@ -44,6 +44,13 @@
 #' forecast package for R.' Journal of Statistical Software, 26 (3),
 #' 1-22. <URL: https://www.jstatsoft.org/article/view/v027i03>.
 #'
+#' Assimakopoulos, V. and Nikolopoulos, K. (2000). The theta model: a
+#' decomposition approach to forecasting. International Journal of
+#' Forecasting 16, 521-530.
+#'
+#' Hyndman, R.J., and Billah, B. (2003) Unmasking the Theta method.
+#' International J. Forecasting, 19, 287-290.
+#'
 #'
 #' @examples
 #'
@@ -92,7 +99,7 @@ eatf <- function(y, h = 5,
   n_y <- length(y)
 
   # start and frequency for returned result
-  tspx <- tsp(y)
+  tspx <- tsp(as.ts(y))
   start_preds <- tspx[2] + 1 / tspx[3]
   freq_y <- tspx[3]
 

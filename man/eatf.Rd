@@ -91,6 +91,13 @@ package version 8.14, <URL: https://pkg.robjhyndman.com/forecast/>. \cr
 Hyndman RJ, Khandakar Y (2008). 'Automatic time series forecasting: the
 forecast package for R.' Journal of Statistical Software, 26 (3),
 1-22. <URL: https://www.jstatsoft.org/article/view/v027i03>.
+
+Assimakopoulos, V. and Nikolopoulos, K. (2000). The theta model: a
+decomposition approach to forecasting. International Journal of
+Forecasting 16, 521-530.
+
+Hyndman, R.J., and Billah, B. (2003) Unmasking the Theta method.
+International J. Forecasting, 19, 287-290.
 }
 \author{
 T. Moudiki
