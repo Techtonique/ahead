@@ -1,8 +1,8 @@
 Package: ahead
 Type: Package
 Title: Time series forecasting
-Version: 0.1.1
-Date: 2021-10-17
+Version: 0.2.0
+Date: 2021-10-19
 Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
 Description: Univariate and multivariate time series forecasting.
