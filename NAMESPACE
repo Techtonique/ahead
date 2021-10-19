@@ -1,5 +1,6 @@
 useDynLib(ahead, .registration=TRUE)
 S3method(plot, mtsforecast)
+S3method(predict, ridge)
 importFrom(Rcpp, evalCpp)
 importFrom("stats", "as.ts", "complete.cases", "end", "frequency",
                "median", "predict", "predict.lm", "qnorm", "quantile",
@@ -12,6 +13,7 @@ export("armagarchf")
 export("eatf")
 export("dynrmf")
 export("ridge2f")
+export("ridge")
 export("varf")
 # export("fit_ridge")
 # export("predict_ridge")

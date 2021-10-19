@@ -8,8 +8,8 @@ dynrmf(
   y,
   h = 5,
   level = 95,
-  fit_func,
-  predict_func,
+  fit_func = ahead::ridge,
+  predict_func = predict,
   fit_params = NULL,
   type_pi = c("gaussian", "E", "A", "T"),
   xreg_fit = NULL,
@@ -24,7 +24,7 @@ dynrmf(
 
 \item{level}{Confidence level for prediction intervals}
 
-\item{fit_func}{Fitting function (Statistical/ML model).}
+\item{fit_func}{Fitting function (Statistical/ML model). Default is Ridge regression.}
 
 \item{predict_func}{Prediction function (Statistical/ML model)}
 
@@ -52,6 +52,17 @@ extract useful features.
 Adapted from forecast::nnetar, with alternative fitting functions (see examples)
 }
 \examples{
+
+# Example 0: with Ridge regression
+
+par(mfrow=c(3, 2))
+plot(dynrmf(USAccDeaths, h=20, level=95))
+plot(dynrmf(AirPassengers, h=20, level=95))
+plot(dynrmf(lynx, h=20, level=95))
+plot(dynrmf(WWWusage, h=20, level=95))
+plot(dynrmf(Nile, h=20, level=95))
+plot(dynrmf(fdeaths, h=20, level=95))
+
 
 # Example 1: with Random Forest
 

@@ -7,7 +7,7 @@
 #' @param y A numeric vector or time series of class ts
 #' @param h Forecasting horizon
 #' @param level Confidence level for prediction intervals
-#' @param fit_func Fitting function (Statistical/ML model).
+#' @param fit_func Fitting function (Statistical/ML model). Default is Ridge regression.
 #' @param predict_func Prediction function (Statistical/ML model)
 #' @param fit_params a list of additional parameters for the fitting function \code{fit_func} (see examples)
 #' @param type_pi Type of prediction interval (currently "gaussian", ETS: "E", Arima: "A" or Theta: "T")
@@ -40,6 +40,17 @@
 #'
 #'
 #' @examples
+#'
+#' # Example 0: with Ridge regression
+#'
+#' par(mfrow=c(3, 2))
+#' plot(dynrmf(USAccDeaths, h=20, level=95))
+#' plot(dynrmf(AirPassengers, h=20, level=95))
+#' plot(dynrmf(lynx, h=20, level=95))
+#' plot(dynrmf(WWWusage, h=20, level=95))
+#' plot(dynrmf(Nile, h=20, level=95))
+#' plot(dynrmf(fdeaths, h=20, level=95))
+#'
 #'
 #' # Example 1: with Random Forest
 #'
@@ -79,8 +90,8 @@
 #'
 dynrmf <- function(y, h = 5,
                    level = 95,
-                   fit_func,
-                   predict_func,
+                   fit_func = ahead::ridge,
+                   predict_func = predict,
                    fit_params = NULL,
                    type_pi = c("gaussian", "E", "A", "T"),
                    xreg_fit = NULL,
@@ -298,6 +309,11 @@ dynrm_fit <- function(y,
 
   # fit
   set.seed(seed) # in case the algo in fit_func is randomized
+
+  # cat("X_j", "\n")
+  # print(X_j)
+  # cat("\n")
+
   fit <- do.call(what = fit_func,
                  args = c(list(x = X_j,
                                y = y[j]), fit_params))
@@ -320,23 +336,23 @@ dynrm_fit <- function(y,
   out$dynrmgs <- list(...)
 
 
-  # cat("fit", "\n")
-  # print(fit)
-  # cat("\n")
+   # cat("fit", "\n")
+   # print(fit)
+   # cat("\n")
 
 
-  # cat("X_j", "\n")
-  # print(head(X_j))
-  # cat("\n")
+    #cat("head(X_j)", "\n")
+    #print(head(X_j))
+    #cat("\n")
 
   # Fitted values
-  fits <- try(predict_func(fit,
-                           newdata = X_j),
+  fits <- try(drop(predict_func(fit,
+                           newdata = X_j)),
               silent = TRUE)
   if (class(fits) == "try-error" || is.null(fits))
   {
-    fits <- try(predict_func(fit,
-                             newx = X_j),
+    fits <- try(drop(predict_func(fit,
+                             newx = X_j)),
                 silent = TRUE)
   }
 
@@ -345,9 +361,12 @@ dynrm_fit <- function(y,
    #cat("\n")
 
   if (scale_inputs) {
-     #cat("scalex$scale", "\n")
-     #print(scalex$scale)
-     #cat("\n")
+     # cat("scalex$scale", "\n")
+     # print(scalex$scale)
+     # cat("\n")
+     # cat("scalex$center", "\n")
+     # print(scalex$center)
+     # cat("\n")
     fits <- fits * scalex$scale + scalex$center
   }
 
