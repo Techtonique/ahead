@@ -21,12 +21,17 @@ Fit Ridge regression
 }
 \examples{
 
+set.seed(123)
 n <- 100 ; p <- 10
 X <- matrix(rnorm(n * p), n, p) # no intercept!
 y <- rnorm(n)
 
-(fit_obj <- ahead::ridge(X, y))
+fit_obj <- ahead::ridge(X, y)
+
+par(mfrow=c(1, 2))
 
 matplot(log(fit_obj$lambda), t(fit_obj$coef), type = 'l')
+
+plot(log(fit_obj$lambda), fit_obj$GCV, type='l')
 
 }
