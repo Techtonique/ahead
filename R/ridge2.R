@@ -267,7 +267,10 @@ fit_ridge2_mts <- function(x,
   B <- crossprod(X) + lambda_1 * diag(k_p)
   C <- crossprod(Phi_X, X)
   D <- crossprod(Phi_X) + lambda_2 * diag(ncol(Phi_X))
-  B_inv <- solve(B) #my_ginv(B)
+  B_inv <- try(chol2inv(chol(B)), silent = TRUE)
+  if (class(B_inv)[1] == "try-error"){
+    B_inv <- solve(B) #my_ginv(B)
+  }
   W <- C %*% B_inv
   S_mat <- D - tcrossprod(W, C)
   S_inv <- my_ginv(S_mat)
