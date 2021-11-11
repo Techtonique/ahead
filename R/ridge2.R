@@ -149,31 +149,21 @@ ridge2f <- function(y, h = 5,
                     start = start_preds,
                     frequency = freq_x))
 
-    `%op%` <- foreach::`%do%`
-
-    j <- NULL
-
-    preds_mean <- foreach::foreach(j = 1:n_series,
-                                  .combine = cbind)%op%{
-                                  rowMeans(sapply(1:B, function(i) sims[[i]][, j]))
-                                  }
+    preds_mean <- matrix(0, ncol = n_series, nrow = h)
+    preds_upper <- matrix(0, ncol = n_series, nrow = h)
+    preds_lower <- matrix(0, ncol = n_series, nrow = h)
     colnames(preds_mean) <- series_names
-
-    preds_upper <- foreach::foreach(j = 1:n_series,
-                                   .combine = cbind)%op%{
-                                    preds_j_upper <- sapply(1:B, function(i) sims[[i]][, j])
-                                    apply(preds_j_upper, 1, function(x) quantile(x, probs = level/100))
-                                   }
     colnames(preds_upper) <- series_names
-
-    preds_lower <- foreach::foreach(j = 1:n_series,
-                                    .combine = cbind)%op%{
-                                     preds_j_lower <- sapply(1:B, function(i) sims[[i]][, j])
-                                     apply(preds_j_lower, 1, function(x) quantile(x, probs = 1 - level/100))
-                                    }
     colnames(preds_lower) <- series_names
 
-    # colnames
+    for (j in 1:n_series)
+    {
+      sims_series_j <- sapply(1:B, function(i) sims[[i]][, j])
+      preds_mean[,j] <- rowMeans(sims_series_j)
+      preds_upper[,j] <- apply(sims_series_j, 1, function(x) quantile(x, probs = 1 - (1 - level/100)/2))
+      preds_lower[,j] <- apply(sims_series_j, 1, function(x) quantile(x, probs = (1 - level/100)/2))
+    }
+
     out <- list(mean = ts(data = preds_mean,
                           start = start_preds, frequency = freq_x),
                 lower = ts(data = preds_lower,
