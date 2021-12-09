@@ -1,7 +1,7 @@
 Package: ahead
 Type: Package
 Title: Time series forecasting
-Version: 0.3.0
+Version: 0.3.1
 Date: 2021-12-09
 Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
