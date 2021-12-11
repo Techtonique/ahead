@@ -4,7 +4,7 @@
 Time series (univariate and multivariate) forecasting
 
 
-### Installation
+### Installation for R (Python is [here](https://github.com/Techtonique/ahead_python))
 
 - __1st method__: from [R-universe](https://ropensci.org/r-universe/)
 
