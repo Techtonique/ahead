@@ -2,6 +2,23 @@ template:
   params:
     bootswatch: darkly
 url: https://techtonique.github.io/ahead/
+home:
+  title: A Toolkit for Monte Carlo Simulations
+  description: >
+    Univariate and multivariate time series forecasting.
 authors:
   T. Moudiki:
     href: https://thierrymoudiki.github.io/
+repo:
+  url:
+    home: https://github.com/Techtonique/
+    source: https://github.com/Techtonique/ahead/
+    issue: https://github.com/Techtonique/ahead/issues
+    user: https://github.com/Techtonique/
+navbar:
+  structure:
+    left:  [home, intro, reference, articles, tutorials, news, Techtonique]
+    right: [github]
+  components:
+    Techtonique:
+      href: ../

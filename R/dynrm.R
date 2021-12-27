@@ -318,9 +318,9 @@ dynrm_fit <- function(y,
                  args = c(list(x = X_j,
                                y = y[j]), fit_params))
 
-  # cat("fit", "\n")
-  # print(fit)
-  # cat("\n")
+   # cat("fit", "\n")
+   # print(fit)
+   # cat("\n")
 
   # Return results
   out <- list()
@@ -356,17 +356,17 @@ dynrm_fit <- function(y,
                 silent = TRUE)
   }
 
-   #cat("fits", "\n")
-   #print(fits)
-   #cat("\n")
+   # cat("fits", "\n")
+   # print(fits)
+   # cat("\n")
 
   if (scale_inputs) {
-     # cat("scalex$scale", "\n")
-     # print(scalex$scale)
-     # cat("\n")
-     # cat("scalex$center", "\n")
-     # print(scalex$center)
-     # cat("\n")
+      # cat("scalex$scale", "\n")
+      # print(scalex$scale)
+      # cat("\n")
+      # cat("scalex$center", "\n")
+      # print(scalex$center)
+      # cat("\n")
     fits <- fits * scalex$scale + scalex$center
   }
 
