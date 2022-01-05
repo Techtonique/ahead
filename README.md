@@ -69,6 +69,8 @@ For univariate and multivariate time series.
  fit_params = list(kernel = "sigmoid"), predict_func = predict))
 ```
 
+For more examples on `dynrmf`, you can read this  [blog post](https://thierrymoudiki.github.io/blog/2021/12/20/r/forecasting/ahead-more-examples).
+
 #### 2 - Multivariate time series
 
 With `ridge2f` (type `?ridge2f` in R console for more details), the model from : 
