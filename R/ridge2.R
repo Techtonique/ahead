@@ -122,19 +122,8 @@ ridge2f <- function(y, h = 5,
                 x = y,
                 level = level,
                 method = "ridge2",
-                residuals = fit_obj$resids)
-
-    # cat("Point Forecast", "\n")
-    # print(out$mean)
-    # cat("\n")
-    #
-    # cat("Lo", level, "\n")
-    # print(out$lower)
-    # cat("\n")
-    #
-    # cat("Hi", level, "\n")
-    # print(out$upper)
-    # cat("\n")
+                residuals = fit_obj$resids,
+                fitted_values = fit_obj$fitted_values)
 
     return(structure(out, class = "mtsforecast"))
   }
@@ -175,18 +164,6 @@ ridge2f <- function(y, h = 5,
                 level = level,
                 method = "ridge2",
                 residuals = fit_obj$resids)
-
-    # cat("Point Forecast", "\n")
-    # print(out$mean)
-    # cat("\n")
-    #
-    # cat("Lo", level, "\n")
-    # print(out$lower)
-    # cat("\n")
-    #
-    # cat("Hi", level, "\n")
-    # print(out$upper)
-    # cat("\n")
 
     return(structure(out, class = "mtsforecast"))
   }
@@ -300,7 +277,8 @@ fit_ridge2_mts <- function(x,
       xm = xm,
       scales = xsd,
       coef = lscoef,
-      resids = resids
+      resids = resids,
+      fitted_values = fitted_values
     )
   )
 }
