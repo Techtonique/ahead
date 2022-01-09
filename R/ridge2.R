@@ -27,6 +27,7 @@
 #' \item{upper}{Upper bound for prediction interval}
 #' \item{x}{The original time series}
 #' \item{residuals}{Residuals from the fitted model}
+#' \item{coefficients}{Regression coefficients for \code{type_pi == 'gaussian'} for now}
 #' \item{sims}{Model simulations for \code{type_pi == bootstrap}}
 #'
 #' @author T. Moudiki
@@ -123,7 +124,7 @@ ridge2f <- function(y, h = 5,
                 level = level,
                 method = "ridge2",
                 residuals = fit_obj$resids,
-                fitted_values = fit_obj$fitted_values)
+                coefficients = fit_obj$coef)
 
     return(structure(out, class = "mtsforecast"))
   }
@@ -277,8 +278,7 @@ fit_ridge2_mts <- function(x,
       xm = xm,
       scales = xsd,
       coef = lscoef,
-      resids = resids,
-      fitted_values = fitted_values
+      resids = resids
     )
   )
 }

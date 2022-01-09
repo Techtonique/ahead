@@ -59,6 +59,7 @@ An object of class "mtsforecast"; a list containing the following elements:
 \item{upper}{Upper bound for prediction interval}
 \item{x}{The original time series}
 \item{residuals}{Residuals from the fitted model}
+\item{coefficients}{Regression coefficients for \code{type_pi == 'gaussian'} for now}
 \item{sims}{Model simulations for \code{type_pi == bootstrap}}
 }
 \description{
