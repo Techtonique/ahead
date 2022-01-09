@@ -3,7 +3,7 @@ template:
     bootswatch: darkly
 url: https://techtonique.github.io/ahead/
 home:
-  title: A Toolkit for Monte Carlo Simulations
+  title: Univariate and multivariate time series
   description: >
     Univariate and multivariate time series forecasting.
 authors:
