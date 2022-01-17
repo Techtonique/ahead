@@ -9,6 +9,7 @@ armagarchf(
   h = 5,
   level = 95,
   B = 250,
+  cl = NULL,
   dist = c("student", "gaussian"),
   seed = 123
 )
@@ -21,6 +22,8 @@ armagarchf(
 \item{level}{confidence level for prediction intervals}
 
 \item{B}{number of simulations for `arima.sim`}
+
+\item{cl}{an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'}}
 
 \item{dist}{distribution of innovations ("student" or "gaussian")}
 

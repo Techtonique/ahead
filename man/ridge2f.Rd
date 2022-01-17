@@ -18,7 +18,8 @@ ridge2f(
   type_forecast = c("recursive", "direct"),
   type_pi = c("gaussian", "bootstrap"),
   seed = 1,
-  B = 100
+  B = 100,
+  cl = NULL
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ ridge2f(
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
 
 \item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'}}
+
+\item{cl}{an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'}}
 }
 \value{
 An object of class "mtsforecast"; a list containing the following elements:
