@@ -105,6 +105,23 @@ create_new_predictors <- function(x,
   }
 }
 
+# dropout regularization
+dropout_layer <- function(X, dropout=0, seed=123)
+{
+  stopifnot(dropout <= 0.8)
+  stopifnot(dropout >= 0)
+  if (dropout == 0)
+  {
+    return(X)
+  } else {
+    n_rows <- dim(X)[1]
+    n_columns <- dim(X)[2]
+    set.seed(seed)
+    mask <- (matrix(runif(n_rows*n_columns),
+                   nrow = n_rows, ncol = n_columns) > dropout)
+    return(X*mask/(1 - dropout))
+  }
+}
 
 # Multivariate block boostrap
 mbb <- function(r, n, b, seed=123)

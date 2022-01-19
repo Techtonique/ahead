@@ -14,6 +14,7 @@
 #' @param a hyperparameter for activation function "leakyrelu", "elu"
 #' @param lambda_1 Regularization parameter for original predictors
 #' @param lambda_2 Regularization parameter for transformed predictors
+#' @param dropout dropout regularization parameter (dropping nodes in hidden layer)
 #' @param seed Reproducibility seed for `nodes_sim == unif`
 #' @param type_forecast Recursive or direct forecast
 #' @param type_pi currently "gaussian" or "bootstrap"
@@ -71,6 +72,7 @@ ridge2f <- function(y,
                     a = 0.01,
                     lambda_1 = 0.1,
                     lambda_2 = 0.1,
+                    dropout = 0,
                     type_forecast = c("recursive", "direct"),
                     type_pi = c("gaussian", "bootstrap"),
                     seed = 1,
@@ -103,6 +105,7 @@ ridge2f <- function(y,
     a = a,
     lambda_1 = lambda_1,
     lambda_2 = lambda_2,
+    dropout = dropout,
     seed = seed
   )
 
@@ -241,6 +244,7 @@ fit_ridge2_mts <- function(x,
                            alpha = 0.5,
                            lambda_1 = 0.1,
                            lambda_2 = 0.1,
+                           dropout = 0,
                            seed = 1)
 {
   stopifnot(floor(nb_hidden) == nb_hidden)
@@ -287,7 +291,14 @@ fit_ridge2_mts <- function(x,
   X <- as.matrix(scaled_regressors[, index])
 
   # transformed predictors (scaled)
-  Phi_X <- scaled_regressors[,-index]
+  Phi_X <- dropout_layer(scaled_regressors[,-index],
+                         dropout = dropout, seed=seed)
+  # no column with only zeros allowed
+  if (all(colSums(Phi_X == 0) != nrow(Phi_X)) == FALSE)
+  {
+    warning("dropping too much columns, dropout set to 0")
+    Phi_X <- scaled_regressors[,-index]
+  }
 
   B <- crossprod(X) + lambda_1 * diag(k_p)
   C <- crossprod(Phi_X, X)

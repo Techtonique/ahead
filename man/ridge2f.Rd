@@ -15,6 +15,7 @@ ridge2f(
   a = 0.01,
   lambda_1 = 0.1,
   lambda_2 = 0.1,
+  dropout = 0,
   type_forecast = c("recursive", "direct"),
   type_pi = c("gaussian", "bootstrap"),
   seed = 1,
@@ -42,6 +43,8 @@ ridge2f(
 \item{lambda_1}{Regularization parameter for original predictors}
 
 \item{lambda_2}{Regularization parameter for transformed predictors}
+
+\item{dropout}{dropout regularization parameter (dropping nodes in hidden layer)}
 
 \item{type_forecast}{Recursive or direct forecast}
 
