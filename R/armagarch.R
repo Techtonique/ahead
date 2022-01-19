@@ -4,7 +4,7 @@
 #' @param h number of periods for forecasting
 #' @param level confidence level for prediction intervals
 #' @param B number of simulations for `arima.sim`
-#' @param cl an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'}
+#' @param cl an integer; the number of clusters for parallel execution
 #' @param dist distribution of innovations ("student" or "gaussian")
 #' @param seed reproducibility seed
 #'

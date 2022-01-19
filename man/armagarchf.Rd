@@ -23,7 +23,7 @@ armagarchf(
 
 \item{B}{number of simulations for `arima.sim`}
 
-\item{cl}{an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'}}
+\item{cl}{an integer; the number of clusters for parallel execution}
 
 \item{dist}{distribution of innovations ("student" or "gaussian")}
 
