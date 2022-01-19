@@ -4,6 +4,7 @@
 #' @param h number of periods for forecasting
 #' @param level confidence level for prediction intervals
 #' @param B number of simulations for `arima.sim`
+#' @param cl an integer; the number of clusters for parallel execution
 #' @param dist distribution of innovations ("student" or "gaussian")
 #' @param seed reproducibility seed
 #'
@@ -31,11 +32,13 @@
 #' plot(z)
 #'
 #'
-armagarchf <- function(y, h=5, level=95,
-                       B = 250, dist=c("student",
-                                       "gaussian"),
-                       seed=123){
-
+armagarchf <- function(y,
+                       h = 5,
+                       level = 95,
+                       B = 250,
+                       cl = NULL,
+                       dist = c("student", "gaussian"),
+                       seed = 123) {
   dist <- match.arg(dist)
 
   # Fit ARIMA to original series
@@ -47,23 +50,72 @@ armagarchf <- function(y, h=5, level=95,
   eps_prev <- eps[length(eps)]
 
   # Fit GARCH to residuals
-  base::suppressWarnings(obj_garch <- fGarch::garchFit(formula=~garch(1, 1),
-                                                       data = eps, include.mean = FALSE,
-                                                       trace = FALSE))
+  base::suppressWarnings(
+    obj_garch <- fGarch::garchFit(
+      formula =  ~ garch(1, 1),
+      data = eps,
+      include.mean = FALSE,
+      trace = FALSE
+    )
+  )
   omega <- obj_garch@fit$coef["omega"]
   alpha <- obj_garch@fit$coef["alpha1"]
   beta <- obj_garch@fit$coef["beta1"]
 
 
   # Forecasting using simulation
-  res <- sapply(1:B, function(x) stats::arima.sim(model = list(ar = obj_arma$coef["ar1"],
-                                                               ma = obj_arma$coef["ma1"]),
-                                                  n = h, start.innov = eps,
-                                                  innov = forecast_innovs(eps_prev=eps_prev,
-                                                                          h=h, omega=omega,
-                                                                          alpha=alpha, beta=beta,
-                                                                          seed=x+10*seed,
-                                                                          dist = dist)))
+  if (is.null(cl))
+  {
+    res <-
+      sapply(1:B, function(x)
+        stats::arima.sim(
+          model = list(ar = obj_arma$coef["ar1"],
+                       ma = obj_arma$coef["ma1"]),
+          n = h,
+          start.innov = eps,
+          innov = forecast_innovs(
+            eps_prev = eps_prev,
+            h =
+              h,
+            omega = omega,
+            alpha =
+              alpha,
+            beta = beta,
+            seed =
+              x + 10 * seed,
+            dist = dist
+          )
+        ))
+  } else {
+    stopifnot(is.numeric(cl))
+    cluster <- parallel::makeCluster(getOption("cl.cores", cl))
+    res <-
+      parallel::parSapply(
+        cl = cluster,
+        X = 1:B,
+        FUN = function(x)
+          stats::arima.sim(
+            model = list(ar = obj_arma$coef["ar1"],
+                         ma = obj_arma$coef["ma1"]),
+            n = h,
+            start.innov = eps,
+            innov = forecast_innovs(
+              eps_prev = eps_prev,
+              h =
+                h,
+              omega = omega,
+              alpha =
+                alpha,
+              beta = beta,
+              seed =
+                x + 10 * seed,
+              dist = dist
+            )
+          )
+      )
+    parallel::stopCluster(cluster)
+  }
+
 
   # return
   tspx <- tsp(y)
@@ -77,15 +129,22 @@ armagarchf <- function(y, h=5, level=95,
                  frequency = freq_y)
 
   ans$level <- level
-  level_100 <- level/100
-  qts <- apply(res, 1, function(x) quantile(x, probs = c((1-level_100)/2,
-                                                         1 - (1-level_100)/2)))
-  ans$lower <- ts(qts[1, ], start = start_preds, frequency = freq_y)
-  ans$upper <- ts(qts[2, ], start = start_preds, frequency = freq_y)
+  level_100 <- level / 100
+  qts <-
+    apply(res, 1, function(x)
+      quantile(x, probs = c((1 - level_100) / 2,
+                            1 - (1 - level_100) /
+                              2)))
+  ans$lower <- ts(qts[1,], start = start_preds, frequency = freq_y)
+  ans$upper <- ts(qts[2,], start = start_preds, frequency = freq_y)
 
   ans$method <- "ARMA(1, 1) - GARCH(1, 1)"
-  ans$model <- list(h=h, level=level,
-                    B = B, seed=seed)
+  ans$model <- list(
+    h = h,
+    level = level,
+    B = B,
+    seed = seed
+  )
   ans$sims <- res
 
   return(structure(ans, class = "forecast"))
@@ -94,11 +153,16 @@ armagarchf <- compiler::cmpfun(armagarchf)
 
 
 # Utils function for armagarchf
-forecast_innovs <- function(eps_prev, omega, alpha, beta,
-                            df=3, h=5, seed=123,
-                            dist=c("student", "gaussian"))
+forecast_innovs <- function(eps_prev,
+                            omega,
+                            alpha,
+                            beta,
+                            df = 3,
+                            h = 5,
+                            seed = 123,
+                            dist = c("student", "gaussian"))
 {
-  sigma_prev <- omega/(1 - alpha - beta)
+  sigma_prev <- omega / (1 - alpha - beta)
 
   eps <- rep(NA, h)
 
@@ -108,19 +172,19 @@ forecast_innovs <- function(eps_prev, omega, alpha, beta,
 
   if (dist == "student")
   {
-    rts <- rt(n=h, df=df)
+    rts <- rt(n = h, df = df)
 
     eps <- forecast_innovs_loop_cpp(eps, rts,
                                     eps_prev,
                                     omega, alpha, beta,
                                     df, h)
   } else {
-    rn <- rnorm(n=h)
+    rn <- rnorm(n = h)
 
     eps <- forecast_innovs_loop_cpp2(eps, rn,
-                                    eps_prev,
-                                    omega, alpha, beta,
-                                    df, h)
+                                     eps_prev,
+                                     omega, alpha, beta,
+                                     df, h)
   }
 
 

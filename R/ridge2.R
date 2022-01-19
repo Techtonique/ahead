@@ -1,4 +1,5 @@
 
+
 #' Ridge2 model
 #'
 #' Random Vector functional link network model with 2 regularization parameters
@@ -18,6 +19,7 @@
 #' @param type_pi currently "gaussian" or "bootstrap"
 #' @param seed reproducibility seed for \code{type_pi == 'bootstrap'}
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'}
+#' @param cl an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'}
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
 #'
@@ -58,7 +60,8 @@
 #' plot(res, "income")
 #' plot(res, "consumption")
 #'
-ridge2f <- function(y, h = 5,
+ridge2f <- function(y,
+                    h = 5,
                     level = 95,
                     lags = 1,
                     nb_hidden = 5,
@@ -70,7 +73,9 @@ ridge2f <- function(y, h = 5,
                     lambda_2 = 0.1,
                     type_forecast = c("recursive", "direct"),
                     type_pi = c("gaussian", "bootstrap"),
-                    seed = 1, B = 100)
+                    seed = 1,
+                    B = 100,
+                    cl = NULL)
 {
   if (!is.ts(y))
   {
@@ -82,7 +87,7 @@ ridge2f <- function(y, h = 5,
   type_pi <- match.arg(type_pi)
   freq_x <- frequency(y)
   start_x <- start(y)
-  start_preds <- tsp(y)[2] + 1/freq_x
+  start_preds <- tsp(y)[2] + 1 / freq_x
 
   nodes_sim <- match.arg(nodes_sim)
   activ <- match.arg(activ)
@@ -103,41 +108,77 @@ ridge2f <- function(y, h = 5,
 
   if (type_pi == "gaussian")
   {
-    preds <- ts(data = fcast_ridge2_mts(
-      fit_obj,
-      h = h,
-      type_forecast = type_forecast,
-      level = level),
-      start = start_preds, frequency = freq_x)
+    preds <- ts(
+      data = fcast_ridge2_mts(
+        fit_obj,
+        h = h,
+        type_forecast = type_forecast,
+        level = level
+      ),
+      start = start_preds,
+      frequency = freq_x
+    )
 
     # strong gaussian assumption
     sds <- apply(fit_obj$resids, 2, sd)
-    qtsd <- -qnorm(0.5 - level/200)*sds
+    qtsd <- -qnorm(0.5 - level / 200) * sds
     qtsd <- t(replicate(nrow(preds), qtsd))
 
     # Forecast from fit_obj
-    out <- list(mean = preds,
-                lower = preds - qtsd,
-                upper = preds + qtsd,
-                sims = NULL,
-                x = y,
-                level = level,
-                method = "ridge2",
-                residuals = fit_obj$resids,
-                coefficients = fit_obj$coef)
+    out <- list(
+      mean = preds,
+      lower = preds - qtsd,
+      upper = preds + qtsd,
+      sims = NULL,
+      x = y,
+      level = level,
+      method = "ridge2",
+      residuals = fit_obj$resids,
+      coefficients = fit_obj$coef
+    )
 
     return(structure(out, class = "mtsforecast"))
   }
 
   if (type_pi == "bootstrap")
   {
-    sims <- lapply(1:B,
-                    function(i) ts(fcast_ridge2_mts(fit_obj,
-                    h = h,
-                    type_forecast = type_forecast,
-                    bootstrap = TRUE, seed = seed + i*100),
-                    start = start_preds,
-                    frequency = freq_x))
+    if (is.null(cl))
+    {
+      sims <- lapply(1:B,
+                     function(i)
+                       ts(
+                         fcast_ridge2_mts(
+                           fit_obj,
+                           h = h,
+                           type_forecast = type_forecast,
+                           bootstrap = TRUE,
+                           seed = seed + i * 100
+                         ),
+                         start = start_preds,
+                         frequency = freq_x
+                       ))
+    } else {
+      stopifnot(is.numeric(cl))
+      cluster <- parallel::makeCluster(getOption("cl.cores", cl))
+      sims <-
+        parallel::parLapply(
+          cl = cluster,
+          X = 1:B,
+          fun = function(i)
+            ts(
+              fcast_ridge2_mts(
+                fit_obj,
+                h = h,
+                type_forecast = type_forecast,
+                bootstrap = TRUE,
+                seed = seed + i * 100
+              ),
+              start = start_preds,
+              frequency = freq_x
+            )
+        )
+      parallel::stopCluster(cluster)
+    }
 
     preds_mean <- matrix(0, ncol = n_series, nrow = h)
     preds_upper <- matrix(0, ncol = n_series, nrow = h)
@@ -148,23 +189,39 @@ ridge2f <- function(y, h = 5,
 
     for (j in 1:n_series)
     {
-      sims_series_j <- sapply(1:B, function(i) sims[[i]][, j])
-      preds_mean[,j] <- rowMeans(sims_series_j)
-      preds_upper[,j] <- apply(sims_series_j, 1, function(x) quantile(x, probs = 1 - (1 - level/100)/2))
-      preds_lower[,j] <- apply(sims_series_j, 1, function(x) quantile(x, probs = (1 - level/100)/2))
+      sims_series_j <- sapply(1:B, function(i)
+        sims[[i]][, j])
+      preds_mean[, j] <- rowMeans(sims_series_j)
+      preds_upper[, j] <-
+        apply(sims_series_j, 1, function(x)
+          quantile(x, probs = 1 - (1 - level / 100) / 2))
+      preds_lower[, j] <-
+        apply(sims_series_j, 1, function(x)
+          quantile(x, probs = (1 - level / 100) / 2))
     }
 
-    out <- list(mean = ts(data = preds_mean,
-                          start = start_preds, frequency = freq_x),
-                lower = ts(data = preds_lower,
-                           start = start_preds, frequency = freq_x),
-                upper = ts(data = preds_upper,
-                           start = start_preds, frequency = freq_x),
-                sims = sims,
-                x = y,
-                level = level,
-                method = "ridge2",
-                residuals = fit_obj$resids)
+    out <- list(
+      mean = ts(
+        data = preds_mean,
+        start = start_preds,
+        frequency = freq_x
+      ),
+      lower = ts(
+        data = preds_lower,
+        start = start_preds,
+        frequency = freq_x
+      ),
+      upper = ts(
+        data = preds_upper,
+        start = start_preds,
+        frequency = freq_x
+      ),
+      sims = sims,
+      x = y,
+      level = level,
+      method = "ridge2",
+      residuals = fit_obj$resids
+    )
 
     return(structure(out, class = "mtsforecast"))
   }
@@ -186,7 +243,7 @@ fit_ridge2_mts <- function(x,
                            lambda_2 = 0.1,
                            seed = 1)
 {
-  stopifnot(floor(nb_hidden)==nb_hidden)
+  stopifnot(floor(nb_hidden) == nb_hidden)
   stopifnot(nb_hidden > 0)
   stopifnot(lambda_1 > 0 && lambda_2 > 0)
 
@@ -230,20 +287,20 @@ fit_ridge2_mts <- function(x,
   X <- as.matrix(scaled_regressors[, index])
 
   # transformed predictors (scaled)
-  Phi_X <- scaled_regressors[, -index]
+  Phi_X <- scaled_regressors[,-index]
 
   B <- crossprod(X) + lambda_1 * diag(k_p)
   C <- crossprod(Phi_X, X)
   D <- crossprod(Phi_X) + lambda_2 * diag(ncol(Phi_X))
   B_inv <- try(chol2inv(chol(B)), silent = TRUE)
-  if (class(B_inv)[1] == "try-error"){
+  if (class(B_inv)[1] == "try-error") {
     B_inv <- solve(B) #my_ginv(B)
   }
   W <- C %*% B_inv
   S_mat <- D - tcrossprod(W, C)
   S_inv <- my_ginv(S_mat)
   Y <- S_inv %*% W
-  inv <- rbind(cbind(B_inv + crossprod(W, Y),-t(Y)),
+  inv <- rbind(cbind(B_inv + crossprod(W, Y), -t(Y)),
                cbind(-Y, S_inv))
 
   lscoef <- inv %*% crossprod(scaled_regressors, centered_y)
@@ -287,15 +344,18 @@ fit_ridge2_mts <- function(x,
 
 # Forecasting function for ridge2
 fcast_ridge2_mts <- function(fit_obj,
-                          h = 5,
-                          type_forecast = c("recursive", "direct"),
-                          level = 95, # for gaussian p.i
-                          bootstrap = FALSE, # for bootstrap p.i
-                          seed=123) # for bootstrap p.i
+                             h = 5,
+                             type_forecast = c("recursive", "direct"),
+                             level = 95,
+                             # for gaussian p.i
+                             bootstrap = FALSE,
+                             # for bootstrap p.i
+                             seed = 123)
+  # for bootstrap p.i
 {
   type_forecast <- match.arg(type_forecast)
 
-  if(bootstrap == FALSE)
+  if (bootstrap == FALSE)
   {
     # 1 - recursive forecasts -------------------------------------------------
 
@@ -315,10 +375,10 @@ fcast_ridge2_mts <- function(fit_obj,
       {
         newx <- reformat_cpp(y, lags)
 
-        newx <- cbind(newx, matrix(g(my_scale(
-          newx, xm = nn_xm,
-          xsd = nn_xsd
-        ) %*% w), nrow = 1))
+        newx <- cbind(newx, matrix(g(
+          my_scale(newx, xm = nn_xm,
+                   xsd = nn_xsd) %*% w
+        ), nrow = 1))
 
         preds <- predict_myridge(fit_obj, newx = newx)
         y <- rbind_vecmat_cpp(preds, y)
@@ -343,34 +403,46 @@ fcast_ridge2_mts <- function(fit_obj,
       {
         newx <- reformat_cpp(y, lags)
 
-        newx <- cbind(newx, matrix(g(my_scale(
-          newx, xm = nn_xm,
-          xsd = nn_xsd
-        ) %*% w), nrow = 1))
+        newx <- cbind(newx, matrix(g(
+          my_scale(newx, xm = nn_xm,
+                   xsd = nn_xsd) %*% w
+        ), nrow = 1))
 
 
         preds <- predict_myridge(fit_obj, newx = newx)
         y <- rbind_vecmat_cpp(preds, y)
-        newtrainingx <- rbind(fit_obj$x, preds)[-1, ] # same window length as x
-        fit_obj <- fit_ridge2_mts(x = newtrainingx, lags = fit_obj$lags,
-                                  nb_hidden = fit_obj$nb_hidden,
-                                  nodes_sim = fit_obj$method, activ = fit_obj$activ_name,
-                                  a = fit_obj$a, lambda_1 = fit_obj$lambda_1, lambda_2 = fit_obj$lambda_2,
-                                  seed = fit_obj$seed)
+        newtrainingx <-
+          rbind(fit_obj$x, preds)[-1,] # same window length as x
+        fit_obj <-
+          fit_ridge2_mts(
+            x = newtrainingx,
+            lags = fit_obj$lags,
+            nb_hidden = fit_obj$nb_hidden,
+            nodes_sim = fit_obj$method,
+            activ = fit_obj$activ_name,
+            a = fit_obj$a,
+            lambda_1 = fit_obj$lambda_1,
+            lambda_2 = fit_obj$lambda_2,
+            seed = fit_obj$seed
+          )
       }
     }
 
     res2 <- rev_matrix_cpp(y)
     n <- nrow(res2)
-    res <- res2[(n - h + 1):n,]
+    res <- res2[(n - h + 1):n, ]
     colnames(res) <- fit_obj$series_names
     return(res)
 
-  } else { # if bootstrap == TRUE
+  } else {
+    # if bootstrap == TRUE
 
     # sampling from the residuals
     set.seed(seed)
-    idx <- sample.int(n=nrow(fit_obj$resids), size=h, replace = TRUE)
+    idx <-
+      sample.int(n = nrow(fit_obj$resids),
+                 size = h,
+                 replace = TRUE)
 
     # 1 - recursive forecasts -------------------------------------------------
 
@@ -390,12 +462,13 @@ fcast_ridge2_mts <- function(fit_obj,
       {
         newx <- reformat_cpp(y, lags)
 
-        newx <- cbind(newx, matrix(g(my_scale(
-          newx, xm = nn_xm,
-          xsd = nn_xsd
-        ) %*% w), nrow = 1))
+        newx <- cbind(newx, matrix(g(
+          my_scale(newx, xm = nn_xm,
+                   xsd = nn_xsd) %*% w
+        ), nrow = 1))
 
-        preds <- predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i], ]
+        preds <-
+          predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i],]
         y <- rbind_vecmat_cpp(preds, y)
       }
     }
@@ -418,26 +491,35 @@ fcast_ridge2_mts <- function(fit_obj,
       {
         newx <- reformat_cpp(y, lags)
 
-        newx <- cbind(newx, matrix(g(my_scale(
-          newx, xm = nn_xm,
-          xsd = nn_xsd
-        ) %*% w), nrow = 1))
+        newx <- cbind(newx, matrix(g(
+          my_scale(newx, xm = nn_xm,
+                   xsd = nn_xsd) %*% w
+        ), nrow = 1))
 
 
-        preds <- predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i], ]
+        preds <-
+          predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i],]
         y <- rbind_vecmat_cpp(preds, y)
-        newtrainingx <- rbind(fit_obj$x, preds)[-1, ] # same window length as x
-        fit_obj <- fit_ridge2_mts(x = newtrainingx, lags = fit_obj$lags,
-                                  nb_hidden = fit_obj$nb_hidden,
-                                  nodes_sim = fit_obj$method, activ = fit_obj$activ_name,
-                                  a = fit_obj$a, lambda_1 = fit_obj$lambda_1, lambda_2 = fit_obj$lambda_2,
-                                  seed = fit_obj$seed)
+        newtrainingx <-
+          rbind(fit_obj$x, preds)[-1,] # same window length as x
+        fit_obj <-
+          fit_ridge2_mts(
+            x = newtrainingx,
+            lags = fit_obj$lags,
+            nb_hidden = fit_obj$nb_hidden,
+            nodes_sim = fit_obj$method,
+            activ = fit_obj$activ_name,
+            a = fit_obj$a,
+            lambda_1 = fit_obj$lambda_1,
+            lambda_2 = fit_obj$lambda_2,
+            seed = fit_obj$seed
+          )
       }
     }
 
     res2 <- rev_matrix_cpp(y)
     n <- nrow(res2)
-    res <- res2[(n - h + 1):n,]
+    res <- res2[(n - h + 1):n, ]
     colnames(res) <- fit_obj$series_names
     return(res)
   }
