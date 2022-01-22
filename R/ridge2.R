@@ -77,7 +77,7 @@ ridge2f <- function(y,
                     type_pi = c("gaussian", "bootstrap"),
                     seed = 1,
                     B = 100,
-                    cl = NULL)
+                    cl = 1L)
 {
   if (!is.ts(y))
   {
@@ -145,7 +145,7 @@ ridge2f <- function(y,
 
   if (type_pi == "bootstrap")
   {
-    if (is.null(cl))
+    if (cl <= 1L)
     {
       sims <- lapply(1:B,
                      function(i)
