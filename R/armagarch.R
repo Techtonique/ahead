@@ -36,7 +36,7 @@ armagarchf <- function(y,
                        h = 5,
                        level = 95,
                        B = 250,
-                       cl = NULL,
+                       cl = 1L,
                        dist = c("student", "gaussian"),
                        seed = 123) {
   dist <- match.arg(dist)
@@ -64,7 +64,7 @@ armagarchf <- function(y,
 
 
   # Forecasting using simulation
-  if (is.null(cl))
+  if (cl <= 1L)
   {
     res <-
       sapply(1:B, function(x)
