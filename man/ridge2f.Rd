@@ -20,7 +20,7 @@ ridge2f(
   type_pi = c("gaussian", "bootstrap"),
   seed = 1,
   B = 100,
-  cl = NULL
+  cl = 1L
 )
 }
 \arguments{
