@@ -98,6 +98,8 @@ fit_params = list(kernel = "linear"), predict_func = predict))
 ```
 
 
+For more advanced examples on `dynrmf`, you can read this  [blog post](https://thierrymoudiki.github.io/blog/2021/12/20/r/forecasting/ahead-more-examples).
+
 # Multivariate time series 
 
 In this section, we illustrate `ridge2f` and `varf` forecasting. Do not hesitate 
