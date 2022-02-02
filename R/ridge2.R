@@ -374,6 +374,8 @@ fcast_ridge2_mts <- function(fit_obj,
     if (type_forecast == "recursive")
     {
       # observed values (minus lagged) in decreasing order (most recent first)
+      y_mat <- rbind(matrix(NA, nrow = h, ncol = ncol(fit_obj$y)),
+                     fit_obj$y)
       y <- fit_obj$y
       lags <- fit_obj$lags
       nn_xm <- fit_obj$nn_xm
@@ -384,15 +386,24 @@ fcast_ridge2_mts <- function(fit_obj,
 
       for (i in 1:h)
       {
+        # newx <- reformat_cpp(y, lags)
+        #
+        # newx <- cbind(newx, matrix(g(
+        #   my_scale(newx, xm = nn_xm,
+        #            xsd = nn_xsd) %*% w
+        # ), nrow = 1))
+        #
+        # preds <- predict_myridge(fit_obj, newx = newx)
+        # y <- rbind_vecmat_cpp(preds, y)
+
         newx <- reformat_cpp(y, lags)
 
         newx <- cbind(newx, matrix(g(
           my_scale(newx, xm = nn_xm,
                    xsd = nn_xsd) %*% w
         ), nrow = 1))
-
-        preds <- predict_myridge(fit_obj, newx = newx)
-        y <- rbind_vecmat_cpp(preds, y)
+        y_mat[h - i + 1, ] <- predict_myridge(fit_obj, newx = newx)
+        y <- y_mat[complete.cases(y_mat), ]
       }
     }
 
@@ -462,6 +473,8 @@ fcast_ridge2_mts <- function(fit_obj,
     {
       # observed values (minus lagged) in decreasing order (most recent first)
       y <- fit_obj$y
+      y_mat <- rbind(matrix(NA, nrow = h, ncol = ncol(fit_obj$y)),
+                     fit_obj$y)
       lags <- fit_obj$lags
       nn_xm <- fit_obj$nn_xm
       nn_xsd <- fit_obj$nn_xsd
@@ -471,16 +484,25 @@ fcast_ridge2_mts <- function(fit_obj,
 
       for (i in 1:h)
       {
+        # newx <- reformat_cpp(y, lags)
+        #
+        # newx <- cbind(newx, matrix(g(
+        #   my_scale(newx, xm = nn_xm,
+        #            xsd = nn_xsd) %*% w
+        # ), nrow = 1))
+        #
+        # preds <-
+        #   predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i],]
+        # y <- rbind_vecmat_cpp(preds, y)
+
         newx <- reformat_cpp(y, lags)
 
         newx <- cbind(newx, matrix(g(
           my_scale(newx, xm = nn_xm,
                    xsd = nn_xsd) %*% w
         ), nrow = 1))
-
-        preds <-
-          predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i],]
-        y <- rbind_vecmat_cpp(preds, y)
+        y_mat[h - i + 1, ] <- predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i],]
+        y <- y_mat[complete.cases(y_mat), ]
       }
     }
 
