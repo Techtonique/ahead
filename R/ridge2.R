@@ -368,7 +368,7 @@ fcast_ridge2_mts <- function(fit_obj,
 
   if (bootstrap == FALSE)
   {
-    # 1 - recursive forecasts -------------------------------------------------
+    # 1 - recursive forecasts (bootstrap == FALSE) -------------------------------------------------
 
     # recursive forecasts
     if (type_forecast == "recursive")
@@ -396,7 +396,7 @@ fcast_ridge2_mts <- function(fit_obj,
       }
     }
 
-    # 2 - direct forecasts -------------------------------------------------
+    # 2 - direct forecasts (bootstrap == FALSE) -------------------------------------------------
 
     # direct forecasts
     if (type_forecast == "direct")
@@ -455,7 +455,7 @@ fcast_ridge2_mts <- function(fit_obj,
                  size = h,
                  replace = TRUE)
 
-    # 1 - recursive forecasts -------------------------------------------------
+    # 1 - recursive forecasts (bootstrap == TRUE) -------------------------------------------------
 
     # recursive forecasts
     if (type_forecast == "recursive")
@@ -484,7 +484,7 @@ fcast_ridge2_mts <- function(fit_obj,
       }
     }
 
-    # 2 - direct forecasts -------------------------------------------------
+  # 2 - direct forecasts (bootstrap == TRUE) -------------------------------------------------
 
     # direct forecasts
     if (type_forecast == "direct")
