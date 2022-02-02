@@ -2,6 +2,7 @@
 
 - add dropout regularization to `ridge2f`
 - parallel execution for `type_pi == bootstrap` in `ridge2f` (done in R /!\, experimental)
+- preallocate matrices for `type_forecast == recursive` in `ridge2f`
 
 # version 0.4.2
 
