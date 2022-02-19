@@ -31,6 +31,7 @@ basicf <- function(y,
   stopifnot(!is.null(ncol(y)))
   n_series <- ncol(y)
   series_names <- colnames(y)
+  n_inputs <- nrow(y)
   type_pi <- match.arg(type_pi)
   freq_x <- frequency(y)
   start_x <- start(y)
@@ -38,26 +39,22 @@ basicf <- function(y,
 
   if (type_pi == "bootstrap")
   {
-    if (method == "mean")
-    {
-      point_forecast <- colMeans(y)
-      fcast <- t(replicate(h, point_forecast))
-      resids <- NA
-    }
+    point_forecast <- switch(method,
+                             mean = colMeans(y),
+                             median = apply(y, 2, median),
+                             rw = y[nrow(y), ])
 
-    if (method == "median")
-    {
-      point_forecast <- apply(y, 2, median)
-      fcast <- t(replicate(h, point_forecast))
-      resids <- NA
-    }
+    # in sample
+    numeric_in_sample_fit <- ts(t(replicate(n_inputs, point_forecast)),
+                                start = start_x, frequency = freq_x)
+    resids <- y - numeric_in_sample_fit
 
-    if (method == "rw")
-    {
-      point_forecast <- y[nrow(y), ]
-      fcast <- t(replicate(h, point_forecast))
-      resids <- NA
-    }
+    # out-of-sample
+    numeric_fcast <- t(replicate(h, point_forecast))
+    fcast <- ts(numeric_fcast,
+                start = start_preds, frequency = freq_x) # 'mean' forecast
+
+    # return
   }
 
   if (type_pi == "gaussian")
