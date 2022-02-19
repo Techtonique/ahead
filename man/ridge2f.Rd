@@ -24,7 +24,7 @@ ridge2f(
 )
 }
 \arguments{
-\item{y}{A multivariate time series of class \code{ts}}
+\item{y}{A multivariate time series of class \code{ts}  or a matrix}
 
 \item{h}{Forecasting horizon}
 
@@ -48,7 +48,7 @@ ridge2f(
 
 \item{type_forecast}{Recursive or direct forecast}
 
-\item{type_pi}{currently "gaussian" or "bootstrap"}
+\item{type_pi}{type of prediction interval currently "gaussian" or "bootstrap"}
 
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
 

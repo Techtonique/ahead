@@ -1,5 +1,7 @@
 docs
 inst/doc
+.DS_Store
+.Rhistory
 .Rproj.user
 .Rproj.user/
 .Rproj.user/**

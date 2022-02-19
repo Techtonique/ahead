@@ -4,7 +4,7 @@
 #'
 #' Random Vector functional link network model with 2 regularization parameters
 #'
-#' @param y A multivariate time series of class \code{ts}
+#' @param y A multivariate time series of class \code{ts}  or a matrix
 #' @param h Forecasting horizon
 #' @param level Confidence level for prediction intervals
 #' @param lags Number of lags
@@ -17,7 +17,7 @@
 #' @param dropout dropout regularization parameter (dropping nodes in hidden layer)
 #' @param seed Reproducibility seed for `nodes_sim == unif`
 #' @param type_forecast Recursive or direct forecast
-#' @param type_pi currently "gaussian" or "bootstrap"
+#' @param type_pi type of prediction interval currently "gaussian" or "bootstrap"
 #' @param seed reproducibility seed for \code{type_pi == 'bootstrap'}
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'}
 #' @param cl an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'}
