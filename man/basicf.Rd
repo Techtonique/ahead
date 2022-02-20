@@ -2,14 +2,14 @@
 % Please edit documentation in R/basic.R
 \name{basicf}
 \alias{basicf}
-\title{Basic forecasting ("mean", "median", "rw")}
+\title{Basic forecasting (mean, median, random walk)}
 \usage{
 basicf(
   y,
   h = 5,
   level = 95,
   method = c("mean", "median", "rw"),
-  type_pi = c("bootstrap", "gaussian"),
+  type_pi = c("gaussian", "bootstrap"),
   seed = 1,
   B = 100
 )
@@ -23,7 +23,7 @@ basicf(
 
 \item{method}{forecasting method, either "mean", "median", or random walk ("rw")}
 
-\item{type_pi}{type of prediction interval currently, "bootstrap"}
+\item{type_pi}{type of prediction interval currently, "gaussian" or "bootstrap"}
 
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
 
@@ -34,4 +34,19 @@ basicf(
 }
 \description{
 Basic forecasting functions for multivariate time series
+}
+\examples{
+
+res <- ahead::basicf(fpp::insurance, h=10)
+par(mfrow=c(1, 2))
+plot(res, "TV.advert")
+plot(res, "Quotes")
+
+
+res <- ahead::basicf(fpp::insurance, method="rw", h=10)
+par(mfrow=c(1, 2))
+plot(res, "TV.advert")
+plot(res, "Quotes")
+
+
 }
