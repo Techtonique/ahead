@@ -294,11 +294,11 @@ fit_ridge2_mts <- function(x,
   Phi_X <- dropout_layer(scaled_regressors[,-index],
                          dropout = dropout, seed=seed)
   # no column with only zeros allowed
-  if (all(colSums(Phi_X == 0) != nrow(Phi_X)) == FALSE)
-  {
-    warning("dropping too much columns, dropout set to 0")
-    Phi_X <- scaled_regressors[,-index]
-  }
+  #if (all(colSums(Phi_X == 0) != nrow(Phi_X)) == FALSE)
+  #{
+  #  warning("dropping too much columns, dropout set to 0")
+  #  Phi_X <- scaled_regressors[,-index]
+  #}
 
   B <- crossprod(X) + lambda_1 * diag(k_p)
   C <- crossprod(Phi_X, X)
