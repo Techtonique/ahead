@@ -93,10 +93,11 @@ basicf <- function(y,
     for (i in 1:B)
     {
       # sampling from the residuals
-      set.seed(seed + i*100)
+      set.seed(seed + i*100 + nchar(method))
       idx <- sample.int(n = nrow(resids),
                         size = h, replace = TRUE)
-      sims[[i]] <- fcast + ts(resids[idx, ],
+
+      sims[[i]] <- ts(as.matrix(fcast) + as.matrix(resids[idx, ]),
                       start = start_preds,
                       frequency = freq_x)
     }
