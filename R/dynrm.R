@@ -269,33 +269,34 @@ dynrm_fit <- function(y,
   # Remove missing values if present
   j <- complete.cases(lags.X, y)
   X_j <- as.matrix(lags.X[j, , drop = FALSE])
-  if (!is.null(centers))
-  {
-    # cat("X_j", "\n")
-    # print(head(X_j))
-    # cat("\n")
-    if(ncol(X_j) > 1)
-    {
-      # print(dim(X_j))
-       print("here")
-      fit_cclust <- cclust::cclust(X_j, centers = centers,
-                                   iter.max = 20)
-      X_j <- cbind(X_j, fit_cclust$cluster)
-    } else {
-       print("here2")
-      # cat("X_j", "\n")
-      # print(head(X_j))
-      # cat("\n")
-      (fit_cclust <- cclust::cclust(cbind(rep(1L, nrow(X_j)), X_j),
-                                    centers = centers,
-                                    iter.max = 20))
-      X_j <- cbind(X_j, fit_cclust$cluster)
-      # cat("X_j", "\n")
-      # print(head(X_j))
-      # cat("\n")
-    }
 
-  }
+  # if (!is.null(centers))
+  # {
+  #   # cat("X_j", "\n")
+  #   # print(head(X_j))
+  #   # cat("\n")
+  #   if(ncol(X_j) > 1)
+  #   {
+  #     # print(dim(X_j))
+  #      print("here")
+  #     fit_cclust <- cclust::cclust(X_j, centers = centers,
+  #                                  iter.max = 20)
+  #     X_j <- cbind(X_j, fit_cclust$cluster)
+  #   } else {
+  #      print("here2")
+  #     # cat("X_j", "\n")
+  #     # print(head(X_j))
+  #     # cat("\n")
+  #     (fit_cclust <- cclust::cclust(cbind(rep(1L, nrow(X_j)), X_j),
+  #                                   centers = centers,
+  #                                   iter.max = 20))
+  #     X_j <- cbind(X_j, fit_cclust$cluster)
+  #     # cat("X_j", "\n")
+  #     # print(head(X_j))
+  #     # cat("\n")
+  #   }
+  #
+  # }
 
   ## Stop if there's no data to fit (e.g. due to NAs or NaNs)
   if (NROW(X_j) == 0) {
@@ -383,11 +384,11 @@ dynrm_fit <- function(y,
   out$series <- yname
   out$method <- paste("DynRM ", p, sep = "")
   out$sigma <- sd(out$residuals)
-  if (!is.null(centers))
-  {
-    out$centers <- centers
-    out$fit_cclust <- fit_cclust
-  }
+  # if (!is.null(centers))
+  # {
+  #   out$centers <- centers
+  #   out$fit_cclust <- fit_cclust
+  # }
 
   if (P > 0) {
     out$method <- paste(out$method, ",", P, sep = "")

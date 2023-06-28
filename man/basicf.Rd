@@ -29,9 +29,6 @@ basicf(
 
 \item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'}}
 }
-\value{
-
-}
 \description{
 Basic forecasting functions for multivariate time series
 }

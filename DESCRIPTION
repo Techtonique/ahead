@@ -1,15 +1,15 @@
 Package: ahead
 Type: Package
 Title: Time series forecasting
-Version: 0.6.0
-Date: 2022-02-20
+Version: 0.6.1
+Date: 2022-06-29
 Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
 Description: Univariate and multivariate time series forecasting.
 License: BSD_3_clause Clear + file LICENSE
-Imports: Rcpp (>= 1.0.6), forecast, vars, randtoolbox, cclust, fGarch, foreach
+Imports: Rcpp (>= 1.0.6), forecast, vars, randtoolbox, fGarch, foreach
 LinkingTo: Rcpp
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.2
 Suggests: 
     knitr,
     rmarkdown,

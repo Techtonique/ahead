@@ -158,6 +158,18 @@ mbb <- function(r, n, b, seed=123)
   return(ts(drop(x), start = start_r, frequency = freq_r))
 }
 
+# adapted from package forecast
+mbb2 <- function (x, window_size)
+{
+  bx <- array(0, (floor(length(x)/window_size) + 2) * window_size)
+  for (i in 1:(floor(length(x)/window_size) + 2)) {
+    c <- sample(1:(length(x) - window_size + 1), 1)
+    bx[((i - 1) * window_size + 1):(i * window_size)] <- x[c:(c +
+                                                                window_size - 1)]
+  }
+  start_from <- sample(0:(window_size - 1), 1) + 1
+  bx[start_from:(start_from + length(x) - 1)]
+}
 
 #  MASS::ginv
 my_ginv <- function(X, tol = sqrt(.Machine$double.eps))
