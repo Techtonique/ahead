@@ -1,10 +1,11 @@
-# version 0.6.0
-
-- Include basic methods: mean forecast, median forecast, random walk forecast
 # version 0.6.1
 
 - Align version with Python's 
 - Temporarily remove dependency with `cclust`
+
+# version 0.6.0
+
+- Include basic methods: mean forecast, median forecast, random walk forecast
 
 # version 0.5.0
 
