@@ -22,3 +22,8 @@ loessf(
 \description{
 Loess forecasting
 }
+\examples{
+
+plot(loessf(Nile, h=20, level=95))
+
+}

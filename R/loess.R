@@ -14,6 +14,9 @@
 #' @export
 #'
 #' @examples
+#'
+#' plot(loessf(Nile, h=20, level=95))
+#'
 loessf <- function(y, h = 5, level = 95,
                    span = 0.75, degree = 2,
                    b = NULL, B = 250,
