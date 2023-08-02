@@ -466,6 +466,11 @@ fcast_ridge2_mts <- function(fit_obj,
                  size = h,
                  replace = TRUE)
 
+    #idx <-
+    #  mbb(r = nrow(fit_obj$resids),
+    #     n = h,
+    #      b = 6) #le b est la taille du block
+
     # 1 - recursive forecasts (bootstrap == TRUE) -------------------------------------------------
 
     # recursive forecasts
