@@ -4,7 +4,8 @@
 #'
 #' Random Vector functional link network model with 2 regularization parameters
 #'
-#' @param y A multivariate time series of class \code{ts}  or a matrix
+#' @param y A multivariate time series of class \code{ts} (preferred) or a \code{matrix}
+#' @param xreg External regressors. A data.frame (preferred) or a \code{matrix}
 #' @param h Forecasting horizon
 #' @param level Confidence level for prediction intervals
 #' @param lags Number of lags
@@ -62,6 +63,7 @@
 #' plot(res, "consumption")
 #'
 ridge2f <- function(y,
+                    xreg = NULL,
                     h = 5,
                     level = 95,
                     lags = 1,
@@ -83,6 +85,19 @@ ridge2f <- function(y,
   {
     y <- ts(y)
   }
+
+  if (!is.null(xreg))
+  {
+    stopifnot(nrow(xreg) == nrow(y))
+    n_xreg <- dim(xreg)[2]
+    if (is.null(colnames(xreg)))
+    {
+      colnames(xreg) <- paste0("xreg_", 1:n_xreg)
+    } else {
+      colnames(xreg) <- paste0("xreg_", colnames(xreg))
+    }
+  }
+
   stopifnot(!is.null(ncol(y)))
   n_series <- ncol(y)
   series_names <- colnames(y)
@@ -386,16 +401,6 @@ fcast_ridge2_mts <- function(fit_obj,
 
       for (i in 1:h)
       {
-        # newx <- reformat_cpp(y, lags)
-        #
-        # newx <- cbind(newx, matrix(g(
-        #   my_scale(newx, xm = nn_xm,
-        #            xsd = nn_xsd) %*% w
-        # ), nrow = 1))
-        #
-        # preds <- predict_myridge(fit_obj, newx = newx)
-        # y <- rbind_vecmat_cpp(preds, y)
-
         newx <- reformat_cpp(y, lags)
 
         newx <- cbind(newx, matrix(g(
@@ -484,17 +489,6 @@ fcast_ridge2_mts <- function(fit_obj,
 
       for (i in 1:h)
       {
-        # newx <- reformat_cpp(y, lags)
-        #
-        # newx <- cbind(newx, matrix(g(
-        #   my_scale(newx, xm = nn_xm,
-        #            xsd = nn_xsd) %*% w
-        # ), nrow = 1))
-        #
-        # preds <-
-        #   predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i],]
-        # y <- rbind_vecmat_cpp(preds, y)
-
         newx <- reformat_cpp(y, lags)
 
         newx <- cbind(newx, matrix(g(

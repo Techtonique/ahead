@@ -105,6 +105,12 @@ create_new_predictors <- function(x,
   }
 }
 
+# delete columns using a string pattern
+delete_columns <- function(x, pattern)
+{
+  x[ , !grepl(pattern = pattern, x = colnames(x))]
+}
+
 # dropout regularization
 dropout_layer <- function(X, dropout=0, seed=123)
 {

@@ -6,6 +6,7 @@
 \usage{
 ridge2f(
   y,
+  xreg = NULL,
   h = 5,
   level = 95,
   lags = 1,
@@ -24,7 +25,9 @@ ridge2f(
 )
 }
 \arguments{
-\item{y}{A multivariate time series of class \code{ts}  or a matrix}
+\item{y}{A multivariate time series of class \code{ts} (preferred) or a \code{matrix}}
+
+\item{xreg}{External regressors. A data.frame (preferred) or a \code{matrix}}
 
 \item{h}{Forecasting horizon}
 
