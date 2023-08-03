@@ -12,12 +12,25 @@ loessf(
   degree = 2,
   b = NULL,
   B = 250,
-  seed = 123,
-  type_boot = c("pkgforecast", "pkgahead")
+  seed = 123
 )
 }
 \arguments{
-\item{seed}{}
+\item{y}{A numeric vector or time series of class \code{ts}}
+
+\item{h}{Forecasting horizon}
+
+\item{level}{Confidence level for prediction intervals}
+
+\item{span}{the parameter which controls the degree of smoothing}
+
+\item{degree}{the degree of the polynomials to be used, normally 1 or 2. (Degree 0 is also allowed, but see \code{stats::loess})}
+
+\item{b}{block length for circular block bootstrap}
+
+\item{B}{number of bootstrap replications}
+
+\item{seed}{reproducibility seed}
 }
 \description{
 Loess forecasting

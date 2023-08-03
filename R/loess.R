@@ -1,14 +1,14 @@
 
 #' Loess forecasting
 #'
-#' @param y
-#' @param h
-#' @param level
-#' @param span
-#' @param degree
-#' @param b
-#' @param B
-#' @param seed
+#' @param y A numeric vector or time series of class \code{ts}
+#' @param h Forecasting horizon
+#' @param level Confidence level for prediction intervals
+#' @param span the parameter which controls the degree of smoothing
+#' @param degree the degree of the polynomials to be used, normally 1 or 2. (Degree 0 is also allowed, but see \code{stats::loess})
+#' @param b block length for circular block bootstrap
+#' @param B number of bootstrap replications
+#' @param seed reproducibility seed
 #'
 #' @return
 #' @export
@@ -20,8 +20,7 @@
 loessf <- function(y, h = 5, level = 95,
                    span = 0.75, degree = 2,
                    b = NULL, B = 250,
-                   seed = 123,
-                   type_boot = c("pkgforecast", "pkgahead"))
+                   seed = 123)
 {
   # adapted from forecast:::bld.mbb.bootstrap ---
   freq_y <- frequency(y)
@@ -32,20 +31,18 @@ loessf <- function(y, h = 5, level = 95,
     b <- ifelse(freq_y > 1, 2 * freq_y, min(8, floor(length(y)/2)))
   }
 
-  type_boot <- match.arg(type_boot)
-
   # start and frequency for returned result
   tspy <- tsp(as.ts(y))
   start_preds <- tspy[2] + 1 / tspy[3]
 
   # Adjust
-  input_times <- time(y)
+  input_times <- stats::time(y)
   fit_loess <- stats::loess(value ~ time,
                data = cbind.data.frame(time = input_times,
                                        value = y),
                span = span,
                degree = degree,
-               control = loess.control(surface = "direct"))
+               control = stats::loess.control(surface = "direct"))
   resids <- ts(stats::residuals(fit_loess), start = start(y),
                frequency = freq_y)
   fitted_values <- ts(stats::fitted(fit_loess), start = start(y),
@@ -69,13 +66,12 @@ loessf <- function(y, h = 5, level = 95,
              start = start_preds,
              frequency = freq_y)
 
-  if (type_boot == "pkgahead")
-  {
     for (i in 1:B)
     {
       # sampling from the residuals
       bootstrapped_residuals <- ts(drop(mbb(r = matrix(resids, ncol = 1),
-                                            n = h, b = b, seed=100*i+3)),
+                                            n = h, b = b, seed=100*i+3,
+                                            return_indices=FALSE)),
                                    start = start_preds,
                                    frequency = freq_y)
 
@@ -83,23 +79,23 @@ loessf <- function(y, h = 5, level = 95,
                              start = start_preds,
                              frequency = freq_y)
     }
-  }
 
-  if (type_boot == "pkgforecast")
-  {
-    for (i in 1:B)
-    {
-    # sampling from the residuals
-    bootstrapped_residuals <- ts(mbb2(x = resids,
-                                      window_size = b),
-                                 start = start_preds,
-                                 frequency = freq_y)
-
-    simulations[, i] <- ts(fcast + bootstrapped_residuals,
-                           start = start_preds,
-                           frequency = freq_y)
-    }
-  }
+  # if (type_boot == "pkgforecast")
+  # {
+  #   for (i in 1:B)
+  #   {
+  #   # sampling from the residuals
+  #   bootstrapped_residuals <- ts(mbb2(x = matrix(resids, ncol = 1),
+  #                                     window_size = b,
+  #                                     return_indices=FALSE), # this doesn't work (one more step's needed)
+  #                                start = start_preds,
+  #                                frequency = freq_y)
+  #
+  #   simulations[, i] <- ts(fcast + bootstrapped_residuals,
+  #                          start = start_preds,
+  #                          frequency = freq_y)
+  #   }
+  # }
 
   preds_upper <-  preds_lower <- rep(0, h)
 

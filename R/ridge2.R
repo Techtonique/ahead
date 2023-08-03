@@ -1,5 +1,7 @@
 
 
+
+
 #' Ridge2 model
 #'
 #' Random Vector functional link network model with 2 regularization parameters
@@ -18,10 +20,10 @@
 #' @param dropout dropout regularization parameter (dropping nodes in hidden layer)
 #' @param seed Reproducibility seed for `nodes_sim == unif`
 #' @param type_forecast Recursive or direct forecast
-#' @param type_pi type of prediction interval currently "gaussian" or "bootstrap"
-#' @param seed reproducibility seed for \code{type_pi == 'bootstrap'}
-#' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'}
-#' @param cl an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'}
+#' @param type_pi type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"
+#' @param seed reproducibility seed for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
+#' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
+#' @param cl an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
 #'
@@ -32,7 +34,7 @@
 #' \item{x}{The original time series}
 #' \item{residuals}{Residuals from the fitted model}
 #' \item{coefficients}{Regression coefficients for \code{type_pi == 'gaussian'} for now}
-#' \item{sims}{Model simulations for \code{type_pi == bootstrap}}
+#' \item{sims}{Model simulations for bootstrapping (basic, or block)}
 #'
 #' @author T. Moudiki
 #'
@@ -56,11 +58,26 @@
 #' plot(res, "Quotes")
 #' plot(res, "TV.advert")
 #'
-#' res <- ahead::ridge2f(fpp::usconsumption, h=20, lags=2,
+#' # include a trend (just for the example)
+#' xreg <- as.numeric(time(fpp::insurance))
+#' res2 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+#' h=10, lags=2)
+#' par(mfrow=c(1, 2))
+#' plot(res2, "Quotes")
+#' plot(res2, "TV.advert")
+#'
+#' xreg <- as.numeric(time(fpp::insurance))
+#' res3 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+#'                       h=10, lags=1L, type_pi = "bootstrap", B=10)
+#' par(mfrow=c(1, 2))
+#' plot(res3, "Quotes")
+#' plot(res3, "TV.advert")
+#'
+#' res4 <- ahead::ridge2f(fpp::usconsumption, h=20, lags=2L,
 #' lambda_2=1)
 #' par(mfrow=c(1, 2))
-#' plot(res, "income")
-#' plot(res, "consumption")
+#' plot(res4, "income")
+#' plot(res4, "consumption")
 #'
 ridge2f <- function(y,
                     xreg = NULL,
@@ -76,30 +93,53 @@ ridge2f <- function(y,
                     lambda_2 = 0.1,
                     dropout = 0,
                     type_forecast = c("recursive", "direct"),
-                    type_pi = c("gaussian", "bootstrap"),
+                    type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
                     seed = 1,
-                    B = 100,
+                    B = 100L,
                     cl = 1L)
 {
+  stopifnot(!is.null(ncol(y)))
+
+  stopifnot(floor(lags) == lags)
+
+  n_series <- ncol(y)
+
+  colnames_y <- colnames(y)
+  if (is.null(colnames_y))
+  {
+    colnames_y <- colnames(y) <- paste0("y", 1:n_series)
+  }
+
   if (!is.ts(y))
   {
     y <- ts(y)
   }
 
+  use_xreg <- FALSE
+
   if (!is.null(xreg))
   {
+    if (is.null(ncol(xreg)))
+      xreg <- as.matrix(xreg)
+
     stopifnot(nrow(xreg) == nrow(y))
+
+    use_xreg <- TRUE
+
     n_xreg <- dim(xreg)[2]
-    if (is.null(colnames(xreg)))
+    colnames_xreg <- colnames(xreg)
+    if (is.null(colnames_xreg))
     {
       colnames(xreg) <- paste0("xreg_", 1:n_xreg)
+      colnames_xreg <- colnames(xreg)
     } else {
-      colnames(xreg) <- paste0("xreg_", colnames(xreg))
+      colnames(xreg) <- paste0("xreg_", colnames_xreg)
+      colnames_xreg <- colnames(xreg)
     }
+    y <- cbind(y, xreg)
+    colnames(y) <- c(colnames_y, colnames_xreg)
   }
 
-  stopifnot(!is.null(ncol(y)))
-  n_series <- ncol(y)
   series_names <- colnames(y)
   type_pi <- match.arg(type_pi)
   freq_x <- frequency(y)
@@ -137,7 +177,7 @@ ridge2f <- function(y,
       frequency = freq_x
     )
 
-    # strong gaussian assumption
+    # strong Gaussian assumption
     sds <- apply(fit_obj$resids, 2, sd)
     qtsd <- -qnorm(0.5 - level / 200) * sds
     qtsd <- t(replicate(nrow(preds), qtsd))
@@ -154,6 +194,20 @@ ridge2f <- function(y,
       residuals = fit_obj$resids,
       coefficients = fit_obj$coef
     )
+
+    if (use_xreg)
+    {
+      for (i in 1:length(out))
+      {
+        try_delete_xreg <-
+          try(delete_columns(out[[i]], "xreg_"), silent = TRUE)
+        if (!inherits(try_delete_xreg, "try-error") &&
+            !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_xreg
+        }
+      }
+    }
 
     return(structure(out, class = "mtsforecast"))
   }
@@ -189,6 +243,7 @@ ridge2f <- function(y,
                 h = h,
                 type_forecast = type_forecast,
                 bootstrap = TRUE,
+                type_bootstrap = "bootstrap",
                 seed = seed + i * 100
               ),
               start = start_preds,
@@ -198,12 +253,23 @@ ridge2f <- function(y,
       parallel::stopCluster(cluster)
     }
 
-    preds_mean <- matrix(0, ncol = n_series, nrow = h)
-    preds_upper <- matrix(0, ncol = n_series, nrow = h)
-    preds_lower <- matrix(0, ncol = n_series, nrow = h)
-    colnames(preds_mean) <- series_names
-    colnames(preds_upper) <- series_names
-    colnames(preds_lower) <- series_names
+    if (use_xreg)
+    {
+      n_series_with_xreg <- n_series + n_xreg
+      preds_mean <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+      preds_upper <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+      preds_lower <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+      colnames(preds_mean) <- series_names
+      colnames(preds_upper) <- series_names
+      colnames(preds_lower) <- series_names
+    } else {
+      preds_mean <- matrix(0, ncol = n_series, nrow = h)
+      preds_upper <- matrix(0, ncol = n_series, nrow = h)
+      preds_lower <- matrix(0, ncol = n_series, nrow = h)
+      colnames(preds_mean) <- series_names
+      colnames(preds_upper) <- series_names
+      colnames(preds_lower) <- series_names
+    }
 
     for (j in 1:n_series)
     {
@@ -241,7 +307,42 @@ ridge2f <- function(y,
       residuals = fit_obj$resids
     )
 
+    if (use_xreg)
+    {
+      names_out <- names(out)
+      for (i in 1:length(out))
+      {
+        try_delete_xreg <- try(delete_columns(out[[i]], "xreg_"),
+                               silent = TRUE)
+        if (!inherits(try_delete_xreg, "try-error") && !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_xreg
+        } else {
+          if (identical(names_out[i], "sims")) # too much ifs man
+          {
+            # with simulations, it's a bit more tedious
+            for (j in 1:B)
+            {
+              try_delete_xreg_sims <- try(delete_columns(out$sims[[j]], "xreg_"),
+                                          silent = TRUE)
+              if (!inherits(try_delete_xreg_sims, "try-error"))
+              {
+                out$sims[[j]] <- try_delete_xreg_sims
+              }
+            }
+          }
+        }
+      }
+    }
+
     return(structure(out, class = "mtsforecast"))
+  }
+
+  if (type_pi == "blockbootstrap")
+  {
+    # do something here
+    # use function `mbb` from utils.R; now has an option `return_indices`
+    # use `fcast_ridge2_mts` (now has an option `type_bootstrap`)
   }
 
 }
@@ -307,13 +408,7 @@ fit_ridge2_mts <- function(x,
 
   # transformed predictors (scaled)
   Phi_X <- dropout_layer(scaled_regressors[,-index],
-                         dropout = dropout, seed=seed)
-  # no column with only zeros allowed
-  #if (all(colSums(Phi_X == 0) != nrow(Phi_X)) == FALSE)
-  #{
-  #  warning("dropping too much columns, dropout set to 0")
-  #  Phi_X <- scaled_regressors[,-index]
-  #}
+                         dropout = dropout, seed = seed)
 
   B <- crossprod(X) + lambda_1 * diag(k_p)
   C <- crossprod(Phi_X, X)
@@ -373,11 +468,9 @@ fcast_ridge2_mts <- function(fit_obj,
                              h = 5,
                              type_forecast = c("recursive", "direct"),
                              level = 95,
-                             # for gaussian p.i
                              bootstrap = FALSE,
-                             # for bootstrap p.i
+                             type_bootstrap = c("bootstrap", "blockbootstrap"),
                              seed = 123)
-  # for bootstrap p.i
 {
   type_forecast <- match.arg(type_forecast)
 
@@ -463,13 +556,28 @@ fcast_ridge2_mts <- function(fit_obj,
 
   } else {
     # if bootstrap == TRUE
+    type_bootstrap <- match.arg(type_bootstrap)
 
     # sampling from the residuals
-    set.seed(seed)
-    idx <-
-      sample.int(n = nrow(fit_obj$resids),
-                 size = h,
-                 replace = TRUE)
+    if (type_bootstrap == "bootstrap")
+    {
+      set.seed(seed)
+      idx <-
+        sample.int(
+          n = nrow(fit_obj$resids),
+          size = h,
+          replace = TRUE
+        )
+    }
+
+    # sampling from the residuals
+    if (type_bootstrap == "blockbootstrap")
+    {
+      # do something here
+      # use function `mbb` from utils.R; now has an option `return_indices`
+      # `fcast_ridge2_mts` now has an option `type_bootstrap`
+    }
+
 
     # 1 - recursive forecasts (bootstrap == TRUE) -------------------------------------------------
 
@@ -495,12 +603,13 @@ fcast_ridge2_mts <- function(fit_obj,
           my_scale(newx, xm = nn_xm,
                    xsd = nn_xsd) %*% w
         ), nrow = 1))
-        y_mat[h - i + 1, ] <- predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i],]
+        y_mat[h - i + 1, ] <-
+          predict_myridge(fit_obj, newx = newx) + fit_obj$resids[idx[i],]
         y <- y_mat[complete.cases(y_mat), ]
       }
     }
 
-  # 2 - direct forecasts (bootstrap == TRUE) -------------------------------------------------
+    # 2 - direct forecasts (bootstrap == TRUE) -------------------------------------------------
 
     # direct forecasts
     if (type_forecast == "direct")

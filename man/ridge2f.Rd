@@ -18,9 +18,9 @@ ridge2f(
   lambda_2 = 0.1,
   dropout = 0,
   type_forecast = c("recursive", "direct"),
-  type_pi = c("gaussian", "bootstrap"),
+  type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
   seed = 1,
-  B = 100,
+  B = 100L,
   cl = 1L
 )
 }
@@ -51,13 +51,13 @@ ridge2f(
 
 \item{type_forecast}{Recursive or direct forecast}
 
-\item{type_pi}{type of prediction interval currently "gaussian" or "bootstrap"}
+\item{type_pi}{type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"}
 
-\item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
+\item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
 
-\item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'}}
+\item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
 
-\item{cl}{an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'}}
+\item{cl}{an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
 }
 \value{
 An object of class "mtsforecast"; a list containing the following elements:
@@ -69,7 +69,7 @@ An object of class "mtsforecast"; a list containing the following elements:
 \item{x}{The original time series}
 \item{residuals}{Residuals from the fitted model}
 \item{coefficients}{Regression coefficients for \code{type_pi == 'gaussian'} for now}
-\item{sims}{Model simulations for \code{type_pi == bootstrap}}
+\item{sims}{Model simulations for bootstrapping (basic, or block)}
 }
 \description{
 Random Vector functional link network model with 2 regularization parameters
@@ -86,11 +86,26 @@ par(mfrow=c(1, 2))
 plot(res, "Quotes")
 plot(res, "TV.advert")
 
-res <- ahead::ridge2f(fpp::usconsumption, h=20, lags=2,
+# include a trend (just for the example)
+xreg <- as.numeric(time(fpp::insurance))
+res2 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+h=10, lags=2)
+par(mfrow=c(1, 2))
+plot(res2, "Quotes")
+plot(res2, "TV.advert")
+
+xreg <- as.numeric(time(fpp::insurance))
+res3 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+                      h=10, lags=1L, type_pi = "bootstrap", B=10)
+par(mfrow=c(1, 2))
+plot(res3, "Quotes")
+plot(res3, "TV.advert")
+
+res4 <- ahead::ridge2f(fpp::usconsumption, h=20, lags=2L,
 lambda_2=1)
 par(mfrow=c(1, 2))
-plot(res, "income")
-plot(res, "consumption")
+plot(res4, "income")
+plot(res4, "consumption")
 
 }
 \references{

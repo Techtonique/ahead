@@ -111,7 +111,7 @@ predict.ridge <- function(object, newx)
     res <- try(drop(base::scale(newx, center=object$xm,
                                 scale=object$xsd)%*%object$coef[,which.min(object$GCV)] + object$ym),
                silent = TRUE)
-    if (class(res) == "try-error")
+    if (inherits(res, "try-error"))
     {
       res <- try(drop(base::scale(newx, center=object$xm,
                                   scale=object$xsd)%*%object$coef[which.min(object$GCV)] + object$ym),
@@ -135,7 +135,7 @@ predict.ridge <- function(object, newx)
 #     res <- try(drop(base::scale(newx, center=object$xm,
 #                                 scale=object$xsd)%*%object$coef[,which.min(object$GCV)] + object$ym),
 #                silent = TRUE)
-#     if (class(res) == "try-error")
+#     if (inherits(res, "try-error"))
 #     {
 #       res <- try(drop(base::scale(newx, center=object$xm,
 #                                   scale=object$xsd)%*%object$coef[which.min(object$GCV)] + object$ym),
