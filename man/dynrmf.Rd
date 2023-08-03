@@ -18,7 +18,7 @@ dynrmf(
 )
 }
 \arguments{
-\item{y}{A numeric vector or time series of class ts}
+\item{y}{A numeric vector or time series of class \code{ts}}
 
 \item{h}{Forecasting horizon}
 

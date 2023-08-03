@@ -53,7 +53,8 @@ create_new_predictors <- function(x,
                                            with_index = TRUE)
       hidden_layer <- hidden_layer_obj$mat
 
-    } else { # hidden_layer_bias == TRUE
+    } else {
+      # hidden_layer_bias == TRUE
       pp <- p + 1
       # used for columns sample and for 'method == unif'
       set.seed(seed + 1)
@@ -69,16 +70,18 @@ create_new_predictors <- function(x,
       ))
 
       scaled_x <- my_scale(x)
-      hidden_layer_obj <- remove_zero_cols(g(cbind(1, scaled_x$res) %*% w),
-                                           with_index = TRUE)
+      hidden_layer_obj <-
+        remove_zero_cols(g(cbind(1, scaled_x$res) %*% w),
+                         with_index = TRUE)
       hidden_layer <- hidden_layer_obj$mat
     }
 
     res <- cbind(x, hidden_layer)
     nb_nodes <- ncol(hidden_layer)
     if (!is.null(nb_nodes))
-      colnames(res) <- c(paste0("x", 1:p), # maybe use the real names
-                         paste0("h", 1:nb_nodes))
+      colnames(res) <-
+      c(paste0("x", 1:p), # maybe use the real names
+        paste0("h", 1:nb_nodes))
 
 
     # if nb_hidden > 0 && (nb_predictors >= 2 && col_sample < 1)
@@ -92,7 +95,8 @@ create_new_predictors <- function(x,
         hidden_layer_index = hidden_layer_obj$index
       )
     )
-  } else {# if nb_hidden <= 0
+  } else {
+    # if nb_hidden <= 0
     scaled_x <- my_scale(x)
     return(
       list(
@@ -105,8 +109,14 @@ create_new_predictors <- function(x,
   }
 }
 
+# delete columns using a string pattern
+delete_columns <- function(x, pattern)
+{
+  x[,!grepl(pattern = pattern, x = colnames(x))]
+}
+
 # dropout regularization
-dropout_layer <- function(X, dropout=0, seed=123)
+dropout_layer <- function(X, dropout = 0, seed = 123)
 {
   stopifnot(dropout <= 0.8)
   stopifnot(dropout >= 0)
@@ -117,14 +127,21 @@ dropout_layer <- function(X, dropout=0, seed=123)
     n_rows <- dim(X)[1]
     n_columns <- dim(X)[2]
     set.seed(seed)
-    mask <- (matrix(runif(n_rows*n_columns),
-                   nrow = n_rows, ncol = n_columns) > dropout)
-    return(X*mask/(1 - dropout))
+    mask <- (matrix(
+      runif(n_rows * n_columns),
+      nrow = n_rows,
+      ncol = n_columns
+    ) > dropout)
+    return(X * mask / (1 - dropout))
   }
 }
 
-# Multivariate block boostrap
-mbb <- function(r, n, b, seed=123)
+# Multivariate circular block bootstrap (adapted from NMOF book -- Matlab code)
+mbb <- function(r,
+                n,
+                b,
+                seed = 123,
+                return_indices = FALSE)
 {
   nT <- dim(r)[1]
   k <- dim(r)[2]
@@ -138,38 +155,71 @@ mbb <- function(r, n, b, seed=123)
 
   set.seed(seed)
 
-  nb <- ceiling(n/b) # number of bootstrap reps
-  js <- floor(runif(n = nb)*nT) # starting points - 1
+  nb <- ceiling(n / b) # number of bootstrap reps
+  js <- floor(runif(n = nb) * nT) # starting points - 1
 
-  x <- matrix(NA, nrow = nb*b, ncol = k)
-
-  for (i in 1:nb)
+  if (return_indices)
   {
-    j <- ((js[i] + 1:b)%%nT) + 1 #positions in original data
-    s <- (1:b) + (i-1)*b
-    x[s, ] <- r[j, ]
+    indices <- vector("list", nb)
+    for (i in 1:nb)
+    {
+      j <- ((js[i] + 1:b) %% nT) + 1 #positions in original data
+      indices[[i]] <- j
+    }
+    return(unlist(indices))
+  } else {
+    x <- matrix(NA, nrow = nb * b, ncol = k)
+    for (i in 1:nb)
+    {
+      j <- ((js[i] + 1:b) %% nT) + 1 #positions in original data
+      s <- (1:b) + (i - 1) * b
+      x[s,] <- r[j,]
+    }
   }
 
-  if (nb*n > n) # correct length if nb*b > n
+  if (nb * n > n)
+    # correct length if nb*b > n
   {
-    return(ts(drop(x[1:n,]), start = start_r, frequency = freq_r))
+    return(ts(drop(x[1:n, ]), start = start_r, frequency = freq_r))
   }
 
   return(ts(drop(x), start = start_r, frequency = freq_r))
 }
 
-# adapted from package forecast
-mbb2 <- function (x, window_size)
-{
-  bx <- array(0, (floor(length(x)/window_size) + 2) * window_size)
-  for (i in 1:(floor(length(x)/window_size) + 2)) {
-    c <- sample(1:(length(x) - window_size + 1), 1)
-    bx[((i - 1) * window_size + 1):(i * window_size)] <- x[c:(c +
-                                                                window_size - 1)]
-  }
-  start_from <- sample(0:(window_size - 1), 1) + 1
-  bx[start_from:(start_from + length(x) - 1)]
-}
+# adapted from R package forecast (based on Bergmeir et al., 2016, IJF paper)
+# mbb2 <- function (x, window_size, seed = 123, return_indices = FALSE)
+# {
+#   stopifnot(!is.null(ncol(x)))
+#   n_series <- dim(x)[2]
+#   n_obs_series <- dim(x)[1]
+#   set.seed(seed)
+#   n_buckets_indices <- floor(n_obs_series / window_size) + 2
+#   bx <- matrix(0, nrow = n_buckets_indices * window_size,
+#                ncol = n_series)
+#   if (return_indices)
+#   {
+#     indices <- vector("list", n_buckets_indices)
+#
+#     for (i in 1:n_buckets_indices) {
+#       c_ <- sample(1:(n_obs_series - window_size + 1), 1)
+#       j <- c_:(c_ + window_size - 1) #positions in original data
+#       indices[[i]] <- j # this doesn't work (one more step's needed)
+#     }
+#
+#     return(unlist(indices))
+#
+#   } else {
+#
+#     for (i in 1:n_buckets_indices) {
+#       c_ <- sample(1:(n_obs_series - window_size + 1), 1)
+#       bx[((i - 1) * window_size + 1):(i * window_size), ] <- x[c_:(c_ +
+#                                                                     window_size - 1), ]
+#     }
+#   }
+#
+#   start_from <- sample(0:(window_size - 1), 1) + 1
+#   return(bx[start_from:(start_from + n_obs_series - 1), ])
+# }
 
 #  MASS::ginv
 my_ginv <- function(X, tol = sqrt(.Machine$double.eps))
@@ -183,14 +233,14 @@ my_ginv <- function(X, tol = sqrt(.Machine$double.eps))
   Positive <- Xsvd$d > max(tol * Xsvd$d[1L], 0)
   if (all(Positive))
   {
-    return(crossprod(Xsvd$vt, (1/Xsvd$d * t(Xsvd$u))))
+    return(crossprod(Xsvd$vt, (1 / Xsvd$d * t(Xsvd$u))))
   }
-  else if(!any(Positive))
+  else if (!any(Positive))
   {
     return(array(0, dim(X)[2L:1L]))
   }
   else {
-    return(crossprod(Xsvd$vt[, Positive, drop = FALSE], ((1/Xsvd$d[Positive]) *
+    return(crossprod(Xsvd$vt[, Positive, drop = FALSE], ((1 / Xsvd$d[Positive]) *
                                                            t(Xsvd$u[, Positive, drop = FALSE]))))
   }
 }
@@ -203,31 +253,33 @@ my_scale <- function(x, xm = NULL, xsd = NULL)
   rep_1_n <- rep.int(1, dim(x)[1])
 
   # centering and scaling, returning the means and sd's
-  if(is.null(xm) && is.null(xsd))
+  if (is.null(xm) && is.null(xsd))
   {
     xm <- colMeans(x)
     xsd <- my_sd(x)
-    return(list(res = (x - tcrossprod(rep_1_n, xm))/tcrossprod(rep_1_n, xsd),
-                xm = xm,
-                xsd = xsd))
+    return(list(
+      res = (x - tcrossprod(rep_1_n, xm)) / tcrossprod(rep_1_n, xsd),
+      xm = xm,
+      xsd = xsd
+    ))
   }
 
   # centering and scaling
-  if(is.numeric(xm) && is.numeric(xsd))
+  if (is.numeric(xm) && is.numeric(xsd))
   {
-    return((x - tcrossprod(rep_1_n, xm))/tcrossprod(rep_1_n, xsd))
+    return((x - tcrossprod(rep_1_n, xm)) / tcrossprod(rep_1_n, xsd))
   }
 
   # centering only
-  if(is.numeric(xm) && is.null(xsd))
+  if (is.numeric(xm) && is.null(xsd))
   {
     return(x - tcrossprod(rep_1_n, xm))
   }
 
   # scaling only
-  if(is.null(xm) && is.numeric(xsd))
+  if (is.null(xm) && is.numeric(xsd))
   {
-    return(x/tcrossprod(rep_1_n, xsd))
+    return(x / tcrossprod(rep_1_n, xsd))
   }
 }
 my_scale <- compiler::cmpfun(my_scale)
@@ -237,7 +289,9 @@ my_scale <- compiler::cmpfun(my_scale)
 my_sd <- function(x)
 {
   n <- dim(x)[1]
-  return(drop(rep(1/(n-1), n) %*% (x - tcrossprod(rep.int(1, n), colMeans(x)))^2)^0.5)
+  return(drop(rep(1 / (n - 1), n) %*% (x - tcrossprod(
+    rep.int(1, n), colMeans(x)
+  )) ^ 2) ^ 0.5)
 }
 my_sd <- compiler::cmpfun(my_sd)
 
@@ -245,8 +299,9 @@ my_sd <- compiler::cmpfun(my_sd)
 # Ridge regression prediction
 predict_myridge <- function(fit_obj, newx)
 {
-  my_scale(x = newx, xm = fit_obj$xm,
-           xsd = fit_obj$scales)%*%fit_obj$coef + fit_obj$ym
+  my_scale(x = newx,
+           xm = fit_obj$xm,
+           xsd = fit_obj$scales) %*% fit_obj$coef + fit_obj$ym
 }
 
 

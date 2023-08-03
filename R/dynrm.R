@@ -4,7 +4,7 @@
 #'
 #' Adapted from forecast::nnetar, with alternative fitting functions (see examples)
 #'
-#' @param y A numeric vector or time series of class ts
+#' @param y A numeric vector or time series of class \code{ts}
 #' @param h Forecasting horizon
 #' @param level Confidence level for prediction intervals
 #' @param fit_func Fitting function (Statistical/ML model). Default is Ridge regression.
@@ -350,7 +350,7 @@ dynrm_fit <- function(y,
   fits <- try(drop(predict_func(fit,
                            newdata = X_j)),
               silent = TRUE)
-  if (class(fits) == "try-error" || is.null(fits))
+  if (inherits(fits, "try-error") || is.null(fits))
   {
     fits <- try(drop(predict_func(fit,
                              newx = X_j)),
@@ -514,12 +514,12 @@ dynrm_predict <- function(out,
       preds <- try(as.numeric(out$predict_func(out$model,
                                                newdata = newdata_)[1]), # do not change (ever)
                    silent = TRUE)
-      if (class(preds) == "try-error")
+      if (inherits(preds, "try-error"))
       {
         preds <- try(as.numeric(out$predict_func(out$model,
                                                  newx = newdata_)[1]), # do not change (ever)
                      silent = TRUE)
-        if (class(preds) == "try-error")
+        if (inherits(preds, "try-error"))
         {
           preds <- NA
         }

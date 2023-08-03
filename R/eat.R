@@ -56,6 +56,8 @@
 #'
 #'require(forecast)
 #'
+#'\dontrun{
+#'
 #'print(ahead::eatf(WWWusage, method = "EAT",
 #'weights = c(0.5, 0, 0.5)))
 #'
@@ -71,6 +73,8 @@
 #'obj <- ahead::eatf(WWWusage, method = "EAT",
 #'weights = c(0, 0.5, 0.5), h=10, type_pi="A")
 #'plot(obj)
+#'
+#'}
 #'
 #'
 #' par(mfrow=c(3, 2))
