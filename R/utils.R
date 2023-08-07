@@ -149,7 +149,8 @@ mbb <- function(r,
   freq_r <- stats::frequency(r)
   start_r <- stats::start(r)
 
-  stopifnot(b > 1)
+  # use rlang::abort
+  stopifnot((b > 1) && (b < nT) && identical(floor(b), b))
 
   # circular block bootstrap
 

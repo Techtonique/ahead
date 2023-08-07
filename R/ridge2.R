@@ -21,6 +21,7 @@
 #' @param seed Reproducibility seed for `nodes_sim == unif`
 #' @param type_forecast Recursive or direct forecast
 #' @param type_pi type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"
+#' @param block_length length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})
 #' @param seed reproducibility seed for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
 #' @param cl an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
@@ -94,6 +95,7 @@ ridge2f <- function(y,
                     dropout = 0,
                     type_forecast = c("recursive", "direct"),
                     type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+                    block_length = NULL,
                     seed = 1,
                     B = 100L,
                     cl = 1L)
@@ -340,6 +342,10 @@ ridge2f <- function(y,
 
   if (type_pi == "blockbootstrap")
   {
+    # use `rlang::abort`
+    # beware, $residuals for out and $resids for fit_obj
+    stopifnot(!is.null(block_length))
+
     if (cl <= 1L)
     {
       sims <- lapply(1:B,
@@ -351,6 +357,7 @@ ridge2f <- function(y,
                            type_forecast = type_forecast,
                            bootstrap = TRUE,
                            type_bootstrap = "blockbootstrap",
+                           block_length = block_length,
                            seed = seed + i * 100
                          ),
                          start = start_preds,
@@ -371,6 +378,7 @@ ridge2f <- function(y,
                 type_forecast = type_forecast,
                 bootstrap = TRUE,
                 type_bootstrap = "blockbootstrap",
+                block_length = block_length,
                 seed = seed + i * 100
               ),
               start = start_preds,
@@ -379,7 +387,7 @@ ridge2f <- function(y,
         )
       parallel::stopCluster(cluster)
     }
-    
+
     if (use_xreg)
     {
       n_series_with_xreg <- n_series + n_xreg
@@ -397,7 +405,7 @@ ridge2f <- function(y,
       colnames(preds_upper) <- series_names
       colnames(preds_lower) <- series_names
     }
-    
+
     for (j in 1:n_series)
     {
       sims_series_j <- sapply(1:B, function(i)
@@ -410,7 +418,7 @@ ridge2f <- function(y,
         apply(sims_series_j, 1, function(x)
           quantile(x, probs = (1 - level / 100) / 2))
     }
-    
+
     out <- list(
       mean = ts(
         data = preds_mean,
@@ -433,7 +441,7 @@ ridge2f <- function(y,
       method = "ridge2",
       residuals = fit_obj$resids
     )
-    
+
     if (use_xreg)
     {
       names_out <- names(out)
@@ -461,7 +469,7 @@ ridge2f <- function(y,
         }
       }
     }
-    
+
     return(structure(out, class = "mtsforecast"))
   }
 
@@ -590,6 +598,7 @@ fcast_ridge2_mts <- function(fit_obj,
                              level = 95,
                              bootstrap = FALSE,
                              type_bootstrap = c("bootstrap", "blockbootstrap"),
+                             block_length = NULL,
                              seed = 123)
 {
   type_forecast <- match.arg(type_forecast)
@@ -678,7 +687,7 @@ fcast_ridge2_mts <- function(fit_obj,
     # if bootstrap == TRUE
     type_bootstrap <- match.arg(type_bootstrap)
 
-    # sampling from the residuals
+    # sampling from the residuals independently
     if (type_bootstrap == "bootstrap")
     {
       set.seed(seed)
@@ -690,18 +699,19 @@ fcast_ridge2_mts <- function(fit_obj,
         )
     }
 
-    # sampling from the residuals
+    # sampling from the residuals in blocks
     if (type_bootstrap == "blockbootstrap")
     {
+      # use `rlang::abort`
+      # beware, $residuals for out and $resids for fit_obj
+      stopifnot(!is.null(block_length))
+
       set.seed(seed)
-      # observed values (minus lagged) in decreasing order (most recent first) : fit_obj$y 
-      # we must choose this instead of fit_obj$x because as we invert the matrix at the end of the program
-      # The b argument is equal to 10 but is totally arbitrary
-      idx <-  
+      idx <-
         mbb(
-          r = fit_obj$y,
+          r = fit_obj$resids,
           n = h,
-          b = 10,
+          b = block_length,
           return_indices = TRUE
         )
     }
