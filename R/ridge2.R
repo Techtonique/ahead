@@ -67,12 +67,23 @@
 #' plot(res2, "Quotes")
 #' plot(res2, "TV.advert")
 #'
+#' # block bootstrap
 #' xreg <- as.numeric(time(fpp::insurance))
 #' res3 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
 #'                       h=10, lags=1L, type_pi = "bootstrap", B=10)
-#' par(mfrow=c(1, 2))
+#' res5 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+#'                       h=10, lags=1L, type_pi = "blockbootstrap", B=10,
+#'                       block_length = 4)
+#'
+#' print(res3$sims[[2]])
+#' print(res5$sims[[2]])
+#'
+#' par(mfrow=c(2, 2))
 #' plot(res3, "Quotes")
 #' plot(res3, "TV.advert")
+#' plot(res5, "Quotes")
+#' plot(res5, "TV.advert")
+#'
 #'
 #' res4 <- ahead::ridge2f(fpp::usconsumption, h=20, lags=2L,
 #' lambda_2=1)
@@ -691,12 +702,12 @@ fcast_ridge2_mts <- function(fit_obj,
     if (type_bootstrap == "bootstrap")
     {
       set.seed(seed)
-      idx <-
-        sample.int(
+      idx <- sample.int(
           n = nrow(fit_obj$resids),
           size = h,
           replace = TRUE
         )
+      # cat("idx in classic bootstrap: ", idx, "\n")
     }
 
     # sampling from the residuals in blocks
@@ -706,14 +717,14 @@ fcast_ridge2_mts <- function(fit_obj,
       # beware, $residuals for out and $resids for fit_obj
       stopifnot(!is.null(block_length))
 
-      set.seed(seed)
-      idx <-
-        mbb(
+      idx <- mbb(
           r = fit_obj$resids,
           n = h,
           b = block_length,
-          return_indices = TRUE
+          return_indices = TRUE,
+          seed = seed
         )
+      # cat("idx in blockbootstrap: ", idx, "\n")
     }
 
 

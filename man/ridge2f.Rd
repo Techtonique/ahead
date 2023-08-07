@@ -19,6 +19,7 @@ ridge2f(
   dropout = 0,
   type_forecast = c("recursive", "direct"),
   type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+  block_length = NULL,
   seed = 1,
   B = 100L,
   cl = 1L
@@ -52,6 +53,8 @@ ridge2f(
 \item{type_forecast}{Recursive or direct forecast}
 
 \item{type_pi}{type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"}
+
+\item{block_length}{length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
 
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
 
@@ -94,12 +97,23 @@ par(mfrow=c(1, 2))
 plot(res2, "Quotes")
 plot(res2, "TV.advert")
 
+# block bootstrap
 xreg <- as.numeric(time(fpp::insurance))
 res3 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
                       h=10, lags=1L, type_pi = "bootstrap", B=10)
-par(mfrow=c(1, 2))
+res5 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+                      h=10, lags=1L, type_pi = "blockbootstrap", B=10,
+                      block_length = 4)
+
+print(res3$sims[[2]])
+print(res5$sims[[2]])
+
+par(mfrow=c(2, 2))
 plot(res3, "Quotes")
 plot(res3, "TV.advert")
+plot(res5, "Quotes")
+plot(res5, "TV.advert")
+
 
 res4 <- ahead::ridge2f(fpp::usconsumption, h=20, lags=2L,
 lambda_2=1)

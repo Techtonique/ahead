@@ -146,9 +146,6 @@ mbb <- function(r,
   nT <- dim(r)[1]
   k <- dim(r)[2]
 
-  freq_r <- stats::frequency(r)
-  start_r <- stats::start(r)
-
   # use rlang::abort
   stopifnot((b > 1) && (b < nT) && identical(floor(b), b))
 
@@ -159,68 +156,29 @@ mbb <- function(r,
   nb <- ceiling(n / b) # number of bootstrap reps
   js <- floor(runif(n = nb) * nT) # starting points - 1
 
-  if (return_indices)
+  x <- matrix(NA, nrow = nb * b, ncol = k)
+  for (i in 1:nb)
   {
-    indices <- vector("list", nb)
-    for (i in 1:nb)
-    {
-      j <- ((js[i] + 1:b) %% nT) + 1 #positions in original data
-      indices[[i]] <- j
-    }
-    return(unlist(indices))
-  } else {
-    x <- matrix(NA, nrow = nb * b, ncol = k)
-    for (i in 1:nb)
-    {
-      j <- ((js[i] + 1:b) %% nT) + 1 #positions in original data
-      s <- (1:b) + (i - 1) * b
-      x[s,] <- r[j,]
-    }
+    j <- ((js[i] + 1:b) %% nT) + 1 #positions in original data
+    s <- (1:b) + (i - 1) * b
+    x[s,] <- r[j,]
   }
 
   if (nb * n > n)
     # correct length if nb*b > n
   {
-    return(ts(drop(x[1:n, ]), start = start_r, frequency = freq_r))
+    tmp <- drop(x[1:n, ])
+  } else {
+    tmp <- drop(x)
   }
 
-  return(ts(drop(x), start = start_r, frequency = freq_r))
+  if (return_indices)
+  {
+    return(arrayInd(match(tmp, r), .dim = dim(r))[1:nrow(tmp), 1])
+  } else {
+  return(tmp)
+  }
 }
-
-# adapted from R package forecast (based on Bergmeir et al., 2016, IJF paper)
-# mbb2 <- function (x, window_size, seed = 123, return_indices = FALSE)
-# {
-#   stopifnot(!is.null(ncol(x)))
-#   n_series <- dim(x)[2]
-#   n_obs_series <- dim(x)[1]
-#   set.seed(seed)
-#   n_buckets_indices <- floor(n_obs_series / window_size) + 2
-#   bx <- matrix(0, nrow = n_buckets_indices * window_size,
-#                ncol = n_series)
-#   if (return_indices)
-#   {
-#     indices <- vector("list", n_buckets_indices)
-#
-#     for (i in 1:n_buckets_indices) {
-#       c_ <- sample(1:(n_obs_series - window_size + 1), 1)
-#       j <- c_:(c_ + window_size - 1) #positions in original data
-#       indices[[i]] <- j # this doesn't work (one more step's needed)
-#     }
-#
-#     return(unlist(indices))
-#
-#   } else {
-#
-#     for (i in 1:n_buckets_indices) {
-#       c_ <- sample(1:(n_obs_series - window_size + 1), 1)
-#       bx[((i - 1) * window_size + 1):(i * window_size), ] <- x[c_:(c_ +
-#                                                                     window_size - 1), ]
-#     }
-#   }
-#
-#   start_from <- sample(0:(window_size - 1), 1) + 1
-#   return(bx[start_from:(start_from + n_obs_series - 1), ])
-# }
 
 #  MASS::ginv
 my_ginv <- function(X, tol = sqrt(.Machine$double.eps))
