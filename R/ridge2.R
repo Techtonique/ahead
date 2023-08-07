@@ -340,9 +340,129 @@ ridge2f <- function(y,
 
   if (type_pi == "blockbootstrap")
   {
-    # do something here
-    # use function `mbb` from utils.R; now has an option `return_indices`
-    # use `fcast_ridge2_mts` (now has an option `type_bootstrap`)
+    if (cl <= 1L)
+    {
+      sims <- lapply(1:B,
+                     function(i)
+                       ts(
+                         fcast_ridge2_mts(
+                           fit_obj,
+                           h = h,
+                           type_forecast = type_forecast,
+                           bootstrap = TRUE,
+                           type_bootstrap = "blockbootstrap",
+                           seed = seed + i * 100
+                         ),
+                         start = start_preds,
+                         frequency = freq_x
+                       ))
+    } else {
+      stopifnot(is.numeric(cl))
+      cluster <- parallel::makeCluster(getOption("cl.cores", cl))
+      sims <-
+        parallel::parLapply(
+          cl = cluster,
+          X = 1:B,
+          fun = function(i)
+            ts(
+              fcast_ridge2_mts(
+                fit_obj,
+                h = h,
+                type_forecast = type_forecast,
+                bootstrap = TRUE,
+                type_bootstrap = "blockbootstrap",
+                seed = seed + i * 100
+              ),
+              start = start_preds,
+              frequency = freq_x
+            )
+        )
+      parallel::stopCluster(cluster)
+    }
+    
+    if (use_xreg)
+    {
+      n_series_with_xreg <- n_series + n_xreg
+      preds_mean <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+      preds_upper <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+      preds_lower <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+      colnames(preds_mean) <- series_names
+      colnames(preds_upper) <- series_names
+      colnames(preds_lower) <- series_names
+    } else {
+      preds_mean <- matrix(0, ncol = n_series, nrow = h)
+      preds_upper <- matrix(0, ncol = n_series, nrow = h)
+      preds_lower <- matrix(0, ncol = n_series, nrow = h)
+      colnames(preds_mean) <- series_names
+      colnames(preds_upper) <- series_names
+      colnames(preds_lower) <- series_names
+    }
+    
+    for (j in 1:n_series)
+    {
+      sims_series_j <- sapply(1:B, function(i)
+        sims[[i]][, j])
+      preds_mean[, j] <- rowMeans(sims_series_j)
+      preds_upper[, j] <-
+        apply(sims_series_j, 1, function(x)
+          quantile(x, probs = 1 - (1 - level / 100) / 2))
+      preds_lower[, j] <-
+        apply(sims_series_j, 1, function(x)
+          quantile(x, probs = (1 - level / 100) / 2))
+    }
+    
+    out <- list(
+      mean = ts(
+        data = preds_mean,
+        start = start_preds,
+        frequency = freq_x
+      ),
+      lower = ts(
+        data = preds_lower,
+        start = start_preds,
+        frequency = freq_x
+      ),
+      upper = ts(
+        data = preds_upper,
+        start = start_preds,
+        frequency = freq_x
+      ),
+      sims = sims,
+      x = y,
+      level = level,
+      method = "ridge2",
+      residuals = fit_obj$resids
+    )
+    
+    if (use_xreg)
+    {
+      names_out <- names(out)
+      for (i in 1:length(out))
+      {
+        try_delete_xreg <- try(delete_columns(out[[i]], "xreg_"),
+                               silent = TRUE)
+        if (!inherits(try_delete_xreg, "try-error") && !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_xreg
+        } else {
+          if (identical(names_out[i], "sims")) # too much ifs man
+          {
+            # with simulations, it's a bit more tedious
+            for (j in 1:B)
+            {
+              try_delete_xreg_sims <- try(delete_columns(out$sims[[j]], "xreg_"),
+                                          silent = TRUE)
+              if (!inherits(try_delete_xreg_sims, "try-error"))
+              {
+                out$sims[[j]] <- try_delete_xreg_sims
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return(structure(out, class = "mtsforecast"))
   }
 
 }
@@ -573,9 +693,17 @@ fcast_ridge2_mts <- function(fit_obj,
     # sampling from the residuals
     if (type_bootstrap == "blockbootstrap")
     {
-      # do something here
-      # use function `mbb` from utils.R; now has an option `return_indices`
-      # `fcast_ridge2_mts` now has an option `type_bootstrap`
+      set.seed(seed)
+      # observed values (minus lagged) in decreasing order (most recent first) : fit_obj$y 
+      # we must choose this instead of fit_obj$x because as we invert the matrix at the end of the program
+      # The b argument is equal to 10 but is totally arbitrary
+      idx <-  
+        mbb(
+          r = fit_obj$y,
+          n = h,
+          b = 10,
+          return_indices = TRUE
+        )
     }
 
 
