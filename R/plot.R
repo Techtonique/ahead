@@ -24,7 +24,7 @@
 #'
 plot.mtsforecast <- function(x, selected_series, ...)
 {
-  if (methods::is(x, 'mtsforecast'))
+  if (inherits(x, 'mtsforecast'))
   {
     y <- x$x[, selected_series]
     mean_fcast <- x$mean[, selected_series]

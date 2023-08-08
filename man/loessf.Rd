@@ -32,11 +32,23 @@ loessf(
 
 \item{seed}{reproducibility seed}
 }
+\value{
+An object of class "forecast"; a list containing the following elements:
+
+\item{model}{A list containing information about the fitted model}
+\item{method}{The name of the forecasting method as a character string}
+\item{mean}{Point forecasts for the time series}
+\item{lower}{Lower bound for prediction interval}
+\item{upper}{Upper bound for prediction interval}
+\item{x}{The original time series}
+\item{residuals}{Residuals from the fitted model}
+\item{sims}{Model simulations for bootstrapping}
+}
 \description{
 Loess forecasting
 }
 \examples{
 
-plot(loessf(Nile, h=20, level=95))
+plot(loessf(Nile, h=20, level=95, B=10))
 
 }

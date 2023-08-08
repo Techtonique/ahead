@@ -69,10 +69,10 @@ An object of class "mtsforecast"; a list containing the following elements:
 \item{mean}{Point forecasts for the time series}
 \item{lower}{Lower bound for prediction interval}
 \item{upper}{Upper bound for prediction interval}
+\item{sims}{Model simulations for bootstrapping (basic, or block)}
 \item{x}{The original time series}
 \item{residuals}{Residuals from the fitted model}
 \item{coefficients}{Regression coefficients for \code{type_pi == 'gaussian'} for now}
-\item{sims}{Model simulations for bootstrapping (basic, or block)}
 }
 \description{
 Random Vector functional link network model with 2 regularization parameters

@@ -126,7 +126,7 @@ dynrm_fit <- function(y,
                       P = 1,
                       xreg = NULL,
                       fit_func = ahead::fit_ridge,
-                      predict_func = ahead::predict_ridge,
+                      predict_func = predict,
                       fit_params = NULL,
                       lambda = NULL, alpha = NULL,
                       scale_inputs = TRUE,
@@ -347,15 +347,14 @@ dynrm_fit <- function(y,
     #cat("\n")
 
   # Fitted values
-  fits <- try(drop(predict_func(fit,
-                           newdata = X_j)),
+  fits <- try(drop(predict_func(fit, newdata = X_j)),
               silent = TRUE)
   if (inherits(fits, "try-error") || is.null(fits))
   {
-    fits <- try(drop(predict_func(fit,
-                             newx = X_j)),
-                silent = TRUE)
-  }
+     fits <- try(drop(predict_func(fit,
+                              newx = X_j)),
+                 silent = TRUE)
+   }
 
    # cat("fits", "\n")
    # print(fits)

@@ -32,10 +32,10 @@
 #' \item{mean}{Point forecasts for the time series}
 #' \item{lower}{Lower bound for prediction interval}
 #' \item{upper}{Upper bound for prediction interval}
+#' \item{sims}{Model simulations for bootstrapping (basic, or block)}
 #' \item{x}{The original time series}
 #' \item{residuals}{Residuals from the fitted model}
 #' \item{coefficients}{Regression coefficients for \code{type_pi == 'gaussian'} for now}
-#' \item{sims}{Model simulations for bootstrapping (basic, or block)}
 #'
 #' @author T. Moudiki
 #'
@@ -225,7 +225,7 @@ ridge2f <- function(y,
     return(structure(out, class = "mtsforecast"))
   }
 
-  if (type_pi == "bootstrap")
+  if (type_pi %in% c("bootstrap", "blockbootstrap"))
   {
     if (cl <= 1L)
     {
@@ -237,137 +237,7 @@ ridge2f <- function(y,
                            h = h,
                            type_forecast = type_forecast,
                            bootstrap = TRUE,
-                           seed = seed + i * 100
-                         ),
-                         start = start_preds,
-                         frequency = freq_x
-                       ))
-    } else {
-      stopifnot(is.numeric(cl))
-      cluster <- parallel::makeCluster(getOption("cl.cores", cl))
-      sims <-
-        parallel::parLapply(
-          cl = cluster,
-          X = 1:B,
-          fun = function(i)
-            ts(
-              fcast_ridge2_mts(
-                fit_obj,
-                h = h,
-                type_forecast = type_forecast,
-                bootstrap = TRUE,
-                type_bootstrap = "bootstrap",
-                seed = seed + i * 100
-              ),
-              start = start_preds,
-              frequency = freq_x
-            )
-        )
-      parallel::stopCluster(cluster)
-    }
-
-    if (use_xreg)
-    {
-      n_series_with_xreg <- n_series + n_xreg
-      preds_mean <- matrix(0, ncol = n_series_with_xreg, nrow = h)
-      preds_upper <- matrix(0, ncol = n_series_with_xreg, nrow = h)
-      preds_lower <- matrix(0, ncol = n_series_with_xreg, nrow = h)
-      colnames(preds_mean) <- series_names
-      colnames(preds_upper) <- series_names
-      colnames(preds_lower) <- series_names
-    } else {
-      preds_mean <- matrix(0, ncol = n_series, nrow = h)
-      preds_upper <- matrix(0, ncol = n_series, nrow = h)
-      preds_lower <- matrix(0, ncol = n_series, nrow = h)
-      colnames(preds_mean) <- series_names
-      colnames(preds_upper) <- series_names
-      colnames(preds_lower) <- series_names
-    }
-
-    for (j in 1:n_series)
-    {
-      sims_series_j <- sapply(1:B, function(i)
-        sims[[i]][, j])
-      preds_mean[, j] <- rowMeans(sims_series_j)
-      preds_upper[, j] <-
-        apply(sims_series_j, 1, function(x)
-          quantile(x, probs = 1 - (1 - level / 100) / 2))
-      preds_lower[, j] <-
-        apply(sims_series_j, 1, function(x)
-          quantile(x, probs = (1 - level / 100) / 2))
-    }
-
-    out <- list(
-      mean = ts(
-        data = preds_mean,
-        start = start_preds,
-        frequency = freq_x
-      ),
-      lower = ts(
-        data = preds_lower,
-        start = start_preds,
-        frequency = freq_x
-      ),
-      upper = ts(
-        data = preds_upper,
-        start = start_preds,
-        frequency = freq_x
-      ),
-      sims = sims,
-      x = y,
-      level = level,
-      method = "ridge2",
-      residuals = fit_obj$resids
-    )
-
-    if (use_xreg)
-    {
-      names_out <- names(out)
-      for (i in 1:length(out))
-      {
-        try_delete_xreg <- try(delete_columns(out[[i]], "xreg_"),
-                               silent = TRUE)
-        if (!inherits(try_delete_xreg, "try-error") && !is.null(out[[i]]))
-        {
-          out[[i]] <- try_delete_xreg
-        } else {
-          if (identical(names_out[i], "sims")) # too much ifs man
-          {
-            # with simulations, it's a bit more tedious
-            for (j in 1:B)
-            {
-              try_delete_xreg_sims <- try(delete_columns(out$sims[[j]], "xreg_"),
-                                          silent = TRUE)
-              if (!inherits(try_delete_xreg_sims, "try-error"))
-              {
-                out$sims[[j]] <- try_delete_xreg_sims
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return(structure(out, class = "mtsforecast"))
-  }
-
-  if (type_pi == "blockbootstrap")
-  {
-    # use `rlang::abort`
-    # beware, $residuals for out and $resids for fit_obj
-    stopifnot(!is.null(block_length))
-
-    if (cl <= 1L)
-    {
-      sims <- lapply(1:B,
-                     function(i)
-                       ts(
-                         fcast_ridge2_mts(
-                           fit_obj,
-                           h = h,
-                           type_forecast = type_forecast,
-                           bootstrap = TRUE,
-                           type_bootstrap = "blockbootstrap",
+                           type_bootstrap = type_pi,
                            block_length = block_length,
                            seed = seed + i * 100
                          ),
@@ -388,7 +258,7 @@ ridge2f <- function(y,
                 h = h,
                 type_forecast = type_forecast,
                 bootstrap = TRUE,
-                type_bootstrap = "blockbootstrap",
+                type_bootstrap = type_pi,
                 block_length = block_length,
                 seed = seed + i * 100
               ),
@@ -695,38 +565,30 @@ fcast_ridge2_mts <- function(fit_obj,
     return(res)
 
   } else {
+
     # if bootstrap == TRUE
     type_bootstrap <- match.arg(type_bootstrap)
 
-    # sampling from the residuals independently
-    if (type_bootstrap == "bootstrap")
+    # sampling from the residuals independently or in blocks
+    if (type_bootstrap %in% c("bootstrap", "blockbootstrap"))
     {
+      if (type_bootstrap == "blockbootstrap")
+        stopifnot(!is.null(block_length)) # use rlang::abort
+
       set.seed(seed)
-      idx <- sample.int(
-          n = nrow(fit_obj$resids),
-          size = h,
-          replace = TRUE
-        )
-      # cat("idx in classic bootstrap: ", idx, "\n")
+      idx <- switch(type_bootstrap,
+                    bootstrap = sample.int(n = nrow(fit_obj$resids),
+                                           size = h,
+                                           replace = TRUE),
+                    blockbootstrap = mbb(
+                      r = fit_obj$resids,
+                      n = h,
+                      b = block_length,
+                      return_indices = TRUE,
+                      seed = seed
+                    ))
+      # cat("idx: ", idx, "\n")
     }
-
-    # sampling from the residuals in blocks
-    if (type_bootstrap == "blockbootstrap")
-    {
-      # use `rlang::abort`
-      # beware, $residuals for out and $resids for fit_obj
-      stopifnot(!is.null(block_length))
-
-      idx <- mbb(
-          r = fit_obj$resids,
-          n = h,
-          b = block_length,
-          return_indices = TRUE,
-          seed = seed
-        )
-      # cat("idx in blockbootstrap: ", idx, "\n")
-    }
-
 
     # 1 - recursive forecasts (bootstrap == TRUE) -------------------------------------------------
 

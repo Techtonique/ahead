@@ -10,12 +10,22 @@
 #' @param B number of bootstrap replications
 #' @param seed reproducibility seed
 #'
-#' @return
+#' @return An object of class "forecast"; a list containing the following elements:
+#'
+#' \item{model}{A list containing information about the fitted model}
+#' \item{method}{The name of the forecasting method as a character string}
+#' \item{mean}{Point forecasts for the time series}
+#' \item{lower}{Lower bound for prediction interval}
+#' \item{upper}{Upper bound for prediction interval}
+#' \item{x}{The original time series}
+#' \item{residuals}{Residuals from the fitted model}
+#' \item{sims}{Model simulations for bootstrapping}
+#'
 #' @export
 #'
 #' @examples
 #'
-#' plot(loessf(Nile, h=20, level=95))
+#' plot(loessf(Nile, h=20, level=95, B=10))
 #'
 loessf <- function(y, h = 5, level = 95,
                    span = 0.75, degree = 2,
@@ -80,23 +90,6 @@ loessf <- function(y, h = 5, level = 95,
                              frequency = freq_y)
     }
 
-  # if (type_boot == "pkgforecast")
-  # {
-  #   for (i in 1:B)
-  #   {
-  #   # sampling from the residuals
-  #   bootstrapped_residuals <- ts(mbb2(x = matrix(resids, ncol = 1),
-  #                                     window_size = b,
-  #                                     return_indices=FALSE), # this doesn't work (one more step's needed)
-  #                                start = start_preds,
-  #                                frequency = freq_y)
-  #
-  #   simulations[, i] <- ts(fcast + bootstrapped_residuals,
-  #                          start = start_preds,
-  #                          frequency = freq_y)
-  #   }
-  # }
-
   preds_upper <-  preds_lower <- rep(0, h)
 
   preds_mean <- ts(apply(simulations, 1, median),
@@ -129,3 +122,4 @@ loessf <- function(y, h = 5, level = 95,
   # 'forecast' must be in the environment
   return(structure(out, class = "forecast"))
 }
+

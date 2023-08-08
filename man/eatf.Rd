@@ -73,7 +73,6 @@ plot(obj)
 obj <- ahead::eatf(WWWusage, method = "EAT",
 weights = c(0, 0.5, 0.5), h=10, type_pi="A")
 plot(obj)
-
 }
 
 
@@ -84,6 +83,7 @@ plot(ahead::eatf(lynx, h=10, level=95, type_pi = "A"))
 plot(ahead::eatf(WWWusage, h=10, level=95, type_pi = "E"))
 plot(ahead::eatf(Nile, h=10, level=95))
 plot(ahead::eatf(fdeaths, h=10, level=95))
+
 
 }
 \references{
