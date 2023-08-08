@@ -1,3 +1,8 @@
+# version 0.6.2
+
+- Add Block Bootstrap to `ridge2f`
+- Add external regressors to `ridge2f`
+
 # version 0.6.1
 
 - Align version with Python's 
