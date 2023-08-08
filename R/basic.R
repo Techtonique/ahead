@@ -7,10 +7,21 @@
 #' @param level Confidence level for prediction intervals
 #' @param method forecasting method, either "mean", "median", or random walk ("rw")
 #' @param type_pi type of prediction interval currently, "gaussian" or "bootstrap"
+#' @param block_length length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})
 #' @param seed reproducibility seed for \code{type_pi == 'bootstrap'}
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'}
 #'
-#' @return
+#' @return An object of class "mtsforecast"; a list containing the following elements:
+#'
+#' \item{method}{The name of the forecasting method as a character string}
+#' \item{mean}{Point forecasts for the time series}
+#' \item{lower}{Lower bound for prediction interval}
+#' \item{upper}{Upper bound for prediction interval}
+#' \item{sims}{Model simulations for bootstrapping (basic, or block)}
+#' \item{x}{The original time series}
+#' \item{residuals}{Residuals from the fitted model}
+#' \item{coefficients}{Regression coefficients for \code{type_pi == 'gaussian'} for now}
+#'
 #' @export
 #'
 #' @examples
@@ -27,18 +38,37 @@
 #' plot(res, "Quotes")
 #'
 #'
+#' # block bootstrap
+#' res3 <- ahead::basicf(fpp::insurance, h=10, type_pi = "bootstrap", B=10)
+#' res5 <- ahead::basicf(fpp::insurance, h=10, type_pi = "blockbootstrap", B=10,
+#'                       block_length = 4)
+#'
+#' print(res3$sims[[2]])
+#' print(res5$sims[[2]])
+#'
+#' par(mfrow=c(2, 2))
+#' plot(res3, "Quotes")
+#' plot(res3, "TV.advert")
+#' plot(res5, "Quotes")
+#' plot(res5, "TV.advert")
+#'
 basicf <- function(y,
                    h = 5,
                    level = 95,
                    method = c("mean", "median", "rw"),
-                   type_pi = c("gaussian", "bootstrap"),
+                   type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+                   block_length = NULL,
                    seed = 1,
                    B = 100)
 {
+  stopifnot(!is.null(ncol(y)))
+
   if (!is.ts(y))
   {
     y <- ts(y)
   }
+
+  stopifnot(!is.null(ncol(y)))
 
   method <- match.arg(method)
   stopifnot(!is.null(ncol(y)))
@@ -87,15 +117,25 @@ basicf <- function(y,
     return(structure(out, class = "mtsforecast"))
   }
 
-  if (type_pi == "bootstrap")
+  if (type_pi %in% c("bootstrap", "blockbootstrap"))
   {
     sims <- vector("list", length = B)
     for (i in 1:B)
     {
       # sampling from the residuals
       set.seed(seed + i*100 + nchar(method))
-      idx <- sample.int(n = nrow(resids),
-                        size = h, replace = TRUE)
+
+      idx <- switch(type_pi,
+                    bootstrap = sample.int(n = nrow(resids),
+                        size = h, replace = TRUE),
+                    blockbootstrap = mbb(
+                      r = resids,
+                      n = h,
+                      b = block_length,
+                      return_indices = TRUE,
+                      seed = seed + i*100 + nchar(method)
+                    )
+      )
 
       sims[[i]] <- ts(as.matrix(fcast) + as.matrix(resids[idx, ]),
                       start = start_preds,

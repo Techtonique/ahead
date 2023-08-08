@@ -9,7 +9,8 @@ basicf(
   h = 5,
   level = 95,
   method = c("mean", "median", "rw"),
-  type_pi = c("gaussian", "bootstrap"),
+  type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+  block_length = NULL,
   seed = 1,
   B = 100
 )
@@ -25,9 +26,23 @@ basicf(
 
 \item{type_pi}{type of prediction interval currently, "gaussian" or "bootstrap"}
 
+\item{block_length}{length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
+
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
 
 \item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'}}
+}
+\value{
+An object of class "mtsforecast"; a list containing the following elements:
+
+\item{method}{The name of the forecasting method as a character string}
+\item{mean}{Point forecasts for the time series}
+\item{lower}{Lower bound for prediction interval}
+\item{upper}{Upper bound for prediction interval}
+\item{sims}{Model simulations for bootstrapping (basic, or block)}
+\item{x}{The original time series}
+\item{residuals}{Residuals from the fitted model}
+\item{coefficients}{Regression coefficients for \code{type_pi == 'gaussian'} for now}
 }
 \description{
 Basic forecasting functions for multivariate time series
@@ -45,5 +60,19 @@ par(mfrow=c(1, 2))
 plot(res, "TV.advert")
 plot(res, "Quotes")
 
+
+# block bootstrap
+res3 <- ahead::basicf(fpp::insurance, h=10, type_pi = "bootstrap", B=10)
+res5 <- ahead::basicf(fpp::insurance, h=10, type_pi = "blockbootstrap", B=10,
+                      block_length = 4)
+
+print(res3$sims[[2]])
+print(res5$sims[[2]])
+
+par(mfrow=c(2, 2))
+plot(res3, "Quotes")
+plot(res3, "TV.advert")
+plot(res5, "Quotes")
+plot(res5, "TV.advert")
 
 }
