@@ -1,7 +1,7 @@
 
 # ahead
 
-Time series (univariate and multivariate) forecasting
+Univariate and multivariate time series forecasting, with uncertainty quantification.
 
 
 ### Installation for R (Python is [here](https://github.com/Techtonique/ahead_python))
