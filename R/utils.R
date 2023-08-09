@@ -146,8 +146,8 @@ mbb <- function(r,
   nT <- dim(r)[1]
   k <- dim(r)[2]
 
-  # b <- (nT + 1)*runif(1); print(b); floor(min(max(2, b), nT - 1))
-  b <- floor(min(max(2, b), nT-1))
+  # b <- (nT + 1)*runif(1); print(b); floor(min(max(2L, b), nT - 1L))
+  b <- floor(min(max(2L, b), nT - 1L))
 
   # circular block bootstrap
 
