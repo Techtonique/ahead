@@ -146,8 +146,8 @@ mbb <- function(r,
   nT <- dim(r)[1]
   k <- dim(r)[2]
 
-  # use rlang::abort
-  stopifnot((b > 1) && (b < nT) && identical(floor(b), b))
+  # b <- (nT + 1)*runif(1); print(b); floor(min(max(2, b), nT - 1))
+  b <- floor(min(max(2, b), nT-1))
 
   # circular block bootstrap
 
