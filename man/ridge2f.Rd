@@ -22,7 +22,11 @@ ridge2f(
   block_length = NULL,
   seed = 1,
   B = 100L,
-  cl = 1L
+  type_aggregation = c("mean", "median"),
+  centers = NULL,
+  type_clustering = c("kmeans", "hclust"),
+  cl = 1L,
+  ...
 )
 }
 \arguments{
@@ -42,7 +46,7 @@ ridge2f(
 
 \item{activ}{Activation function}
 
-\item{a}{hyperparameter for activation function "leakyrelu", "elu"}
+\item{a}{Hyperparameter for activation function "leakyrelu", "elu"}
 
 \item{lambda_1}{Regularization parameter for original predictors}
 
@@ -52,15 +56,23 @@ ridge2f(
 
 \item{type_forecast}{Recursive or direct forecast}
 
-\item{type_pi}{type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"}
+\item{type_pi}{Type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"}
 
-\item{block_length}{length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
+\item{block_length}{Length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
 
-\item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
+\item{seed}{Reproducibility seed for random stuff}
 
 \item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
 
-\item{cl}{an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
+\item{type_aggregation}{Type of aggregation, ONLY for bootstrapping; either "mean" or "median"}
+
+\item{centers}{Number of clusters for \code{type_clustering}}
+
+\item{type_clustering}{"kmeans" (K-Means clustering) or "hclust" (Hierarchical clustering)}
+
+\item{cl}{An integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
+
+\item{...}{Additional parameters to be passed \code{\link{kmeans}} or \code{\link{hclust}}}
 }
 \value{
 An object of class "mtsforecast"; a list containing the following elements:

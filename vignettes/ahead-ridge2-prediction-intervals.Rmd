@@ -1,0 +1,311 @@
+---
+title: "Prediction intervals for multivariate time series (simulation-based)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Prediction intervals (simulation-based) in R package `ahead`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`ahead` is a package for **univariate** and **multivariate time series forecasting**, with uncertainty quantification (R and [Python](https://techtonique.github.io/ahead_python/)).
+
+The model used is in this demo is the one presented in [this paper](https://www.mdpi.com/2227-9091/6/1/22), and has actually been significantly improved since 2018, as you'll see here. 
+
+Currently for this model (as of 2023-08-12), for **uncertainty quantification**, options are a Gaussian distribution for the residuals or bootstrap aggregation:
+
+-   Gaussian
+-   Independent **bootstrap** 
+-   Multivariate circular **block bootstrap** 
+-   **More options to come** in the future.
+
+Please remember that _in real life_, this model's hyperparameters will have to be tuned.
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+**Contents:**
+
+-   0 - Install `ahead`
+-   1 - Prediction intervals based on **Gaussian** distribution (meh, but quick)
+-   2 - Prediction intervals based on **independent bootstrap**
+-   3 - Prediction intervals based on **block bootstrap**
+
+# 0 - Install `ahead`
+
+Here's how to install the R version of the package:
+
+-   **1st method**: from [R-universe](https://techtonique.r-universe.dev)
+
+    In R console:
+
+    ``` r
+    options(repos = c(
+        techtonique = 'https://techtonique.r-universe.dev',
+        CRAN = 'https://cloud.r-project.org'))
+
+    install.packages("ahead")
+    ```
+
+-   **2nd method**: from [Github](https://github.com/Techtonique/ahead)
+
+    In R console:
+
+    ``` r
+    devtools::install_github("Techtonique/ahead")
+    ```
+
+    Or
+
+    ``` r
+    remotes::install_github("Techtonique/ahead")
+    ```
+
+And here are the packages that will be used in this vignette:
+
+```{r include=FALSE}
+library(ahead)
+library(fpp)
+```
+
+``` r
+library(ahead)
+library(fpp)
+```
+
+# 1 - Prediction intervals based on Gaussian distribution (meh, but quick)
+
+## 1 - 1 With default parameters
+
+```{r "gaussian-default", fig.width=7.2}
+h <- 10L # forecasting horizon
+
+(res1 <- ahead::ridge2f(fpp::insurance, h = h))
+
+print(summary(res1$residuals))
+
+print(apply(res1$residuals, 2, function (x) Box.test(x)$p.value)) # stationarity is overrated?:)
+
+print(apply(res1$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res1, "Quotes")
+plot(res1, "TV.advert")
+```
+
+## 1 - 2 With external regressors
+
+```{r "gaussian-xreg", fig.width=7.2}
+xreg <- as.numeric(time(fpp::insurance))
+(res2 <- ahead::ridge2f(fpp::insurance, xreg = xreg, h = h))
+
+print(summary(res2$residuals))
+
+print(apply(res2$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res2$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res2, "Quotes")
+plot(res2, "TV.advert")
+```
+
+## 1 - 3 With external regressors and K-Means clustering
+
+```{r, "gaussian-xreg-kmeans", fig.width=7.2}
+centers <- 2L
+(res3 <- ahead::ridge2f(fpp::insurance, xreg = xreg, centers = centers, h = h))
+
+print(summary(res3$residuals))
+
+print(apply(res3$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res3$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res3, "Quotes")
+plot(res3, "TV.advert")
+```
+
+## 1 - 4 With K-Means clustering
+
+```{r, "gaussian-kmeans", fig.width=7.2}
+centers <- 2L
+(res10 <- ahead::ridge2f(fpp::insurance, centers = centers, h = h))
+
+print(summary(res10$residuals))
+
+print(apply(res10$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res10$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res10, "Quotes")
+plot(res10, "TV.advert")
+```
+
+# 2 - Prediction intervals based on independent bootstrap
+
+## 2 - 1 With default parameters
+
+```{r "bootstrap-default", fig.width=7.2}
+B <- 10L # number of bootstrap replications -- increase this
+(res4 <- ahead::ridge2f(fpp::insurance, 
+                        type_pi = "bootstrap", B = B, h = h))
+
+print(summary(res4$residuals))
+
+print(apply(res4$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res4$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res4, "Quotes")
+plot(res4, "TV.advert")
+```
+
+## 2 - 2 With external regressors
+
+```{r "bootstrap-xreg", fig.width=7.2}
+(res5 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
+                        type_pi = "bootstrap", B = B, h = h))
+
+print(summary(res5$residuals))
+
+print(apply(res5$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res5$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res5, "Quotes")
+plot(res5, "TV.advert")
+```
+
+## 2 - 3 With external regressors and K-Means clustering
+
+```{r "bootstrap-xreg-clustering", fig.width=7.2}
+(res6 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
+                        centers = centers, 
+                        type_pi = "bootstrap", B = B, h = h))
+
+print(summary(res6$residuals))
+
+print(apply(res6$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res6$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res6, "Quotes")
+plot(res6, "TV.advert")
+```
+
+## 2 - 4 With K-Means clustering
+
+```{r, "bootstrap-kmeans", fig.width=7.2}
+centers <- 2L
+(res11 <- ahead::ridge2f(fpp::insurance, 
+                         centers = centers, 
+                         type_pi = "bootstrap", B = B, h = h))
+
+print(summary(res11$residuals))
+
+print(apply(res11$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res11$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res11, "Quotes")
+plot(res11, "TV.advert")
+```
+
+# 3 - Prediction intervals based on block bootstrap
+
+## 3 - 1 With default parameters
+
+```{r "blockbootstrap-default", fig.width=7.2}
+block_length <- 5L
+(res7 <- ahead::ridge2f(fpp::insurance, 
+                        type_pi = "blockbootstrap", 
+                        block_length = block_length,
+                        B = B, h = h))
+
+print(summary(res7$residuals))
+
+print(apply(res7$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res7$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res7, "Quotes")
+plot(res7, "TV.advert")
+```
+
+## 3 - 2 With external regressors
+
+```{r "blockbootstrap-xreg", fig.width=7.2}
+(res8 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
+                        type_pi = "blockbootstrap", 
+                        block_length = block_length,
+                        B = B, h = h))
+
+print(summary(res8$residuals))
+
+print(apply(res8$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res8$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res8, "Quotes")
+plot(res8, "TV.advert")
+```
+
+## 3 - 3 With external regressors and K-Means clustering
+
+```{r blockbootstrap-xreg-clustering, fig.width=7.2}
+(res9 <- ahead::ridge2f(fpp::insurance, 
+                        xreg = xreg, centers = centers, 
+                        type_pi = "blockbootstrap", 
+                        block_length = block_length,
+                        B = B, h = h))
+
+print(summary(res9$residuals))
+
+print(apply(res9$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res9$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res9, "Quotes")
+plot(res9, "TV.advert")
+```
+
+## 3 - 4 With K-Means clustering
+
+```{r, "blockbootstrap-kmeans", fig.width=7.2}
+(res12 <- ahead::ridge2f(fpp::insurance, 
+                         centers = centers, 
+                         type_pi = "blockbootstrap", 
+                         block_length = block_length,
+                         B = B, h = h))
+
+print(summary(res12$residuals))
+
+print(apply(res12$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res12$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res12, "Quotes")
+plot(res12, "TV.advert")
+```
+
+## 3 - 5 Using the median instead of the mean in bootstrap aggregation
+
+```{r, "blockbootstrap-median-kmeans", fig.width=7.2}
+(res13 <- ahead::ridge2f(fpp::insurance, 
+                         centers = centers, 
+                         type_pi = "blockbootstrap", 
+                         type_aggregation = "median",
+                         block_length = block_length,
+                         B = B, h = h))
+
+print(apply(res13$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+print(summary(res13$residuals))
+
+print(apply(res13$residuals, 2, function (x) Box.test(x)$p.value))
+
+plot(res13, "Quotes")
+plot(res13, "TV.advert")
+```

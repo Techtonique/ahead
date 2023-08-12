@@ -6,7 +6,7 @@ Univariate and multivariate time series forecasting, with uncertainty quantifica
 
 ### Installation for R (Python is [here](https://github.com/Techtonique/ahead_python))
 
-- __1st method__: from [R-universe](https://ropensci.org/r-universe/)
+- __1st method__: from [R-universe](https://techtonique.r-universe.dev)
 
     In R console:
     

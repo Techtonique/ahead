@@ -2,6 +2,9 @@
 
 - Add Block Bootstrap to `ridge2f`
 - Add external regressors to `ridge2f`
+- Add clustering to `ridge2f`
+- Add Block Bootstrap to `loessf`
+- Create new vignettes for `ridge2f` and `loessf`
 
 # version 0.6.1
 
