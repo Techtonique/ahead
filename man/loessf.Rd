@@ -10,8 +10,10 @@ loessf(
   level = 95,
   span = 0.75,
   degree = 2,
+  type_pi = c("bootstrap", "blockbootstrap"),
   b = NULL,
   B = 250,
+  type_aggregation = c("mean", "median"),
   seed = 123
 )
 }
@@ -26,9 +28,13 @@ loessf(
 
 \item{degree}{the degree of the polynomials to be used, normally 1 or 2. (Degree 0 is also allowed, but see \code{stats::loess})}
 
+\item{type_pi}{Type of prediction interval currently (independent) "bootstrap" or (circular) "blockbootstrap"}
+
 \item{b}{block length for circular block bootstrap}
 
 \item{B}{number of bootstrap replications}
+
+\item{type_aggregation}{Type of aggregation, ONLY for bootstrapping; either "mean" or "median"}
 
 \item{seed}{reproducibility seed}
 }

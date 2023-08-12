@@ -14,17 +14,21 @@
 #' @param nb_hidden Number of nodes in hidden layer
 #' @param nodes_sim Type of simulation for nodes in the hidden layer
 #' @param activ Activation function
-#' @param a hyperparameter for activation function "leakyrelu", "elu"
+#' @param a Hyperparameter for activation function "leakyrelu", "elu"
 #' @param lambda_1 Regularization parameter for original predictors
 #' @param lambda_2 Regularization parameter for transformed predictors
 #' @param dropout dropout regularization parameter (dropping nodes in hidden layer)
 #' @param seed Reproducibility seed for `nodes_sim == unif`
 #' @param type_forecast Recursive or direct forecast
-#' @param type_pi type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"
-#' @param block_length length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})
-#' @param seed reproducibility seed for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
+#' @param type_pi Type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"
+#' @param block_length Length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})
+#' @param seed Reproducibility seed for random stuff
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
-#' @param cl an integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
+#' @param type_aggregation Type of aggregation, ONLY for bootstrapping; either "mean" or "median"
+#' @param centers Number of clusters for \code{type_clustering}
+#' @param type_clustering "kmeans" (K-Means clustering) or "hclust" (Hierarchical clustering)
+#' @param cl An integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
+#' @param ... Additional parameters to be passed \code{\link{kmeans}} or \code{\link{hclust}}
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
 #'
@@ -109,7 +113,11 @@ ridge2f <- function(y,
                     block_length = NULL,
                     seed = 1,
                     B = 100L,
-                    cl = 1L)
+                    type_aggregation = c("mean", "median"),
+                    centers = NULL,
+                    type_clustering = c("kmeans", "hclust"),
+                    cl = 1L,
+                    ...)
 {
   stopifnot(!is.null(ncol(y)))
 
@@ -129,6 +137,7 @@ ridge2f <- function(y,
   }
 
   use_xreg <- FALSE
+  use_clustering <- FALSE
 
   if (!is.null(xreg))
   {
@@ -153,6 +162,21 @@ ridge2f <- function(y,
     colnames(y) <- c(colnames_y, colnames_xreg)
   }
 
+  if (!is.null(centers))
+  {
+    use_clustering <- TRUE
+    centers <- floor(max(2L, min(centers, nrow(y) - 1L)))
+    matrix_clusters <- get_clusters(y,
+                                    centers = centers,
+                                    type_clustering = match.arg(type_clustering),
+                                    seed = seed,
+                                    ...) # return a matrix, not a ts # additional params for clustering
+    colnames_clustering <- colnames(matrix_clusters)
+    colnames_y_clustering <- colnames(y)
+    y <- cbind(y, matrix_clusters)
+    colnames(y) <- c(colnames_y_clustering, colnames_clustering)
+  }
+
   series_names <- colnames(y)
   type_pi <- match.arg(type_pi)
   freq_x <- frequency(y)
@@ -174,6 +198,8 @@ ridge2f <- function(y,
     lambda_1 = lambda_1,
     lambda_2 = lambda_2,
     dropout = dropout,
+    centers = centers,
+    type_clustering = type_clustering,
     seed = seed
   )
 
@@ -208,7 +234,7 @@ ridge2f <- function(y,
       coefficients = fit_obj$coef
     )
 
-    if (use_xreg)
+    if (use_xreg || use_clustering)
     {
       for (i in 1:length(out))
       {
@@ -227,8 +253,11 @@ ridge2f <- function(y,
 
   if (type_pi %in% c("bootstrap", "blockbootstrap"))
   {
+    cl <- floor(min(max(cl, 0L), parallel::detectCores()))
+
     if (cl <= 1L)
     {
+      # consider a loop with a progress bar
       sims <- lapply(1:B,
                      function(i)
                        ts(
@@ -245,7 +274,7 @@ ridge2f <- function(y,
                          frequency = freq_x
                        ))
     } else {
-      stopifnot(is.numeric(cl))
+      # consider a loop with a progress bar
       cluster <- parallel::makeCluster(getOption("cl.cores", cl))
       sims <-
         parallel::parLapply(
@@ -269,29 +298,55 @@ ridge2f <- function(y,
       parallel::stopCluster(cluster)
     }
 
-    if (use_xreg)
+    if (use_xreg) # with external regressors
     {
-      n_series_with_xreg <- n_series + n_xreg
-      preds_mean <- matrix(0, ncol = n_series_with_xreg, nrow = h)
-      preds_upper <- matrix(0, ncol = n_series_with_xreg, nrow = h)
-      preds_lower <- matrix(0, ncol = n_series_with_xreg, nrow = h)
-      colnames(preds_mean) <- series_names
-      colnames(preds_upper) <- series_names
-      colnames(preds_lower) <- series_names
-    } else {
-      preds_mean <- matrix(0, ncol = n_series, nrow = h)
-      preds_upper <- matrix(0, ncol = n_series, nrow = h)
-      preds_lower <- matrix(0, ncol = n_series, nrow = h)
-      colnames(preds_mean) <- series_names
-      colnames(preds_upper) <- series_names
-      colnames(preds_lower) <- series_names
+      if (!is.null(centers)) # with clustering
+      {
+        n_series_with_xreg_clusters <- n_series + n_xreg + centers
+        preds_mean <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
+        preds_upper <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
+        preds_lower <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
+        colnames(preds_mean) <- series_names
+        colnames(preds_upper) <- series_names
+        colnames(preds_lower) <- series_names
+      } else {
+        n_series_with_xreg <- n_series + n_xreg
+        preds_mean <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+        preds_upper <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+        preds_lower <- matrix(0, ncol = n_series_with_xreg, nrow = h)
+        colnames(preds_mean) <- series_names
+        colnames(preds_upper) <- series_names
+        colnames(preds_lower) <- series_names
+      }
+    } else { # without external regressors
+      if (!is.null(centers))  # with clustering
+      {
+        n_series_with_clusters <- n_series + centers
+        preds_mean <- matrix(0, ncol = n_series_with_clusters, nrow = h)
+        preds_upper <- matrix(0, ncol = n_series_with_clusters, nrow = h)
+        preds_lower <- matrix(0, ncol = n_series_with_clusters, nrow = h)
+        colnames(preds_mean) <- series_names
+        colnames(preds_upper) <- series_names
+        colnames(preds_lower) <- series_names
+      } else { # without external regressors or clustering
+        preds_mean <- matrix(0, ncol = n_series, nrow = h)
+        preds_upper <- matrix(0, ncol = n_series, nrow = h)
+        preds_lower <- matrix(0, ncol = n_series, nrow = h)
+        colnames(preds_mean) <- series_names
+        colnames(preds_upper) <- series_names
+        colnames(preds_lower) <- series_names
+      }
     }
+
+    type_aggregation <- match.arg(type_aggregation)
 
     for (j in 1:n_series)
     {
       sims_series_j <- sapply(1:B, function(i)
         sims[[i]][, j])
-      preds_mean[, j] <- rowMeans(sims_series_j)
+      preds_mean[, j] <- switch(type_aggregation,
+                                mean = rowMeans(sims_series_j),
+                                median = apply(sims_series_j, 1, median))
       preds_upper[, j] <-
         apply(sims_series_j, 1, function(x)
           quantile(x, probs = 1 - (1 - level / 100) / 2))
@@ -323,7 +378,7 @@ ridge2f <- function(y,
       residuals = fit_obj$resids
     )
 
-    if (use_xreg)
+    if (use_xreg || use_clustering)
     {
       names_out <- names(out)
       for (i in 1:length(out))
@@ -370,7 +425,8 @@ fit_ridge2_mts <- function(x,
                            lambda_1 = 0.1,
                            lambda_2 = 0.1,
                            dropout = 0,
-                           seed = 1)
+                           seed = 1,
+                           ...)
 {
   stopifnot(floor(nb_hidden) == nb_hidden)
   stopifnot(nb_hidden > 0)
@@ -569,26 +625,24 @@ fcast_ridge2_mts <- function(fit_obj,
     # if bootstrap == TRUE
     type_bootstrap <- match.arg(type_bootstrap)
 
-    # sampling from the residuals independently or in blocks
-    if (type_bootstrap %in% c("bootstrap", "blockbootstrap"))
-    {
-      if (type_bootstrap == "blockbootstrap")
-        stopifnot(!is.null(block_length)) # use rlang::abort
+    if (type_bootstrap == "blockbootstrap")
+      stopifnot(!is.null(block_length)) # use rlang::abort
 
-      set.seed(seed)
-      idx <- switch(type_bootstrap,
-                    bootstrap = sample.int(n = nrow(fit_obj$resids),
-                                           size = h,
-                                           replace = TRUE),
-                    blockbootstrap = mbb(
-                      r = fit_obj$resids,
-                      n = h,
-                      b = block_length,
-                      return_indices = TRUE,
-                      seed = seed
-                    ))
+    # sampling from the residuals independently or in blocks
+    set.seed(seed)
+    idx <- switch(type_bootstrap,
+                  bootstrap = sample.int(n = nrow(fit_obj$resids),
+                                         size = h,
+                                         replace = TRUE),
+                  blockbootstrap = mbb(
+                    r = fit_obj$resids,
+                    n = h,
+                    b = block_length,
+                    return_indices = TRUE,
+                    seed = seed
+                  ))
       # cat("idx: ", idx, "\n")
-    }
+
 
     # 1 - recursive forecasts (bootstrap == TRUE) -------------------------------------------------
 

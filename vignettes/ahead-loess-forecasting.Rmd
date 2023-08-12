@@ -1,0 +1,104 @@
+---
+title: "Prediction intervals for Loess forecasting (simulation-based)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Prediction intervals for Loess forecasting (simulation-based)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`ahead` is a package for **univariate** and **multivariate time series forecasting**, with uncertainty quantification (R and [Python](https://techtonique.github.io/ahead_python/)).
+
+The model used in this demo is `stats::loess` (Local Polynomial Regression Fitting), 
+**adapted to univariate forecasting** in `ahead::loessf`. 
+
+Currently for this model (as of 2023-08-12), for **uncertainty quantification**, options are based on bootstrap aggregation of the residuals:
+
+-   Independent **bootstrap** 
+-   Multivariate circular **block bootstrap** 
+-   **More options to come** in the future.
+
+Please remember that _in real life_, this model's hyperparameters will have to be tuned.
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Install `ahead`
+
+Here's how to install the R version of the package:
+
+-   **1st method**: from [R-universe](https://techtonique.r-universe.dev)
+
+    In R console:
+
+    ``` r
+    options(repos = c(
+        techtonique = 'https://techtonique.r-universe.dev',
+        CRAN = 'https://cloud.r-project.org'))
+
+    install.packages("ahead")
+    ```
+
+-   **2nd method**: from [Github](https://github.com/Techtonique/ahead)
+
+    In R console:
+
+    ``` r
+    devtools::install_github("Techtonique/ahead")
+    ```
+
+    Or
+
+    ``` r
+    remotes::install_github("Techtonique/ahead")
+    ```
+
+And here are the packages that will be used in this vignette:
+
+```{r include=FALSE}
+library(ahead)
+library(fpp)
+library(datasets)
+library(randomForest)
+library(e1071)
+```
+
+``` r
+library(ahead)
+library(datasets)
+```
+
+# `ahead::loessf` on Nile dataset 
+
+```{r "bootstrap-mean", fig.width=7.2}
+plot(loessf(Nile, h=20, 
+            type_pi = "bootstrap",
+            type_aggregation = "mean",
+            level=95, B=10))
+```
+
+```{r "bootstrap-median", fig.width=7.2}
+plot(loessf(Nile, h=20, 
+            type_pi = "bootstrap",
+            type_aggregation = "median",
+            level=95, B=10))
+```
+
+```{r "blockbootstrap-mean", fig.width=7.2}
+plot(loessf(Nile, h=20, 
+            type_pi = "blockbootstrap",
+            type_aggregation = "mean",
+            level=95, B=10))
+```
+
+```{r "blockbootstrap-median", fig.width=7.2}
+plot(loessf(Nile, h=20, 
+            type_pi = "blockbootstrap",
+            type_aggregation = "median",
+            level=95, B=10))
+```
+

@@ -1,6 +1,6 @@
 # In alphabetical order
 
-# create new predictors
+# create new predictors -----
 create_new_predictors <- function(x,
                                   nb_hidden = 5,
                                   hidden_layer_bias = FALSE,
@@ -109,13 +109,13 @@ create_new_predictors <- function(x,
   }
 }
 
-# delete columns using a string pattern
+# delete columns using a string pattern -----
 delete_columns <- function(x, pattern)
 {
-  x[,!grepl(pattern = pattern, x = colnames(x))]
+  x[, !grepl(pattern = pattern, x = colnames(x))]
 }
 
-# dropout regularization
+# dropout regularization -----
 dropout_layer <- function(X, dropout = 0, seed = 123)
 {
   stopifnot(dropout <= 0.8)
@@ -136,7 +136,64 @@ dropout_layer <- function(X, dropout = 0, seed = 123)
   }
 }
 
-# Multivariate circular block bootstrap (adapted from NMOF book -- Matlab code)
+# clustering matrix -----
+get_clusters <- function(x,
+                         centers,
+                         type_clustering = c("kmeans", "hclust"),
+                         start = NULL,
+                         frequency = NULL,
+                         seed = 123,
+                         ...)
+{
+  stopifnot(!missing(x)) # use rlang::abort
+
+  stopifnot(!missing(centers)) # use rlang::abort
+
+  # /!\ important
+  x_scaled <- scale(x = x,
+                    scale = TRUE,
+                    center = TRUE)[,]
+
+  type_clustering <- match.arg(type_clustering)
+
+  set.seed(seed)
+
+  df_clusters <- switch(
+    type_clustering,
+    kmeans = data.frame(stats::kmeans(x_scaled,
+                                      centers = centers, ...)$cluster),
+    hclust = data.frame(stats::cutree(stats::hclust(
+      stats::dist(x_scaled, ...), ...
+    ),
+    k = centers))
+  )
+
+  df_clusters[[1]] <- as.factor(df_clusters[[1]])
+
+  matrix_clusters <- stats::model.matrix( ~ -1 + ., df_clusters)
+
+  rownames(matrix_clusters) <- NULL
+
+  colnames(matrix_clusters) <- NULL
+
+  matrix_clusters <- matrix_clusters[, ]
+
+  if (!is.null(start) && !is.null(frequency))
+  {
+    cluster_ts <- ts(matrix_clusters,
+                     start = start, frequency = frequency)
+
+    colnames(cluster_ts) <-
+      paste0("xreg_cluster", 1:ncol(cluster_ts))
+
+    return(cluster_ts)
+  } else {
+    colnames(matrix_clusters) <- paste0("xreg_cluster", 1:ncol(matrix_clusters))
+    return(matrix_clusters)
+  }
+}
+
+# Multivariate circular block bootstrap (adapted from NMOF book -- Matlab code) -----
 mbb <- function(r,
                 n,
                 b,
@@ -161,13 +218,13 @@ mbb <- function(r,
   {
     j <- ((js[i] + 1:b) %% nT) + 1 #positions in original data
     s <- (1:b) + (i - 1) * b
-    x[s,] <- r[j,]
+    x[s, ] <- r[j, ]
   }
 
   if (nb * n > n)
     # correct length if nb*b > n
   {
-    tmp <- drop(x[1:n, ])
+    tmp <- drop(x[1:n,])
   } else {
     tmp <- drop(x)
   }
@@ -176,11 +233,11 @@ mbb <- function(r,
   {
     return(arrayInd(match(tmp, r), .dim = dim(r))[1:nrow(tmp), 1])
   } else {
-  return(tmp)
+    return(tmp)
   }
 }
 
-#  MASS::ginv
+#  MASS::ginv -----
 my_ginv <- function(X, tol = sqrt(.Machine$double.eps))
 {
   if (length(dim(X)) > 2L || !(is.numeric(X) || is.complex(X)))
@@ -205,8 +262,7 @@ my_ginv <- function(X, tol = sqrt(.Machine$double.eps))
 }
 my_ginv <- compiler::cmpfun(my_ginv)
 
-
-# scaling matrices
+# scaling matrices -----
 my_scale <- function(x, xm = NULL, xsd = NULL)
 {
   rep_1_n <- rep.int(1, dim(x)[1])
@@ -243,8 +299,7 @@ my_scale <- function(x, xm = NULL, xsd = NULL)
 }
 my_scale <- compiler::cmpfun(my_scale)
 
-
-# calculate std's of columns
+# calculate std's of columns -----
 my_sd <- function(x)
 {
   n <- dim(x)[1]
@@ -254,8 +309,7 @@ my_sd <- function(x)
 }
 my_sd <- compiler::cmpfun(my_sd)
 
-
-# Ridge regression prediction
+# Ridge regression prediction -----
 predict_myridge <- function(fit_obj, newx)
 {
   my_scale(x = newx,
@@ -263,8 +317,7 @@ predict_myridge <- function(fit_obj, newx)
            xsd = fit_obj$scales) %*% fit_obj$coef + fit_obj$ym
 }
 
-
-# Remove_zero_cols
+# Remove_zero_cols -----
 remove_zero_cols <- function(x, with_index = FALSE)
 {
   if (with_index == FALSE)
@@ -277,9 +330,9 @@ remove_zero_cols <- function(x, with_index = FALSE)
   }
 }
 
-
-# Scale a univariate time series
-scale_ahead <- function(x, center = TRUE, scale = TRUE) {
+# Scale a univariate time series -----
+scale_ahead <- function(x, center = TRUE, scale = TRUE)
+{
   tspx <- tsp(x)
   x <- as.ts(scale.default(x, center = center, scale = scale))
   tsp(x) <- tspx
