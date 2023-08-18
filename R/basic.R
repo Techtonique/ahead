@@ -6,7 +6,7 @@
 #' @param h Forecasting horizon
 #' @param level Confidence level for prediction intervals
 #' @param method forecasting method, either "mean", "median", or random walk ("rw")
-#' @param type_pi type of prediction interval currently, "gaussian" or "bootstrap"
+#' @param type_pi type of prediction interval currently, "gaussian", "bootstrap" or "blockbootstrap"
 #' @param block_length length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})
 #' @param seed reproducibility seed for \code{type_pi == 'bootstrap'}
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'}

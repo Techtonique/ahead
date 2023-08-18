@@ -1,3 +1,9 @@
+# version 0.7.0
+
+- `getsimulations` extracts simulations from a given time series (from `ridge2f` and `basicf`)
+- 
+- neutralization
+
 # version 0.6.2
 
 - Add Block Bootstrap to `ridge2f`

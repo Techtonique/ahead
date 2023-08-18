@@ -193,6 +193,7 @@ get_clusters <- function(x,
   }
 }
 
+
 # Multivariate circular block bootstrap (adapted from NMOF book -- Matlab code) -----
 mbb <- function(r,
                 n,
