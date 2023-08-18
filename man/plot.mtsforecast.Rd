@@ -4,14 +4,16 @@
 \alias{plot.mtsforecast}
 \title{Plot multivariate time series forecast}
 \usage{
-\method{plot}{mtsforecast}(x, selected_series, ...)
+\method{plot}{mtsforecast}(x, selected_series, type_graph = c("pi", "dist", "sims"), ...)
 }
 \arguments{
 \item{x}{result from varf or ridge2f (multivariate time series forecast)}
 
 \item{selected_series}{name of the time series selected for plotting}
 
-\item{...}{additional parameters to be passed to \code{plot}}
+\item{type_graph}{"pi": basic prediction intervals; "dist": a distribution; "sims": the simulations}
+
+\item{...}{additional parameters to be passed to \code{plot} or \code{matplot}}
 }
 \description{
 Plot multivariate time series forecast
@@ -31,5 +33,10 @@ plot(fit_obj_VAR, "Quotes")
 plot(fit_obj_VAR, "TV.advert")
 plot(fit_obj_ridge2, "Quotes")
 plot(fit_obj_ridge2, "TV.advert")
+
+obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap", block_length=5, B = 10)
+par(mfrow=c(1, 2))
+plot(obj, selected_series = "Quotes", type_graph = "sims", main = "Predictive simulation for Quotes")
+plot(obj, selected_series = "TV.advert", type_graph = "sims", main = "Predictive simulation for TV.advert")
 
 }

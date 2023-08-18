@@ -33,8 +33,10 @@ getsimulations <- function(obj, selected_series, transpose = FALSE)
   {
     temp <- t(temp)
     colnames(temp) <- paste0("date", 1:nrow(obj$mean))
-    return(temp)
+    return(list(series = temp,
+                name = selected_series))
   } else {
-    return(temp)
+    return(list(series = temp,
+                name = selected_series))
   }
 }

@@ -1,8 +1,10 @@
 # version 0.7.0
 
 - `getsimulations` extracts simulations from a given time series (from `ridge2f` and `basicf`)
-- 
-- neutralization
+- split conformal PI (TODO)
+- qnorm (as in simshocks) with Vine
+- neutralization (TODO)
+- plots
 
 # version 0.6.2
 

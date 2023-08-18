@@ -8,6 +8,7 @@ importFrom("stats", "as.ts", "complete.cases", "end", "frequency",
                "tsp<-")
 importFrom("utils", "tail")
 importFrom("graphics", "lines")
+importFrom("graphics", "matplot")
 importFrom("stats", "is.ts", "runif", "time")
 export("armagarchf")
 export("basicf")

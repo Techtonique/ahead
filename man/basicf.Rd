@@ -24,7 +24,7 @@ basicf(
 
 \item{method}{forecasting method, either "mean", "median", or random walk ("rw")}
 
-\item{type_pi}{type of prediction interval currently, "gaussian" or "bootstrap"}
+\item{type_pi}{type of prediction interval currently, "gaussian", "bootstrap" or "blockbootstrap"}
 
 \item{block_length}{length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
 
