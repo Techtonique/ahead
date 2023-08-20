@@ -97,6 +97,21 @@
 #' plot(res4, "income")
 #' plot(res4, "consumption")
 #'
+#'
+#' # moving block bootstrap
+#' xreg <- as.numeric(time(fpp::insurance))
+#' res6 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+#'                       h=10, lags=1L,
+#'                       type_pi = "movingblockbootstrap", B=10,
+#'                       block_length = 4)
+#'
+#' print(res6$sims[[2]])
+#'
+#' par(mfrow=c(1, 2))
+#' plot(res6, "Quotes")
+#' plot(res6, "TV.advert")
+#'
+#'
 ridge2f <- function(y,
                     xreg = NULL,
                     h = 5,
@@ -245,9 +260,6 @@ ridge2f <- function(y,
     )
 
     q <- (level/100)*(1 + 1/nrow(y_calibration))
-    cat("q: ", "\n")
-    print(q)
-    cat("\n")
     matrix_y_calibration <- matrix(as.numeric(y_calibration), ncol = 2)
     matrix_y_pred_calibration <- matrix(as.numeric(y_pred_calibration), ncol = 2)
     absolute_residuals <- abs(matrix_y_calibration - matrix_y_pred_calibration)
@@ -740,8 +752,18 @@ fcast_ridge2_mts <- function(fit_obj,
     # if bootstrap == TRUE
     type_bootstrap <- match.arg(type_bootstrap)
 
+    # observed values (minus lagged) in decreasing order (most recent first)
+    y <- fit_obj$y
+    freq_y <- frequency(y)
+    if (nrow(y) <= 2 * freq_y)
+      freq_y <- 1L
+
     if (type_bootstrap %in% c("blockbootstrap", "movingblockbootstrap"))
-      stopifnot(!is.null(block_length)) # use rlang::abort
+    {
+      if (is.null(block_length)) {
+        block_length <- ifelse(freq_y > 1, 2 * freq_y, min(8, floor(nrow(y) / 2)))
+      }
+    }
 
     # sampling from the residuals independently or in blocks
     set.seed(seed)
@@ -778,8 +800,6 @@ fcast_ridge2_mts <- function(fit_obj,
     # recursive forecasts
     if (type_forecast == "recursive")
     {
-      # observed values (minus lagged) in decreasing order (most recent first)
-      y <- fit_obj$y
       y_mat <- rbind(matrix(NA, nrow = h, ncol = ncol(fit_obj$y)),
                      fit_obj$y)
       lags <- fit_obj$lags
@@ -808,8 +828,6 @@ fcast_ridge2_mts <- function(fit_obj,
     # direct forecasts
     if (type_forecast == "direct")
     {
-      # observed values (minus lagged)
-      y <- fit_obj$y
       lags <- fit_obj$lags
       nn_xm <- fit_obj$nn_xm
       nn_xsd <- fit_obj$nn_xsd

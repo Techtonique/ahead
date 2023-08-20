@@ -55,6 +55,14 @@ Loess forecasting
 }
 \examples{
 
+par(mfrow = c(3, 1))
+
 plot(loessf(Nile, h=20, level=95, B=10))
+
+plot(loessf(Nile, h=20, level=95, B=10,
+     type_pi = "blockbootstrap"))
+
+plot(loessf(Nile, h=20, level=95, B=10,
+     type_pi = "movingblockbootstrap"))
 
 }

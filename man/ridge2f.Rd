@@ -136,6 +136,21 @@ par(mfrow=c(1, 2))
 plot(res4, "income")
 plot(res4, "consumption")
 
+
+# moving block bootstrap
+xreg <- as.numeric(time(fpp::insurance))
+res6 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+                      h=10, lags=1L,
+                      type_pi = "movingblockbootstrap", B=10,
+                      block_length = 4)
+
+print(res6$sims[[2]])
+
+par(mfrow=c(1, 2))
+plot(res6, "Quotes")
+plot(res6, "TV.advert")
+
+
 }
 \references{
 Moudiki, T., Planchet, F., & Cousin, A. (2018).

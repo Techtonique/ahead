@@ -76,4 +76,14 @@ plot(res3, "TV.advert")
 plot(res5, "Quotes")
 plot(res5, "TV.advert")
 
+
+# moving block bootstrap
+res6 <- ahead::basicf(fpp::insurance, h=10,
+                      type_pi = "movingblockbootstrap", B=10,
+                      block_length = 4, method = "rw")
+
+par(mfrow=c(1, 2))
+plot(res6, "Quotes")
+plot(res6, "TV.advert")
+
 }

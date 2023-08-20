@@ -28,7 +28,15 @@
 #'
 #' @examples
 #'
+#' par(mfrow = c(3, 1))
+#'
 #' plot(loessf(Nile, h=20, level=95, B=10))
+#'
+#' plot(loessf(Nile, h=20, level=95, B=10,
+#'      type_pi = "blockbootstrap"))
+#'
+#' plot(loessf(Nile, h=20, level=95, B=10,
+#'      type_pi = "movingblockbootstrap"))
 #'
 loessf <- function(y,
                    h = 5,
@@ -43,7 +51,6 @@ loessf <- function(y,
                    type_aggregation = c("mean", "median"),
                    seed = 123)
 {
-  # adapted from forecast:::bld.mbb.bootstrap ---
   freq_y <- frequency(y)
   if (length(y) <= 2 * freq_y)
     freq_y <- 1L
@@ -102,6 +109,7 @@ loessf <- function(y,
     idx <- sample.int(n = length(resids),
                       size = h,
                       replace = TRUE)
+
     bootstrapped_residuals <- ts(switch(
       type_pi,
       bootstrap = matrix(resids, ncol = 1L)[idx,],
@@ -113,9 +121,17 @@ loessf <- function(y,
           seed = 100 * i + 3,
           return_indices =
             FALSE
-        )
-      )
-    ),
+        )),
+        movingblockbootstrap = drop(
+          mbb2(
+            r = matrix(resids, ncol = 1L),
+            n = h,
+            b = b,
+            seed = 100 * i + 3,
+            return_indices =
+              FALSE
+          ))
+      ),
     start = start_preds,
     frequency = freq_y)
 

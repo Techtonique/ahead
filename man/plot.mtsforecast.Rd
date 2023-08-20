@@ -44,4 +44,12 @@ main = "Predictive simulation for Quotes")
 plot(obj, selected_series = "TV.advert", type_graph = "sims",
 main = "Predictive simulation for TV.advert")
 
+
+par(mfrow=c(1, 2))
+plot(obj, selected_series = "Quotes", type_graph = "dist",
+main = "Predictive simulation for Quotes")
+plot(obj, selected_series = "TV.advert", type_graph = "dist",
+main = "Predictive simulation for TV.advert")
+
+
 }

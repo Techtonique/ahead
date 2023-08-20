@@ -53,6 +53,16 @@
 #' plot(res5, "Quotes")
 #' plot(res5, "TV.advert")
 #'
+#'
+#' # moving block bootstrap
+#' res6 <- ahead::basicf(fpp::insurance, h=10,
+#'                       type_pi = "movingblockbootstrap", B=10,
+#'                       block_length = 4, method = "rw")
+#'
+#' par(mfrow=c(1, 2))
+#' plot(res6, "Quotes")
+#' plot(res6, "TV.advert")
+#'
 basicf <- function(y,
                    h = 5,
                    level = 95,
@@ -119,6 +129,16 @@ basicf <- function(y,
     )
 
     return(structure(out, class = "mtsforecast"))
+  }
+
+  if(type_pi %in% c("blockbootstrap", "movingblockbootstrap"))
+  {
+    if (nrow(y) <= 2 * freq_x)
+      freq_x <- 1L
+
+    if (is.null(block_length)) {
+      block_length <- ifelse(freq_x > 1, 2 * freq_x, min(8, floor(nrow(y) / 2)))
+    }
   }
 
   if (type_pi %in% c("bootstrap", "blockbootstrap", "movingblockbootstrap"))

@@ -5,7 +5,8 @@
 - adjust copulas on residuals for `ridge2f`
 - new plots for simulations see (new) vignettes
 - split conformal prediction intervals (very experimental right now)
-- neutralization (TODO)
+- neutralization (TODO)(list with yM and mats, check with time(y) :o )
+- `Depends` vs `Imports` (beneficial to Python and rpy2 for installation time?)
 
 # version 0.6.2
 

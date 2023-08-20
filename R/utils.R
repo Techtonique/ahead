@@ -193,10 +193,7 @@ get_clusters <- function(x,
   }
 }
 
-# Multivariate moving block bootstrap (adapted from Efron and Tibshirani (sec. 8.6)) -----
-# http://www-stat.wharton.upenn.edu/~buja/STAT-961/time-series-bootstrap.R
-
-# test on matrix(r, ncol = 1) where dim(r) == NULL
+# Multivariate moving block bootstrap (main loop adapted from Efron and Tibshirani (sec. 8.6)) -----
 mbb2 <- function(r,
                  n,
                  b,
@@ -212,9 +209,14 @@ mbb2 <- function(r,
 
   r_bt <- matrix(NA, nrow = n_obs, ncol = dim(r)[2])  # local vector for a bootstrap replication
 
-  for (i in 1:(n_obs%%b)) {
+  #cat("n_obs", n_obs, "\n")
+  #cat("b", b, "\n")
+  for (i in 1:ceiling(n_obs/b)) {
+    #cat("i: ", i, "----- \n")
     endpoint <- sample(b:n_obs, size = 1)
-    r_bt[(i - 1)*b + 1:b, ] <- r[endpoint - (b:1) + 1, ]
+    #cat("endpoint", endpoint, "\n")
+    try(r_bt[(i - 1)*b + 1:b, ] <- r[endpoint - (b:1) + 1, ],
+        silent = TRUE)
   }
 
   tmp <- matrix(r_bt[(1:n), ], nrow = n, ncol = n_series)
