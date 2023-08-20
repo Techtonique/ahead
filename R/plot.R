@@ -2,7 +2,8 @@
 #'
 #' @param x result from varf or ridge2f (multivariate time series forecast)
 #' @param selected_series name of the time series selected for plotting
-#' @param type_graph "pi": basic prediction intervals; "dist": a distribution; "sims": the simulations
+#' @param type_graph "pi": basic prediction intervals; "dist": a distribution of predictions; "sims": the simulations
+#' @param level confidence levels for prediction intervals
 #' @param ... additional parameters to be passed to \code{plot} or \code{matplot}
 #'
 #' @export
@@ -23,13 +24,17 @@
 #' plot(fit_obj_ridge2, "Quotes")
 #' plot(fit_obj_ridge2, "TV.advert")
 #'
-#' obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap", block_length=5, B = 10)
+#' obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap",
+#' block_length=5, B = 10)
 #' par(mfrow=c(1, 2))
-#' plot(obj, selected_series = "Quotes", type_graph = "sims", main = "Predictive simulation for Quotes")
-#' plot(obj, selected_series = "TV.advert", type_graph = "sims", main = "Predictive simulation for TV.advert")
+#' plot(obj, selected_series = "Quotes", type_graph = "sims",
+#' main = "Predictive simulation for Quotes")
+#' plot(obj, selected_series = "TV.advert", type_graph = "sims",
+#' main = "Predictive simulation for TV.advert")
 #'
 plot.mtsforecast <- function(x, selected_series,
                              type_graph = c("pi", "dist", "sims"),
+                             level = 95,
                              ...)
 {
   type_graph <- match.arg(type_graph)
@@ -64,7 +69,36 @@ plot.mtsforecast <- function(x, selected_series,
 
     if (type_graph == "dist")
     {
-      stop("Not implemented")
+      x <- ahead::getsimulations(x, selected_series = selected_series)$series
+      start_x <- start(x)
+      freq_x <- frequency(x)
+
+      qt_upper <- apply(x, 1, function(u) quantile(u, level/100))
+      qt_lower <- apply(x, 1, function(u) quantile(u, 1 - level/100))
+      x_summary <- apply(x, 1, function(u) summary(u))[-3, ]
+      x_ci <- rbind(apply(x, 1, function(u) t.test(u)$conf.int)[1, ],
+                          rowMeans(x),
+                          apply(x, 1, function(u) t.test(u)$conf.int)[2, ])
+      jet.colors <- colorRampPalette( c("lightyellow", "lightgreen") )
+      nbcol <- 3
+      color <- jet.colors(nbcol)
+
+      abs <- as.numeric(time(x))
+      y_mean <- ts(x_summary[3, ], start = start_x, frequency = freq_x)
+
+      bands_plot(abs, y_mean,
+                 ci_upper = x_summary[1, ],
+                 ci_lower = x_summary[5, ],
+                 col = color[1], ylim = c(min(x_summary[1,]),
+                                          max(x_summary[5,])),
+                 xlab = "time",
+                 ylab = selected_series,
+                 ...)
+      bands_add(abs, y_mean, col = color[2], ci_upper = qt_upper,
+                ci_lower = qt_lower)
+      bands_add(abs, y_mean, col = color[3], ci_upper = x_summary[2, ],
+                ci_lower = x_summary[4, ])
+
     }
 
     if (type_graph == "sims")
@@ -113,4 +147,28 @@ plot.mtsforecast <- function(x, selected_series,
   } else {
    stop("Method not implemented for this type of object")
   }
+}
+
+
+# plot bands # work in progress #scratchinghead
+bands_plot <- function(x, y_mean, ci_upper, ci_lower, col, y.goal = NULL, goal.col = "blue", ...)
+{
+  plot(x = x, y = y_mean, type = 'l', ...)
+  polygon(c(x, rev(x)),
+          c(ci_upper, rev(ci_lower)),
+          col = col, border = FALSE)
+  lines(x, y_mean, lwd = 2)
+  if (!is.null(y.goal))
+  {
+    abline(h = y.goal, lty = 2, lwd = 2, col = goal.col)
+  }
+}
+
+# add bands on a plot # work in progress #scratchinghead
+bands_add <- function(x, y_mean, col, ci_upper, ci_lower)
+{
+  polygon(c(x, rev(x)),
+          c(ci_upper, rev(ci_lower)),
+          col = col, border = FALSE)
+  lines(x, y_mean, lwd = 2)
 }

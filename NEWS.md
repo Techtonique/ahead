@@ -1,10 +1,11 @@
 # version 0.7.0
 
 - `getsimulations` extracts simulations from a given time series (from `ridge2f` and `basicf`)
-- split conformal PI (TODO)
-- qnorm (as in simshocks) with Vine
+- moving block bootstrap in `ridge2f`, `basicf` and `loessf` (in addition to circular block bootstrap from 0.6.2)
+- adjust copulas on residuals for `ridge2f`
+- new plots for simulations see (new) vignettes
+- split conformal prediction intervals (very experimental right now)
 - neutralization (TODO)
-- plots
 
 # version 0.6.2
 

@@ -22,16 +22,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP _ahead_rcpp_hello_world() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpp_hello_world());
-    return rcpp_result_gen;
-END_RCPP
-}
 // forecast_innovs_loop_cpp
 NumericVector forecast_innovs_loop_cpp(NumericVector eps, NumericVector rts, double eps_prev, double omega, double alpha, double beta, unsigned int df, unsigned int h);
 RcppExport SEXP _ahead_forecast_innovs_loop_cpp(SEXP epsSEXP, SEXP rtsSEXP, SEXP eps_prevSEXP, SEXP omegaSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP dfSEXP, SEXP hSEXP) {
@@ -142,7 +132,6 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ahead_embedc", (DL_FUNC) &_ahead_embedc, 2},
-    {"_ahead_rcpp_hello_world", (DL_FUNC) &_ahead_rcpp_hello_world, 0},
     {"_ahead_forecast_innovs_loop_cpp", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp, 8},
     {"_ahead_forecast_innovs_loop_cpp2", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp2, 8},
     {"_ahead_create_lags_cpp", (DL_FUNC) &_ahead_create_lags_cpp, 2},

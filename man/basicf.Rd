@@ -9,7 +9,7 @@ basicf(
   h = 5,
   level = 95,
   method = c("mean", "median", "rw"),
-  type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+  type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap"),
   block_length = NULL,
   seed = 1,
   B = 100
@@ -24,9 +24,10 @@ basicf(
 
 \item{method}{forecasting method, either "mean", "median", or random walk ("rw")}
 
-\item{type_pi}{type of prediction interval currently, "gaussian", "bootstrap" or "blockbootstrap"}
+\item{type_pi}{type of prediction interval currently, "gaussian", "bootstrap",
+"blockbootstrap" or "movingblockbootstrap"}
 
-\item{block_length}{length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
+\item{block_length}{length of block for (circular) "blockbootstrap" or "movingblockbootstrap"}
 
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
 

@@ -8,6 +8,7 @@ Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
 Description: Univariate and multivariate time series forecasting.
 License: BSD_3_clause Clear + file LICENSE
 Imports: Rcpp (>= 1.0.6), forecast, vars, randtoolbox, fGarch
+Depends: VineCopula
 LinkingTo: Rcpp
 RoxygenNote: 7.2.2
 Encoding: UTF-8

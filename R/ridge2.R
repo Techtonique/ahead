@@ -20,14 +20,16 @@
 #' @param dropout dropout regularization parameter (dropping nodes in hidden layer)
 #' @param seed Reproducibility seed for `nodes_sim == unif`
 #' @param type_forecast Recursive or direct forecast
-#' @param type_pi Type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"
-#' @param block_length Length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})
+#' @param type_pi Type of prediction interval currently "gaussian", "bootstrap",
+#' "blockbootstrap", "movingblockbootstrap", "splitconformal" (very experimental right now),
+#' "rvine" copula
+#' @param block_length Length of block for circular or moving block bootstrap
 #' @param seed Reproducibility seed for random stuff
-#' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
+#' @param B Number of bootstrap replications
 #' @param type_aggregation Type of aggregation, ONLY for bootstrapping; either "mean" or "median"
 #' @param centers Number of clusters for \code{type_clustering}
 #' @param type_clustering "kmeans" (K-Means clustering) or "hclust" (Hierarchical clustering)
-#' @param cl An integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}
+#' @param cl An integer; the number of clusters for parallel execution, for bootstrap
 #' @param ... Additional parameters to be passed \code{\link{kmeans}} or \code{\link{hclust}}
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
@@ -109,7 +111,13 @@ ridge2f <- function(y,
                     lambda_2 = 0.1,
                     dropout = 0,
                     type_forecast = c("recursive", "direct"),
-                    type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+                    type_pi = c(
+                      "gaussian",
+                      "bootstrap",
+                      "blockbootstrap",
+                      "movingblockbootstrap",
+                      "splitconformal"
+                    ),
                     block_length = NULL,
                     seed = 1,
                     B = 100L,
@@ -188,20 +196,67 @@ ridge2f <- function(y,
   type_forecast <- match.arg(type_forecast)
 
   # Fitting a regularized regression  model to multiple time series
-  fit_obj <- fit_ridge2_mts(
-    y,
-    lags = lags,
-    nb_hidden = nb_hidden,
-    nodes_sim = nodes_sim,
-    activ = activ,
-    a = a,
-    lambda_1 = lambda_1,
-    lambda_2 = lambda_2,
-    dropout = dropout,
-    centers = centers,
-    type_clustering = type_clustering,
-    seed = seed
-  )
+  if (type_pi != "splitconformal")
+  {
+    fit_obj <- fit_ridge2_mts(
+      y,
+      lags = lags,
+      nb_hidden = nb_hidden,
+      nodes_sim = nodes_sim,
+      activ = activ,
+      a = a,
+      lambda_1 = lambda_1,
+      lambda_2 = lambda_2,
+      dropout = dropout,
+      centers = centers,
+      type_clustering = type_clustering,
+      seed = seed
+    )
+  } else { # if (type_pi == "splitconformal")
+
+    y_train_calibration <- ahead::splitts(y, p=0.5)
+    y_train <- y_train_calibration$training
+    y_calibration <- y_train_calibration$testing
+
+    fit_obj_train <- fit_ridge2_mts(
+      y_train,
+      lags = lags,
+      nb_hidden = nb_hidden,
+      nodes_sim = nodes_sim,
+      activ = activ,
+      a = a,
+      lambda_1 = lambda_1,
+      lambda_2 = lambda_2,
+      dropout = dropout,
+      centers = centers,
+      type_clustering = type_clustering,
+      seed = seed
+    )
+
+    y_pred_calibration <- ts(
+      data = fcast_ridge2_mts(
+        fit_obj_train,
+        h = nrow(y_calibration),
+        type_forecast = type_forecast,
+        level = level
+      ),
+      start = start_preds,
+      frequency = freq_x
+    )
+
+    q <- (level/100)*(1 + 1/nrow(y_calibration))
+    cat("q: ", "\n")
+    print(q)
+    cat("\n")
+    matrix_y_calibration <- matrix(as.numeric(y_calibration), ncol = 2)
+    matrix_y_pred_calibration <- matrix(as.numeric(y_pred_calibration), ncol = 2)
+    absolute_residuals <- abs(matrix_y_calibration - matrix_y_pred_calibration)
+
+    quantile_absolute_residuals_conformal <- apply(absolute_residuals, 2,
+                                                   function(u) quantile(u,
+                                                                        probs = q,
+                                                                        type = 2))
+  }
 
   if (type_pi == "gaussian")
   {
@@ -251,7 +306,7 @@ ridge2f <- function(y,
     return(structure(out, class = "mtsforecast"))
   }
 
-  if (type_pi %in% c("bootstrap", "blockbootstrap"))
+  if (type_pi %in% c("bootstrap", "blockbootstrap", "movingblockbootstrap"))
   {
     cl <- floor(min(max(cl, 0L), parallel::detectCores()))
 
@@ -409,6 +464,64 @@ ridge2f <- function(y,
     return(structure(out, class = "mtsforecast"))
   }
 
+  if (type_pi == "splitconformal")
+  {
+    # use https://github.com/Techtonique/teller/blob/master/teller/predictioninterval/predictioninterval.py#L59
+    # and https://github.com/Techtonique/teller/blob/master/teller/predictioninterval/predictioninterval.py#L106
+    # and https://github.com/Techtonique/teller/blob/master/teller/predictioninterval/predictioninterval.py#L112
+
+    preds <- ts(
+      data = fcast_ridge2_mts(
+        fit_obj_train,
+        h = h,
+        type_forecast = type_forecast,
+        level = level
+      ),
+      start = start_preds,
+      frequency = freq_x
+    )
+
+    # Forecast from fit_obj_train
+    out <- list(
+      mean = preds,
+      lower = preds - quantile_absolute_residuals_conformal,
+      upper = preds + quantile_absolute_residuals_conformal,
+      sims = NULL,
+      x = y,
+      level = level,
+      method = "ridge2",
+      residuals = fit_obj_train$resids,
+      coefficients = fit_obj_train$coef
+    )
+
+    if (use_xreg || use_clustering)
+    {
+      for (i in 1:length(out))
+      {
+        try_delete_xreg <-
+          try(delete_columns(out[[i]], "xreg_"), silent = TRUE)
+        if (!inherits(try_delete_xreg, "try-error") &&
+            !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_xreg
+        }
+      }
+    }
+
+    return(structure(out, class = "mtsforecast"))
+  }
+
+  if (type_pi == "rvine")
+  {
+    # use MASS::fitdistr on the original residuals first, for qt's d and qnorm's parameters
+    # qnorm(p, mean = 0, sd = 1)
+    # qt(p, df, ncp?)
+    # use VineCopula::RVineStructureSelect (on the original dataset, but on [0, 1]^d) (returns a RVineMatrix(), RVM)
+    # use VineCopula::RVineSim(N, RVM, U = NULL (U is from the original dataset)
+    # ON RESIDUALS
+    # use qnorm or qt (need to use MASS::fitdistr on the original data first, for qt's d)
+  }
+
 }
 ridge2f <- compiler::cmpfun(ridge2f)
 
@@ -534,7 +647,9 @@ fcast_ridge2_mts <- function(fit_obj,
                              type_forecast = c("recursive", "direct"),
                              level = 95,
                              bootstrap = FALSE,
-                             type_bootstrap = c("bootstrap", "blockbootstrap"),
+                             type_bootstrap = c("bootstrap",
+                                                "blockbootstrap",
+                                                "movingblockbootstrap"),
                              block_length = NULL,
                              seed = 123)
 {
@@ -625,23 +740,37 @@ fcast_ridge2_mts <- function(fit_obj,
     # if bootstrap == TRUE
     type_bootstrap <- match.arg(type_bootstrap)
 
-    if (type_bootstrap == "blockbootstrap")
+    if (type_bootstrap %in% c("blockbootstrap", "movingblockbootstrap"))
       stopifnot(!is.null(block_length)) # use rlang::abort
 
     # sampling from the residuals independently or in blocks
     set.seed(seed)
-    idx <- switch(type_bootstrap,
-                  bootstrap = sample.int(n = nrow(fit_obj$resids),
-                                         size = h,
-                                         replace = TRUE),
-                  blockbootstrap = mbb(
-                    r = fit_obj$resids,
-                    n = h,
-                    b = block_length,
-                    return_indices = TRUE,
-                    seed = seed
-                  ))
-      # cat("idx: ", idx, "\n")
+
+    if (type_bootstrap %in% c("bootstrap", "blockbootstrap", "movingblockbootstrap"))
+    {
+      idx <- switch(
+        type_bootstrap,
+        bootstrap = sample.int(
+          n = nrow(fit_obj$resids),
+          size = h,
+          replace = TRUE
+        ),
+        blockbootstrap = mbb(
+          r = fit_obj$resids,
+          n = h,
+          b = block_length,
+          return_indices = TRUE,
+          seed = seed
+        ), # in utils.R
+        movingblockbootstrap = mbb2(
+          r = fit_obj$resids,
+          n = h,
+          b = block_length,
+          return_indices = TRUE,
+          seed = seed
+        ) # in utils.R
+      )
+    }
 
 
     # 1 - recursive forecasts (bootstrap == TRUE) -------------------------------------------------

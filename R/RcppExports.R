@@ -5,10 +5,6 @@ embedc <- function(x, lags) {
     .Call(`_ahead_embedc`, x, lags)
 }
 
-rcpp_hello_world <- function() {
-    .Call(`_ahead_rcpp_hello_world`)
-}
-
 forecast_innovs_loop_cpp <- function(eps, rts, eps_prev, omega, alpha, beta, df, h) {
     .Call(`_ahead_forecast_innovs_loop_cpp`, eps, rts, eps_prev, omega, alpha, beta, df, h)
 }

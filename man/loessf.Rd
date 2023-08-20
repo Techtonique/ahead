@@ -10,7 +10,7 @@ loessf(
   level = 95,
   span = 0.75,
   degree = 2,
-  type_pi = c("bootstrap", "blockbootstrap"),
+  type_pi = c("bootstrap", "blockbootstrap", "movingblockbootstrap"),
   b = NULL,
   B = 250,
   type_aggregation = c("mean", "median"),
@@ -28,7 +28,7 @@ loessf(
 
 \item{degree}{the degree of the polynomials to be used, normally 1 or 2. (Degree 0 is also allowed, but see \code{stats::loess})}
 
-\item{type_pi}{Type of prediction interval currently (independent) "bootstrap" or (circular) "blockbootstrap"}
+\item{type_pi}{Type of prediction interval currently (independent) "bootstrap", (circular) "blockbootstrap", or "movingblockbootstrap"}
 
 \item{b}{block length for circular block bootstrap}
 

@@ -193,6 +193,40 @@ get_clusters <- function(x,
   }
 }
 
+# Multivariate moving block bootstrap (adapted from Efron and Tibshirani (sec. 8.6)) -----
+# http://www-stat.wharton.upenn.edu/~buja/STAT-961/time-series-bootstrap.R
+
+# test on matrix(r, ncol = 1) where dim(r) == NULL
+mbb2 <- function(r,
+                 n,
+                 b,
+                 seed = 123,
+                 return_indices = FALSE)
+{
+  n_obs <- dim(r)[1]
+  n_series <- dim(r)[2]
+  b <- floor(min(max(3L, b), n_obs - 1L))
+  n <- min(n_obs, n)
+
+  set.seed(seed) # important for base::sample below
+
+  r_bt <- matrix(NA, nrow = n_obs, ncol = dim(r)[2])  # local vector for a bootstrap replication
+
+  for (i in 1:(n_obs%%b)) {
+    endpoint <- sample(b:n_obs, size = 1)
+    r_bt[(i - 1)*b + 1:b, ] <- r[endpoint - (b:1) + 1, ]
+  }
+
+  tmp <- matrix(r_bt[(1:n), ], nrow = n, ncol = n_series)
+
+  if(return_indices == FALSE)
+  {
+    return(tmp)
+  } else {
+    return(arrayInd(match(tmp, r), .dim = dim(r))[1:dim(tmp)[1], 1])
+  }
+}
+
 
 # Multivariate circular block bootstrap (adapted from NMOF book -- Matlab code) -----
 mbb <- function(r,
@@ -205,7 +239,7 @@ mbb <- function(r,
   k <- dim(r)[2]
 
   # b <- (nT + 1)*runif(1); print(b); floor(min(max(2L, b), nT - 1L))
-  b <- floor(min(max(2L, b), nT - 1L))
+  b <- floor(min(max(3L, b), nT - 1L))
 
   # circular block bootstrap
 
@@ -341,7 +375,7 @@ scale_ahead <- function(x, center = TRUE, scale = TRUE)
 }
 
 # Split a time series -----
-splitts <- function(y, p = 0.8, return_indices = TRUE, ...)
+splitts <- function(y, p = 0.5, return_indices = FALSE, ...)
 {
     n_y <- base::ifelse(test = is.null(dim(y)),
                       yes = length(y),
@@ -376,4 +410,71 @@ splitts <- function(y, p = 0.8, return_indices = TRUE, ...)
     }
 }
 splitts  <- compiler::cmpfun(splitts)
+
+
+# Stratify stuff -----
+# from https://gist.github.com/mrdwab/6424112
+stratified <- function(df, group, size, select = NULL,
+                       replace = FALSE, bothSets = FALSE) {
+  if (is.null(select)) {
+    df <- df
+  } else {
+    if (is.null(names(select))) stop("'select' must be a named list")
+    if (!all(names(select) %in% names(df)))
+      stop("Please verify your 'select' argument")
+    temp <- sapply(names(select),
+                   function(x) df[[x]] %in% select[[x]])
+    df <- df[rowSums(temp) == length(select), ]
+  }
+  df.interaction <- interaction(df[group], drop = TRUE)
+  df.table <- table(df.interaction)
+  df.split <- split(df, df.interaction)
+  if (length(size) > 1) {
+    if (length(size) != length(df.split))
+      stop("Number of groups is ", length(df.split),
+           " but number of sizes supplied is ", length(size))
+    if (is.null(names(size))) {
+      n <- setNames(size, names(df.split))
+      message(sQuote("size"), " vector entered as:\n\nsize = structure(c(",
+              paste(n, collapse = ", "), "),\n.Names = c(",
+              paste(shQuote(names(n)), collapse = ", "), ")) \n\n")
+    } else {
+      ifelse(all(names(size) %in% names(df.split)),
+             n <- size[names(df.split)],
+             stop("Named vector supplied with names ",
+                  paste(names(size), collapse = ", "),
+                  "\n but the names for the group levels are ",
+                  paste(names(df.split), collapse = ", ")))
+    }
+  } else if (size < 1) {
+    n <- round(df.table * size, digits = 0)
+  } else if (size >= 1) {
+    if (all(df.table >= size) || isTRUE(replace)) {
+      n <- setNames(rep(size, length.out = length(df.split)),
+                    names(df.split))
+    } else {
+      # message(
+      #   "Some groups\n---",
+      #   paste(names(df.table[df.table < size]), collapse = ", "),
+      #   "---\ncontain fewer observations",
+      #   " than desired number of samples.\n",
+      #   "All observations have been returned from those groups.")
+      n <- c(sapply(df.table[df.table >= size], function(x) x = size),
+             df.table[df.table < size])
+    }
+  }
+  temp <- lapply(
+    names(df.split),
+    function(x) df.split[[x]][sample(df.table[x],
+                                     n[x], replace = replace), ])
+  set1 <- do.call("rbind", temp)
+
+  if (isTRUE(bothSets)) {
+    set2 <- df[!rownames(df) %in% rownames(set1), ]
+    list(SET1 = set1, SET2 = set2)
+  } else {
+    set1
+  }
+}
+
 

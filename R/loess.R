@@ -7,7 +7,7 @@
 #' @param level Confidence level for prediction intervals
 #' @param span the parameter which controls the degree of smoothing
 #' @param degree the degree of the polynomials to be used, normally 1 or 2. (Degree 0 is also allowed, but see \code{stats::loess})
-#' @param type_pi Type of prediction interval currently (independent) "bootstrap" or (circular) "blockbootstrap"
+#' @param type_pi Type of prediction interval currently (independent) "bootstrap", (circular) "blockbootstrap", or "movingblockbootstrap"
 #' @param b block length for circular block bootstrap
 #' @param B number of bootstrap replications
 #' @param type_aggregation Type of aggregation, ONLY for bootstrapping; either "mean" or "median"
@@ -35,7 +35,9 @@ loessf <- function(y,
                    level = 95,
                    span = 0.75,
                    degree = 2,
-                   type_pi = c("bootstrap", "blockbootstrap"),
+                   type_pi = c("bootstrap",
+                               "blockbootstrap",
+                               "movingblockbootstrap"),
                    b = NULL,
                    B = 250,
                    type_aggregation = c("mean", "median"),

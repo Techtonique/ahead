@@ -18,7 +18,8 @@ ridge2f(
   lambda_2 = 0.1,
   dropout = 0,
   type_forecast = c("recursive", "direct"),
-  type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+  type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap",
+    "splitconformal"),
   block_length = NULL,
   seed = 1,
   B = 100L,
@@ -56,13 +57,15 @@ ridge2f(
 
 \item{type_forecast}{Recursive or direct forecast}
 
-\item{type_pi}{Type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"}
+\item{type_pi}{Type of prediction interval currently "gaussian", "bootstrap",
+"blockbootstrap", "movingblockbootstrap", "splitconformal" (very experimental right now),
+"rvine" copula}
 
-\item{block_length}{Length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
+\item{block_length}{Length of block for circular or moving block bootstrap}
 
 \item{seed}{Reproducibility seed for random stuff}
 
-\item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
+\item{B}{Number of bootstrap replications}
 
 \item{type_aggregation}{Type of aggregation, ONLY for bootstrapping; either "mean" or "median"}
 
@@ -70,7 +73,7 @@ ridge2f(
 
 \item{type_clustering}{"kmeans" (K-Means clustering) or "hclust" (Hierarchical clustering)}
 
-\item{cl}{An integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
+\item{cl}{An integer; the number of clusters for parallel execution, for bootstrap}
 
 \item{...}{Additional parameters to be passed \code{\link{kmeans}} or \code{\link{hclust}}}
 }

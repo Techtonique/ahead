@@ -309,3 +309,101 @@ print(apply(res13$residuals, 2, function (x) Box.test(x)$p.value))
 plot(res13, "Quotes")
 plot(res13, "TV.advert")
 ```
+
+
+# 4 - Prediction intervals based on moving block bootstrap
+
+## 4 - 1 With default parameters
+
+```{r "movingblockbootstrap-default", fig.width=7.2}
+block_length <- 5L
+(res16 <- ahead::ridge2f(fpp::insurance, 
+                        type_pi = "movingblockbootstrap", 
+                        block_length = block_length,
+                        B = B, h = h))
+
+print(summary(res16$residuals))
+
+print(apply(res16$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res16$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res16, "Quotes", type = "sims")
+plot(res16, "TV.advert")
+```
+
+## 4 - 2 With external regressors
+
+```{r "movingblockbootstrap-xreg", fig.width=7.2}
+(res8 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
+                        type_pi = "movingblockbootstrap", 
+                        block_length = block_length,
+                        B = B, h = h))
+
+print(summary(res8$residuals))
+
+print(apply(res8$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res8$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res8, "Quotes")
+plot(res8, "TV.advert", type = "dist")
+```
+
+## 4 - 3 With external regressors and K-Means clustering
+
+```{r "movingblockbootstrap-xreg-clustering", fig.width=7.2}
+(res15 <- ahead::ridge2f(fpp::insurance, 
+                        xreg = xreg, centers = centers, 
+                        type_pi = "movingblockbootstrap", 
+                        block_length = block_length,
+                        B = B, h = h))
+
+print(summary(res15$residuals))
+
+print(apply(res15$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res15$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res15, "Quotes", type = "dist")
+plot(res15, "TV.advert")
+```
+
+## 4 - 4 With K-Means clustering
+
+```{r, "movingblockbootstrap-kmeans", fig.width=7.2}
+(res12 <- ahead::ridge2f(fpp::insurance, 
+                         centers = centers, 
+                         type_pi = "movingblockbootstrap", 
+                         block_length = block_length,
+                         B = B, h = h))
+
+print(summary(res12$residuals))
+
+print(apply(res12$residuals, 2, function (x) Box.test(x)$p.value))
+
+print(apply(res12$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+plot(res12, "Quotes")
+plot(res12, "TV.advert", type = "sims")
+```
+
+## 4 - 5 Using the median instead of the mean in bootstrap aggregation
+
+```{r, "movingblockbootstrap-median-kmeans", fig.width=7.2}
+(res14 <- ahead::ridge2f(fpp::insurance, 
+                         centers = centers, 
+                         type_pi = "movingblockbootstrap", 
+                         type_aggregation = "median",
+                         block_length = block_length,
+                         B = B, h = h))
+
+print(apply(res14$residuals, 2, function (x) shapiro.test(x)$p.value)) # Gaussian?
+
+print(summary(res14$residuals))
+
+print(apply(res14$residuals, 2, function (x) Box.test(x)$p.value))
+
+plot(res14, "Quotes", type = "dist")
+plot(res14, "TV.advert")
+```

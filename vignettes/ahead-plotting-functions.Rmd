@@ -1,0 +1,85 @@
+---
+title: "Plotting functions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Plotting functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`ahead` is a package for **univariate** and **multivariate time series forecasting**, with uncertainty quantification (R and [Python](https://techtonique.github.io/ahead_python/)).
+
+The model used in this demo is `stats::ridge2f`. 
+
+Please remember that _in real life_, this model's hyperparameters will have to be tuned.
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Install `ahead`
+
+Here's how to install the R version of the package:
+
+-   **1st method**: from [R-universe](https://techtonique.r-universe.dev)
+
+    In R console:
+
+    ``` r
+    options(repos = c(
+        techtonique = 'https://techtonique.r-universe.dev',
+        CRAN = 'https://cloud.r-project.org'))
+
+    install.packages("ahead")
+    ```
+
+-   **2nd method**: from [Github](https://github.com/Techtonique/ahead)
+
+    In R console:
+
+    ``` r
+    devtools::install_github("Techtonique/ahead")
+    ```
+
+    Or
+
+    ``` r
+    remotes::install_github("Techtonique/ahead")
+    ```
+
+And here are the packages that will be used in this vignette:
+
+``` r
+library(ahead)
+library(fpp)
+```
+
+```{r include=FALSE}
+library(ahead)
+library(fpp)
+```
+
+# Forecasting and plot predictions
+
+```{r}
+obj <- ahead::ridge2f(fpp::insurance, h = 7, type_pi = "blockbootstrap", B = 10, 
+                      block_length = 5)
+```
+
+```{r fig.width=7.2}
+plot(obj, selected_series = "Quotes", type_graph = "sims", 
+     main = "Predictive simulations \n for Quotes")
+plot(obj, selected_series = "Quotes", type_graph = "dist", 
+     main = "Predictive simulation \n for Quotes")
+```
+
+```{r fig.width=7.2}
+plot(obj, selected_series = "TV.advert", type_graph = "sims", 
+     main = "Predictive simulation \n for TV.advert")
+plot(obj, selected_series = "TV.advert", type_graph = "dist", 
+     main = "Predictive simulation \n for TV.advert")
+```
+
