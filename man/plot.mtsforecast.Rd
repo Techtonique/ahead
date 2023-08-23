@@ -2,23 +2,24 @@
 % Please edit documentation in R/plot.R
 \name{plot.mtsforecast}
 \alias{plot.mtsforecast}
-\title{Plot multivariate time series forecast}
+\title{Plot multivariate time series forecast or residuals}
 \usage{
 \method{plot}{mtsforecast}(x, selected_series, type_graph = c("pi", "dist", "sims"), level = 95, ...)
 }
 \arguments{
-\item{x}{result from varf or ridge2f (multivariate time series forecast)}
+\item{x}{result from \code{basicf}, \code{ridge2f} or \code{varf} (multivariate time series forecast)}
 
 \item{selected_series}{name of the time series selected for plotting}
 
-\item{type_graph}{"pi": basic prediction intervals; "dist": a distribution of predictions; "sims": the simulations}
+\item{type_graph}{"pi": basic prediction intervals;
+"dist": a distribution of predictions; "sims": the simulations}
 
 \item{level}{confidence levels for prediction intervals}
 
 \item{...}{additional parameters to be passed to \code{plot} or \code{matplot}}
 }
 \description{
-Plot multivariate time series forecast
+Plot multivariate time series forecast or residuals
 }
 \examples{
 

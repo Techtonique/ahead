@@ -104,6 +104,7 @@ basicf <- function(y,
   fits <- ts(t(replicate(n = n_inputs, expr = point_forecast)),
              start = start_x, frequency = freq_x)
   resids <- y - fits
+  colnames(resids) <- colnames(y)
 
   # out-of-sample
   fcast <- ts(t(replicate(n = h, expr = point_forecast)),

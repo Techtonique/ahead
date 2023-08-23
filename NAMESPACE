@@ -1,5 +1,6 @@
 useDynLib(ahead, .registration=TRUE)
 S3method(plot, mtsforecast)
+S3method(plot, pairs)
 S3method(predict, ridge)
 importFrom(Rcpp, evalCpp)
 importFrom(VineCopula, C2RVine)
@@ -16,8 +17,8 @@ importFrom(fGarch, garchFit)
 importFrom("grDevices", "colorRampPalette")
   importFrom("graphics", "abline", "par", "points", "polygon")
   importFrom("stats", "t.test")
-importFrom("stats", "as.ts", "complete.cases", "end", "frequency",
-           "median", "predict", "predict.lm", "qnorm", "quantile",
+importFrom("stats", "as.ts", "complete.cases", "ecdf", "end", "frequency",
+           "lag", "median", "predict", "predict.lm", "qnorm", "quantile",
            "residuals", "rnorm", "rt", "sd", "setNames", "start",
            "ts", "tsp", "tsp<-")
 importFrom("utils", "tail")
@@ -32,5 +33,5 @@ export("loessf")
 export("ridge2f")
 export("ridge")
 export("varf")
+export("getreturns")
 export("getsimulations")
-export("splitts")

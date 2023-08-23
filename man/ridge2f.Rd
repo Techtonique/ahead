@@ -19,8 +19,9 @@ ridge2f(
   dropout = 0,
   type_forecast = c("recursive", "direct"),
   type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap",
-    "splitconformal"),
+    "rvinecopula", "splitconformal"),
   block_length = NULL,
+  margins = "gaussian",
   seed = 1,
   B = 100L,
   type_aggregation = c("mean", "median"),
@@ -59,13 +60,16 @@ ridge2f(
 
 \item{type_pi}{Type of prediction interval currently "gaussian", "bootstrap",
 "blockbootstrap", "movingblockbootstrap", "splitconformal" (very experimental right now),
-"rvine" copula}
+"rvinecopula" (with Gaussian margins for now, Student-t coming soon)}
 
 \item{block_length}{Length of block for circular or moving block bootstrap}
 
+\item{margins}{Distribution of margins "student" (postponed) or "gaussian" for
+\code{type_pi == "rvinecopula"}}
+
 \item{seed}{Reproducibility seed for random stuff}
 
-\item{B}{Number of bootstrap replications}
+\item{B}{Number of bootstrap replications or number of simulations (yes, 'B' is unfortunate)}
 
 \item{type_aggregation}{Type of aggregation, ONLY for bootstrapping; either "mean" or "median"}
 

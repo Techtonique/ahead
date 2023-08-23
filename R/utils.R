@@ -1,5 +1,6 @@
 # In alphabetical order
 
+
 # create new predictors -----
 create_new_predictors <- function(x,
                                   nb_hidden = 5,
@@ -134,6 +135,187 @@ dropout_layer <- function(X, dropout = 0, seed = 123)
     ) > dropout)
     return(X * mask / (1 - dropout))
   }
+}
+
+# MASS::fitdistr, but with stats::nlminb -----
+#'
+#' @export
+#'
+fitdistr_ahead <- function (x, densfun, start = NULL, seed = 123, ...)
+{
+  myfn <- function(parm, ...) -sum(log(dens(parm, ...)))
+  mylogfn <- function(parm, ...) -sum(dens(parm, ..., log = TRUE))
+  mydt <- function(x, m, s, df, log) stats::dt((x - m)/s, df, log = TRUE) - log(s)
+  Call <- match.call(expand.dots = TRUE)
+  if (missing(start))
+    start <- NULL
+  dots <- names(list(...))
+  dots <- dots[!is.element(dots, c("upper", "lower"))]
+  if (missing(x) || length(x) == 0L || mode(x) != "numeric")
+    stop("'x' must be a non-empty numeric vector")
+  if (any(!is.finite(x)))
+    stop("'x' contains missing or infinite values")
+  if (missing(densfun) || !(is.function(densfun) || is.character(densfun)))
+    stop("'densfun' must be supplied as a function or name")
+  control <- list()
+  n <- length(x)
+  if (is.character(densfun)) {
+    distname <- tolower(densfun)
+    densfun <- switch(distname, beta = stats::dbeta, cauchy = stats::dcauchy,
+                      `chi-squared` = stats::dchisq, exponential = stats::dexp, f = stats::df,
+                      gamma = stats::dgamma, geometric = stats::dgeom, `log-normal` = stats::dlnorm,
+                      lognormal = stats::dlnorm, logistic = stats::dlogis, `negative binomial` = stats::dnbinom,
+                      normal = stats::dnorm, poisson = stats::dpois, t = stats::dt,
+                      weibull = stats::dweibull, NULL)
+    if (is.null(densfun))
+      stop("unsupported distribution")
+    if (distname %in% c("lognormal", "log-normal")) {
+      if (!is.null(start))
+        stop(gettextf("supplying pars for the %s distribution is not supported",
+                      "log-Normal"), domain = NA)
+      if (any(x <= 0))
+        stop("need positive values to fit a log-Normal")
+      lx <- log(x)
+      sd0 <- sqrt((n - 1)/n) * sd(lx)
+      mx <- mean(lx)
+      estimate <- c(mx, sd0)
+      sds <- c(sd0/sqrt(n), sd0/sqrt(2 * n))
+      names(estimate) <- names(sds) <- c("meanlog", "sdlog")
+      vc <- matrix(c(sds[1]^2, 0, 0, sds[2]^2), ncol = 2,
+                   dimnames = list(names(sds), names(sds)))
+      names(estimate) <- names(sds) <- c("meanlog", "sdlog")
+      return(structure(list(estimate = estimate, sd = sds,
+                            vcov = vc, n = n, loglik = sum(stats::dlnorm(x, mx,
+                                                                  sd0, log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "normal") {
+      if (!is.null(start))
+        stop(gettextf("supplying pars for the %s distribution is not supported",
+                      "Normal"), domain = NA)
+      sd0 <- sqrt((n - 1)/n) * sd(x)
+      mx <- mean(x)
+      estimate <- c(mx, sd0)
+      sds <- c(sd0/sqrt(n), sd0/sqrt(2 * n))
+      names(estimate) <- names(sds) <- c("mean", "sd")
+      vc <- matrix(c(sds[1]^2, 0, 0, sds[2]^2), ncol = 2,
+                   dimnames = list(names(sds), names(sds)))
+      return(structure(list(estimate = estimate, sd = sds,
+                            vcov = vc, n = n, loglik = sum(stats::dnorm(x, mx, sd0,
+                                                                 log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "poisson") {
+      if (!is.null(start))
+        stop(gettextf("supplying pars for the %s distribution is not supported",
+                      "Poisson"), domain = NA)
+      estimate <- mean(x)
+      sds <- sqrt(estimate/n)
+      names(estimate) <- names(sds) <- "lambda"
+      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("lambda",
+                                                              "lambda"))
+      return(structure(list(estimate = estimate, sd = sds,
+                            vcov = vc, n = n, loglik = sum(stats::dpois(x, estimate,
+                                                                 log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "exponential") {
+      if (any(x < 0))
+        stop("Exponential values must be >= 0")
+      if (!is.null(start))
+        stop(gettextf("supplying pars for the %s distribution is not supported",
+                      "exponential"), domain = NA)
+      estimate <- 1/mean(x)
+      sds <- estimate/sqrt(n)
+      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("rate",
+                                                              "rate"))
+      names(estimate) <- names(sds) <- "rate"
+      return(structure(list(estimate = estimate, sd = sds,
+                            vcov = vc, n = n, loglik = sum(stats::dexp(x, estimate,
+                                                                log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "geometric") {
+      if (!is.null(start))
+        stop(gettextf("supplying pars for the %s distribution is not supported",
+                      "geometric"), domain = NA)
+      estimate <- 1/(1 + mean(x))
+      sds <- estimate * sqrt((1 - estimate)/n)
+      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("prob",
+                                                              "prob"))
+      names(estimate) <- names(sds) <- "prob"
+      return(structure(list(estimate = estimate, sd = sds,
+                            vcov = vc, n = n, loglik = sum(stats::dgeom(x, estimate,
+                                                                 log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "weibull" && is.null(start)) {
+      if (any(x <= 0))
+        stop("Weibull values must be > 0")
+      lx <- log(x)
+      m <- mean(lx)
+      v <- stats::var(lx)
+      shape <- 1.2/sqrt(v)
+      scale <- exp(m + 0.572/shape)
+      start <- list(shape = shape, scale = scale)
+      start <- start[!is.element(names(start), dots)]
+    }
+    if (distname == "gamma" && is.null(start)) {
+      if (any(x < 0))
+        stop("gamma values must be >= 0")
+      m <- mean(x)
+      v <- stats::var(x)
+      start <- list(shape = m^2/v, rate = m/v)
+      start <- start[!is.element(names(start), dots)]
+      control <- list(parscale = c(1, start$rate))
+    }
+    if (distname == "negative binomial" && is.null(start)) {
+      m <- mean(x)
+      v <- stats::var(x)
+      size <- if (v > m)
+        m^2/(v - m)
+      else 100
+      start <- list(size = size, mu = m)
+      start <- start[!is.element(names(start), dots)]
+    }
+    if (is.element(distname, c("cauchy", "logistic")) &&
+        is.null(start)) {
+      start <- list(location = median(x), scale = stats::IQR(x)/2)
+      start <- start[!is.element(names(start), dots)]
+    }
+    if (distname == "t" && is.null(start)) {
+      start <- list(m = median(x), s = stats::IQR(x)/2, df = 10)
+      start <- start[!is.element(names(start), dots)]
+    }
+  }
+  if (is.null(start) || !is.list(start))
+    stop("'start' must be a named list")
+  nm <- names(start)
+  f <- formals(densfun)
+  args <- names(f)
+  m <- match(nm, args)
+  if (any(is.na(m)))
+    stop("'start' specifies names which are not arguments to 'densfun'")
+  formals(densfun) <- c(f[c(1, m)], f[-c(1, m)])
+  dens <- function(parm, x, ...) densfun(x, parm, ...)
+  if ((l <- length(nm)) > 1L)
+    body(dens) <- parse(text = paste("densfun(x,", paste("parm[",
+                                                         1L:l, "]", collapse = ", "), ", ...)"))
+
+  Call[[1L]] <- quote(stats::nlminb)
+  Call$densfun <- Call$start <- NULL
+  Call$x <- x
+  Call$start <- start
+
+  Call$objective <- if ("log" %in% args)
+    mylogfn
+  else myfn
+
+  Call$hessian <- TRUE # in MASS::fitdistr
+  # Call$hessian <- NULL
+  if (length(control))
+    Call$control <- control
+
+  res <- eval.parent(Call)
+
+  return(list(estimate = res$par,
+              convergence = res$convergence,
+              objective = res$objective))
 }
 
 # clustering matrix -----
@@ -354,6 +536,18 @@ predict_myridge <- function(fit_obj, newx)
            xsd = fit_obj$scales) %*% fit_obj$coef + fit_obj$ym
 }
 
+
+# Quantile split conformal prediction -----
+#'
+#' @export
+#'
+quantile_scp <- function(abs_residuals, alpha)
+{
+  n_cal_points <- length(abs_residuals)
+  k <- ceiling((0.5*n_cal_points + 1)*(1 - alpha))
+  return(rank(abs_residuals)[k])
+}
+
 # Remove_zero_cols -----
 remove_zero_cols <- function(x, with_index = FALSE)
 {
@@ -376,14 +570,111 @@ scale_ahead <- function(x, center = TRUE, scale = TRUE)
   return(x)
 }
 
+# select residuals distribution -----
+#'
+#' @export
+#'
+select_residuals_dist <- function(obj, distro = c("normal", "t")) # 2 distributions for now
+{
+  resids <- obj$resids
+  n_obs <- nrow(resids)
+  n_series <- ncol(resids)
+  names_series <- colnames(resids)
+  distro <- match.arg(distro)
+
+  res <- vector("list", length = n_series)
+  names(res) <- names_series
+  for (j in 1:n_series)
+  {
+    resid <- resids[,j]
+    try_get_res <- suppressWarnings(try(fitdistr_ahead(resid,
+                                                       densfun = distro),
+                                        silent = TRUE))
+    if (!inherits(try_get_res, "try-error"))
+    {
+      res[[j]] <- try_get_res
+    } else {
+      warning("distribution can't be fitted by MASS::fitdistr")
+      return(NULL)
+    }
+  }
+  return(res)
+}
+
+# Simulation of residuals using copulas -----
+simulate_rvine <- function(obj, h = 5, seed = 123,
+                           uniformize = c("ranks", "ecdf"),
+                           distro = c("normal", "t"),
+                           tests = FALSE)
+{
+  resids <- obj$resids
+  n_obs <- nrow(resids)
+  n_series <- ncol(resids)
+  series_names <- colnames(resids)
+  uniformize <- match.arg(uniformize)
+  distro <- match.arg(distro)
+
+  if (distro == "normal")
+  {
+    list_parameters_distro <- select_residuals_dist(obj,
+                                                    distro = distro)
+  } else {
+    stop("Not implemented on 2023-08-20, coming soon")
+  }
+
+  if (uniformize == "ranks")
+  {
+    U <- apply(resids, 2, rank)/(n_obs + 1)
+  } else { # uniformize == "ecdf"
+    ecdfs <- apply(obj$residuals, 2, ecdf)
+    U <- sapply(1:n_series, function(i)
+      ecdfs[[i]](obj$residuals[, i]))
+  }
+
+  # select copula between 6 options
+  RVM_U <- VineCopula::RVineStructureSelect(data = U, familyset = 1:6,
+                                            type = 0, selectioncrit = "BIC")
+
+  # simulate copula
+  set.seed(seed)
+  rvine_simulation <- VineCopula::RVineSim(N = h, RVM = RVM_U)
+
+  if (distro == "normal")
+  {
+    foo <- function (i)
+    {
+      qnorm(p = rvine_simulation[, i],
+            mean = list_parameters_distro[[i]]$estimate["mean"],
+            sd = list_parameters_distro[[i]]$estimate["sd"])
+    }
+
+    res <- sapply(1:n_series, function(i) foo(i))
+    colnames(res) <- series_names
+
+    if (tests)
+    {
+      cat("shapiro test p-values: ", "\n")
+      tests_p <- apply(res, 2, function(x) stats::shapiro.test(x)$p.value)
+      names(tests_p) <- series_names
+      print(tests_p)
+      cat("\n")
+    }
+    return(res)
+  } else {
+      stop("Not implemented on 2023-08-20, coming soon")
+  }
+
+}
+
+
 # Split a time series -----
-splitts <- function(y, p = 0.5, return_indices = FALSE, ...)
+splitts <- function(y, split_prob = 0.5, return_indices = FALSE, ...)
 {
     n_y <- base::ifelse(test = is.null(dim(y)),
                       yes = length(y),
                       no = dim(y)[1])
 
-    index_train <- 1:floor(p*n_y)
+    index_train <- 1:floor(split_prob*n_y)
     if (return_indices)
       return(index_train)
 

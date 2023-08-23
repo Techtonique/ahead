@@ -1,12 +1,13 @@
 # version 0.7.0
 
-- `getsimulations` extracts simulations from a given time series (from `ridge2f` and `basicf`)
-- moving block bootstrap in `ridge2f`, `basicf` and `loessf` (in addition to circular block bootstrap from 0.6.2)
-- adjust copulas on residuals for `ridge2f`
+- moving block bootstrap in `ridge2f`, `basicf` and `loessf`, in addition to circular block bootstrap from 0.6.2
+- adjust R-Vine copulas on residuals for `ridge2f` simulation
 - new plots for simulations see (new) vignettes
-- split conformal prediction intervals (very experimental right now)
-- neutralization (TODO)(list with yM and mats, check with time(y) :o )
-- `Depends` vs `Imports` (beneficial to Python and rpy2 for installation time?)
+- split conformal prediction intervals (**very very experimental** and basic right now, too conservative)
+- `Depends` and selective `Imports` (beneficial to Python and rpy2 for installation time?)
+- `getsimulations` extracts simulations from a given time series (from `ridge2f` and `basicf`)
+- `getreturns` extracts returns/log-returns from multivariate time series
+- `splitts` splits time series using a proportion of data
 
 # version 0.6.2
 

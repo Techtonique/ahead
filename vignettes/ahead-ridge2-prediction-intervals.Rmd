@@ -407,3 +407,17 @@ print(apply(res14$residuals, 2, function (x) Box.test(x)$p.value))
 plot(res14, "Quotes", type = "dist")
 plot(res14, "TV.advert")
 ```
+
+
+# 5 - Prediction intervals based on R-Vine copula simulation
+
+```{r, "RVineCopula", fig.width=7.2}
+(obj <- ahead::ridge2f(fpp::insurance, 
+                         type_pi = "rvinecopula", 
+                         B = B, h = h))
+
+
+plot(obj, "Quotes", type = "dist")
+plot(obj, "TV.advert", type = "sims")
+```
+
