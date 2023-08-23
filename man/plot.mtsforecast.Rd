@@ -2,19 +2,24 @@
 % Please edit documentation in R/plot.R
 \name{plot.mtsforecast}
 \alias{plot.mtsforecast}
-\title{Plot multivariate time series forecast}
+\title{Plot multivariate time series forecast or residuals}
 \usage{
-\method{plot}{mtsforecast}(x, selected_series, ...)
+\method{plot}{mtsforecast}(x, selected_series, type_graph = c("pi", "dist", "sims"), level = 95, ...)
 }
 \arguments{
-\item{x}{result from varf or ridge2f (multivariate time series forecast)}
+\item{x}{result from \code{basicf}, \code{ridge2f} or \code{varf} (multivariate time series forecast)}
 
 \item{selected_series}{name of the time series selected for plotting}
 
-\item{...}{additional parameters to be passed to \code{plot}}
+\item{type_graph}{"pi": basic prediction intervals;
+"dist": a distribution of predictions; "sims": the simulations}
+
+\item{level}{confidence levels for prediction intervals}
+
+\item{...}{additional parameters to be passed to \code{plot} or \code{matplot}}
 }
 \description{
-Plot multivariate time series forecast
+Plot multivariate time series forecast or residuals
 }
 \examples{
 
@@ -31,5 +36,21 @@ plot(fit_obj_VAR, "Quotes")
 plot(fit_obj_VAR, "TV.advert")
 plot(fit_obj_ridge2, "Quotes")
 plot(fit_obj_ridge2, "TV.advert")
+
+obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap",
+block_length=5, B = 10)
+par(mfrow=c(1, 2))
+plot(obj, selected_series = "Quotes", type_graph = "sims",
+main = "Predictive simulation for Quotes")
+plot(obj, selected_series = "TV.advert", type_graph = "sims",
+main = "Predictive simulation for TV.advert")
+
+
+par(mfrow=c(1, 2))
+plot(obj, selected_series = "Quotes", type_graph = "dist",
+main = "Predictive simulation for Quotes")
+plot(obj, selected_series = "TV.advert", type_graph = "dist",
+main = "Predictive simulation for TV.advert")
+
 
 }

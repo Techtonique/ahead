@@ -18,8 +18,10 @@ ridge2f(
   lambda_2 = 0.1,
   dropout = 0,
   type_forecast = c("recursive", "direct"),
-  type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+  type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap",
+    "rvinecopula", "splitconformal"),
   block_length = NULL,
+  margins = "gaussian",
   seed = 1,
   B = 100L,
   type_aggregation = c("mean", "median"),
@@ -56,13 +58,18 @@ ridge2f(
 
 \item{type_forecast}{Recursive or direct forecast}
 
-\item{type_pi}{Type of prediction interval currently "gaussian" or (independent) "bootstrap" or (circular) "blockbootstrap"}
+\item{type_pi}{Type of prediction interval currently "gaussian", "bootstrap",
+"blockbootstrap", "movingblockbootstrap", "splitconformal" (very experimental right now),
+"rvinecopula" (with Gaussian margins for now, Student-t coming soon)}
 
-\item{block_length}{Length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
+\item{block_length}{Length of block for circular or moving block bootstrap}
+
+\item{margins}{Distribution of margins "student" (postponed) or "gaussian" for
+\code{type_pi == "rvinecopula"}}
 
 \item{seed}{Reproducibility seed for random stuff}
 
-\item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
+\item{B}{Number of bootstrap replications or number of simulations (yes, 'B' is unfortunate)}
 
 \item{type_aggregation}{Type of aggregation, ONLY for bootstrapping; either "mean" or "median"}
 
@@ -70,7 +77,7 @@ ridge2f(
 
 \item{type_clustering}{"kmeans" (K-Means clustering) or "hclust" (Hierarchical clustering)}
 
-\item{cl}{An integer; the number of clusters for parallel execution, for \code{type_pi == 'bootstrap'} or \code{type_pi == 'blockbootstrap'}}
+\item{cl}{An integer; the number of clusters for parallel execution, for bootstrap}
 
 \item{...}{Additional parameters to be passed \code{\link{kmeans}} or \code{\link{hclust}}}
 }
@@ -132,6 +139,21 @@ lambda_2=1)
 par(mfrow=c(1, 2))
 plot(res4, "income")
 plot(res4, "consumption")
+
+
+# moving block bootstrap
+xreg <- as.numeric(time(fpp::insurance))
+res6 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+                      h=10, lags=1L,
+                      type_pi = "movingblockbootstrap", B=10,
+                      block_length = 4)
+
+print(res6$sims[[2]])
+
+par(mfrow=c(1, 2))
+plot(res6, "Quotes")
+plot(res6, "TV.advert")
+
 
 }
 \references{

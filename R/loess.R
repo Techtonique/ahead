@@ -7,7 +7,7 @@
 #' @param level Confidence level for prediction intervals
 #' @param span the parameter which controls the degree of smoothing
 #' @param degree the degree of the polynomials to be used, normally 1 or 2. (Degree 0 is also allowed, but see \code{stats::loess})
-#' @param type_pi Type of prediction interval currently (independent) "bootstrap" or (circular) "blockbootstrap"
+#' @param type_pi Type of prediction interval currently (independent) "bootstrap", (circular) "blockbootstrap", or "movingblockbootstrap"
 #' @param b block length for circular block bootstrap
 #' @param B number of bootstrap replications
 #' @param type_aggregation Type of aggregation, ONLY for bootstrapping; either "mean" or "median"
@@ -28,20 +28,29 @@
 #'
 #' @examples
 #'
+#' par(mfrow = c(3, 1))
+#'
 #' plot(loessf(Nile, h=20, level=95, B=10))
+#'
+#' plot(loessf(Nile, h=20, level=95, B=10,
+#'      type_pi = "blockbootstrap"))
+#'
+#' plot(loessf(Nile, h=20, level=95, B=10,
+#'      type_pi = "movingblockbootstrap"))
 #'
 loessf <- function(y,
                    h = 5,
                    level = 95,
                    span = 0.75,
                    degree = 2,
-                   type_pi = c("bootstrap", "blockbootstrap"),
+                   type_pi = c("bootstrap",
+                               "blockbootstrap",
+                               "movingblockbootstrap"),
                    b = NULL,
                    B = 250,
                    type_aggregation = c("mean", "median"),
                    seed = 123)
 {
-  # adapted from forecast:::bld.mbb.bootstrap ---
   freq_y <- frequency(y)
   if (length(y) <= 2 * freq_y)
     freq_y <- 1L
@@ -100,6 +109,7 @@ loessf <- function(y,
     idx <- sample.int(n = length(resids),
                       size = h,
                       replace = TRUE)
+
     bootstrapped_residuals <- ts(switch(
       type_pi,
       bootstrap = matrix(resids, ncol = 1L)[idx,],
@@ -111,9 +121,17 @@ loessf <- function(y,
           seed = 100 * i + 3,
           return_indices =
             FALSE
-        )
-      )
-    ),
+        )),
+        movingblockbootstrap = drop(
+          mbb2(
+            r = matrix(resids, ncol = 1L),
+            n = h,
+            b = b,
+            seed = 100 * i + 3,
+            return_indices =
+              FALSE
+          ))
+      ),
     start = start_preds,
     frequency = freq_y)
 

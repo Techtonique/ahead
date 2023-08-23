@@ -6,8 +6,9 @@
 #' @param h Forecasting horizon
 #' @param level Confidence level for prediction intervals
 #' @param method forecasting method, either "mean", "median", or random walk ("rw")
-#' @param type_pi type of prediction interval currently, "gaussian" or "bootstrap"
-#' @param block_length length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})
+#' @param type_pi type of prediction interval currently, "gaussian", "bootstrap",
+#' "blockbootstrap" or "movingblockbootstrap"
+#' @param block_length length of block for (circular) "blockbootstrap" or "movingblockbootstrap"
 #' @param seed reproducibility seed for \code{type_pi == 'bootstrap'}
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'}
 #'
@@ -52,11 +53,24 @@
 #' plot(res5, "Quotes")
 #' plot(res5, "TV.advert")
 #'
+#'
+#' # moving block bootstrap
+#' res6 <- ahead::basicf(fpp::insurance, h=10,
+#'                       type_pi = "movingblockbootstrap", B=10,
+#'                       block_length = 4, method = "rw")
+#'
+#' par(mfrow=c(1, 2))
+#' plot(res6, "Quotes")
+#' plot(res6, "TV.advert")
+#'
 basicf <- function(y,
                    h = 5,
                    level = 95,
                    method = c("mean", "median", "rw"),
-                   type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+                   type_pi = c("gaussian",
+                               "bootstrap",
+                               "blockbootstrap",
+                               "movingblockbootstrap"),
                    block_length = NULL,
                    seed = 1,
                    B = 100)
@@ -90,6 +104,7 @@ basicf <- function(y,
   fits <- ts(t(replicate(n = n_inputs, expr = point_forecast)),
              start = start_x, frequency = freq_x)
   resids <- y - fits
+  colnames(resids) <- colnames(y)
 
   # out-of-sample
   fcast <- ts(t(replicate(n = h, expr = point_forecast)),
@@ -117,7 +132,17 @@ basicf <- function(y,
     return(structure(out, class = "mtsforecast"))
   }
 
-  if (type_pi %in% c("bootstrap", "blockbootstrap"))
+  if(type_pi %in% c("blockbootstrap", "movingblockbootstrap"))
+  {
+    if (nrow(y) <= 2 * freq_x)
+      freq_x <- 1L
+
+    if (is.null(block_length)) {
+      block_length <- ifelse(freq_x > 1, 2 * freq_x, min(8, floor(nrow(y) / 2)))
+    }
+  }
+
+  if (type_pi %in% c("bootstrap", "blockbootstrap", "movingblockbootstrap"))
   {
     sims <- vector("list", length = B)
     for (i in 1:B)
@@ -125,16 +150,27 @@ basicf <- function(y,
       # sampling from the residuals
       set.seed(seed + i*100 + nchar(method))
 
-      idx <- switch(type_pi,
-                    bootstrap = sample.int(n = nrow(resids),
-                        size = h, replace = TRUE),
-                    blockbootstrap = mbb(
-                      r = resids,
-                      n = h,
-                      b = block_length,
-                      return_indices = TRUE,
-                      seed = seed + i*100 + nchar(method)
-                    )
+      idx <- switch(
+        type_pi,
+        bootstrap = sample.int(
+          n = nrow(resids),
+          size = h,
+          replace = TRUE
+        ),
+        blockbootstrap = mbb(
+          r = resids,
+          n = h,
+          b = block_length,
+          return_indices = TRUE,
+          seed = seed + i * 100 + nchar(method)
+        ),
+        movingblockbootstrap = mbb2(
+          r = resids,
+          n = h,
+          b = block_length,
+          return_indices = TRUE,
+          seed = seed + i * 100 + nchar(method)
+        )
       )
 
       sims[[i]] <- ts(as.matrix(fcast) + as.matrix(resids[idx, ]),

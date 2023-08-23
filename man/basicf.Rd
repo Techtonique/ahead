@@ -9,7 +9,7 @@ basicf(
   h = 5,
   level = 95,
   method = c("mean", "median", "rw"),
-  type_pi = c("gaussian", "bootstrap", "blockbootstrap"),
+  type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap"),
   block_length = NULL,
   seed = 1,
   B = 100
@@ -24,9 +24,10 @@ basicf(
 
 \item{method}{forecasting method, either "mean", "median", or random walk ("rw")}
 
-\item{type_pi}{type of prediction interval currently, "gaussian" or "bootstrap"}
+\item{type_pi}{type of prediction interval currently, "gaussian", "bootstrap",
+"blockbootstrap" or "movingblockbootstrap"}
 
-\item{block_length}{length of block for circular block bootstrap (\code{type_pi == 'blockbootstrap'})}
+\item{block_length}{length of block for (circular) "blockbootstrap" or "movingblockbootstrap"}
 
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
 
@@ -74,5 +75,15 @@ plot(res3, "Quotes")
 plot(res3, "TV.advert")
 plot(res5, "Quotes")
 plot(res5, "TV.advert")
+
+
+# moving block bootstrap
+res6 <- ahead::basicf(fpp::insurance, h=10,
+                      type_pi = "movingblockbootstrap", B=10,
+                      block_length = 4, method = "rw")
+
+par(mfrow=c(1, 2))
+plot(res6, "Quotes")
+plot(res6, "TV.advert")
 
 }
