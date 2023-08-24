@@ -225,11 +225,13 @@ ridge2f <- function(y,
       dropout = dropout,
       centers = centers,
       type_clustering = type_clustering,
-      seed = seed
+      seed = seed,
+      type_pi = type_pi,
+      margins = margins
     )
   } else { # if (type_pi == "splitconformal") # experimental
 
-    y_train_calibration <- ahead::splitts(y, split_prob=0.8)
+    y_train_calibration <- splitts(y, split_prob=0.8)
     y_train <- y_train_calibration$training
     y_calibration <- y_train_calibration$testing
 
@@ -640,7 +642,8 @@ ridge2f <- function(y,
       x = y,
       level = level,
       method = "ridge2",
-      residuals = fit_obj$resids
+      residuals = fit_obj$resids,
+      margins = margins
     )
 
     if (use_xreg || use_clustering) # refactor this
@@ -691,6 +694,15 @@ fit_ridge2_mts <- function(x,
                            lambda_2 = 0.1,
                            dropout = 0,
                            seed = 1,
+                           type_pi = c(
+                             "gaussian",
+                             "bootstrap",
+                             "blockbootstrap",
+                             "movingblockbootstrap",
+                             "rvinecopula",
+                             "splitconformal"
+                           ),
+                           margins = "gaussian", # or "student"
                            ...)
 {
   stopifnot(floor(nb_hidden) == nb_hidden)
@@ -699,6 +711,11 @@ fit_ridge2_mts <- function(x,
 
   nodes_sim <- match.arg(nodes_sim)
   activ <- match.arg(activ)
+  type_pi <- match.arg(type_pi)
+  stopifnot(margins %in% c("gaussian", "student"))
+  margins <- switch(match.arg(margins), # this is convoluted
+                    gaussian = "normal",
+                    student = "t")
 
   series_names <- colnames(x)
 
@@ -765,6 +782,11 @@ fit_ridge2_mts <- function(x,
   resids <- rev_matrix_cpp(observed_values) - fitted_values
   colnames(resids) <- series_names
 
+  # select_residuals_dist <- function(obj, distro = c("normal", "t"))
+  list_parameters_distro <- NULL
+  if (type_pi == "rvinecopula")
+    list_parameters_distro <- select_residuals_dist(resids, distro = margins)
+
   return(
     list(
       y = y,
@@ -786,7 +808,8 @@ fit_ridge2_mts <- function(x,
       xm = xm,
       scales = xsd,
       coef = lscoef,
-      resids = resids
+      resids = resids,
+      list_parameters_distro = list_parameters_distro
     )
   )
 }
@@ -974,11 +997,14 @@ fcast_ridge2_mts <- function(fit_obj,
         }
       }
 
+      # simulate_rvine <- function(obj,
+      #                            h = 5, seed = 123,
+      #                            uniformize = c("ranks", "ecdf"),
+      #                            tests = FALSE)
       residuals_simulations <- simulate_rvine(fit_obj,
                                               h = h,
                                               seed = seed,
                                               uniformize = "ranks",
-                                              distro = margins,
                                               tests = FALSE)
 
       res2 <- rev_matrix_cpp(y)

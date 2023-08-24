@@ -571,12 +571,9 @@ scale_ahead <- function(x, center = TRUE, scale = TRUE)
 }
 
 # select residuals distribution -----
-#'
-#' @export
-#'
-select_residuals_dist <- function(obj, distro = c("normal", "t")) # 2 distributions for now
+select_residuals_dist <- function(resids,
+                                  distro = c("normal", "t")) # 2 distributions for now
 {
-  resids <- obj$resids
   n_obs <- nrow(resids)
   n_series <- ncol(resids)
   names_series <- colnames(resids)
@@ -598,13 +595,13 @@ select_residuals_dist <- function(obj, distro = c("normal", "t")) # 2 distributi
       return(NULL)
     }
   }
-  return(res)
+  return(list(params = res, distro = distro))
 }
 
 # Simulation of residuals using copulas -----
-simulate_rvine <- function(obj, h = 5, seed = 123,
+simulate_rvine <- function(obj,
+                           h = 5, seed = 123,
                            uniformize = c("ranks", "ecdf"),
-                           distro = c("normal", "t"),
                            tests = FALSE)
 {
   resids <- obj$resids
@@ -612,15 +609,9 @@ simulate_rvine <- function(obj, h = 5, seed = 123,
   n_series <- ncol(resids)
   series_names <- colnames(resids)
   uniformize <- match.arg(uniformize)
-  distro <- match.arg(distro)
-
-  if (distro == "normal")
-  {
-    list_parameters_distro <- select_residuals_dist(obj,
-                                                    distro = distro)
-  } else {
-    stop("Not implemented on 2023-08-20, coming soon")
-  }
+  list_parameters_distro <- obj$list_parameters_distro
+  distro <- list_parameters_distro$distro
+  params <- list_parameters_distro$params
 
   if (uniformize == "ranks")
   {
@@ -628,7 +619,7 @@ simulate_rvine <- function(obj, h = 5, seed = 123,
   } else { # uniformize == "ecdf"
     ecdfs <- apply(obj$residuals, 2, ecdf)
     U <- sapply(1:n_series, function(i)
-      ecdfs[[i]](obj$residuals[, i]))
+      ecdfs[[i]](resids[, i]))
   }
 
   # select copula between 6 options
@@ -644,8 +635,8 @@ simulate_rvine <- function(obj, h = 5, seed = 123,
     foo <- function (i)
     {
       qnorm(p = rvine_simulation[, i],
-            mean = list_parameters_distro[[i]]$estimate["mean"],
-            sd = list_parameters_distro[[i]]$estimate["sd"])
+            mean = params[[i]]$estimate["mean"],
+            sd = params[[i]]$estimate["sd"])
     }
 
     res <- sapply(1:n_series, function(i) foo(i))
