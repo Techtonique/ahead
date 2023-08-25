@@ -167,7 +167,7 @@ ridge2f <- function(y,
     if (is.null(ncol(xreg)))
       xreg <- as.matrix(xreg)
 
-    stopifnot(nrow(xreg) == nrow(y))
+    stopifnot(identical(nrow(xreg), nrow(y)))
 
     use_xreg <- TRUE
 
@@ -211,7 +211,7 @@ ridge2f <- function(y,
   type_forecast <- match.arg(type_forecast)
 
   # Fitting a regularized regression  model to multiple time series
-  if (type_pi != "splitconformal")
+  if (!identical(type_pi, "splitconformal"))
   {
     fit_obj <- fit_ridge2_mts(
       y,
@@ -270,7 +270,7 @@ ridge2f <- function(y,
                                                           alpha = (1 - level/100))
   }
 
-  if (type_pi == "gaussian")
+  if (identical(type_pi, "gaussian"))
   {
     preds <- ts(
       data = fcast_ridge2_mts(
@@ -477,7 +477,7 @@ ridge2f <- function(y,
     return(structure(out, class = "mtsforecast"))
   }
 
-  if (type_pi == "splitconformal") # experimental
+  if (identical(type_pi, "splitconformal")) # experimental
   {
     preds <- ts(
       data = fcast_ridge2_mts(
@@ -520,7 +520,7 @@ ridge2f <- function(y,
     return(structure(out, class = "mtsforecast"))
   }
 
-  if (type_pi == "rvinecopula")
+  if (identical(type_pi, "rvinecopula"))
   {
     cl <- floor(min(max(cl, 0L), parallel::detectCores()))
 
@@ -643,6 +643,7 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       residuals = fit_obj$resids,
+      copula = fit_obj$params_distro,
       margins = margins
     )
 
@@ -782,10 +783,11 @@ fit_ridge2_mts <- function(x,
   resids <- rev_matrix_cpp(observed_values) - fitted_values
   colnames(resids) <- series_names
 
-  # select_residuals_dist <- function(obj, distro = c("normal", "t"))
-  list_parameters_distro <- NULL
-  if (type_pi == "rvinecopula")
-    list_parameters_distro <- select_residuals_dist(resids, distro = margins)
+  params_distro <- NULL
+  if (identical(type_pi, "rvinecopula"))
+    params_distro <- select_residuals_dist(resids,
+                                           uniformize = "ranks",
+                                           distro = margins)
 
   return(
     list(
@@ -809,7 +811,7 @@ fit_ridge2_mts <- function(x,
       scales = xsd,
       coef = lscoef,
       resids = resids,
-      list_parameters_distro = list_parameters_distro
+      params_distro = params_distro
     )
   )
 }
@@ -835,16 +837,16 @@ fcast_ridge2_mts <- function(fit_obj,
                    gaussian = "normal",
                    student = "t")
 
-  if (bootstrap == FALSE)
+  if (identical(bootstrap, FALSE))
   {
 
-    if(type_simulation == "none") # other than bootstrap
+    if(identical(type_simulation, "none")) # other than bootstrap
     {
 
       # 1 - recursive forecasts (bootstrap == FALSE) -------------------------------------------------
 
       # recursive forecasts
-      if (type_forecast == "recursive")
+      if (identical(type_forecast, "recursive"))
       {
         # observed values (minus lagged) in decreasing order (most recent first)
         y_mat <- rbind(matrix(NA, nrow = h, ncol = ncol(fit_obj$y)),
@@ -873,7 +875,7 @@ fcast_ridge2_mts <- function(fit_obj,
       # 2 - direct forecasts (bootstrap == FALSE) -------------------------------------------------
 
       # direct forecasts
-      if (type_forecast == "direct")
+      if (identical(type_forecast, "direct"))
       {
         # observed values (minus lagged)
         y <- fit_obj$y
@@ -921,12 +923,12 @@ fcast_ridge2_mts <- function(fit_obj,
 
     }
 
-    if(type_simulation == "rvinecopula")
+    if(identical(type_simulation, "rvinecopula"))
     {
       # 1 - recursive forecasts (bootstrap == FALSE, type_simulation == "rvinecopula") -------------------------------------------------
 
       # recursive forecasts
-      if (type_forecast == "recursive")
+      if (identical(type_forecast, "recursive"))
       {
         # observed values (minus lagged) in decreasing order (most recent first)
         y <- fit_obj$y
@@ -955,7 +957,7 @@ fcast_ridge2_mts <- function(fit_obj,
 
       # 2 - direct forecasts (bootstrap == FALSE, type_simulation == "rvinecopula") -------------------------------------------------
       # direct forecasts
-      if (type_forecast == "direct")
+      if (identical(type_forecast, "direct"))
       {
         # observed values (minus lagged)
         y <- fit_obj$y
@@ -997,14 +999,10 @@ fcast_ridge2_mts <- function(fit_obj,
         }
       }
 
-      # simulate_rvine <- function(obj,
-      #                            h = 5, seed = 123,
-      #                            uniformize = c("ranks", "ecdf"),
-      #                            tests = FALSE)
       residuals_simulations <- simulate_rvine(fit_obj,
+                                              RVM_U = fit_obj$params_distro$RVM_U,
                                               h = h,
                                               seed = seed,
-                                              uniformize = "ranks",
                                               tests = FALSE)
 
       res2 <- rev_matrix_cpp(y)
@@ -1064,7 +1062,7 @@ fcast_ridge2_mts <- function(fit_obj,
     # 1 - recursive forecasts (bootstrap == TRUE) -------------------------------------------------
 
     # recursive forecasts
-    if (type_forecast == "recursive")
+    if (identical(type_forecast, "recursive"))
     {
       y_mat <- rbind(matrix(NA, nrow = h, ncol = ncol(fit_obj$y)),
                      fit_obj$y)
@@ -1092,7 +1090,7 @@ fcast_ridge2_mts <- function(fit_obj,
     # 2 - direct forecasts (bootstrap == TRUE) -------------------------------------------------
 
     # direct forecasts
-    if (type_forecast == "direct")
+    if (identical(type_forecast, "direct"))
     {
       lags <- fit_obj$lags
       nn_xm <- fit_obj$nn_xm

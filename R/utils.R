@@ -572,15 +572,17 @@ scale_ahead <- function(x, center = TRUE, scale = TRUE)
 
 # select residuals distribution -----
 select_residuals_dist <- function(resids,
+                                  uniformize = c("ranks", "ecdf"),
                                   distro = c("normal", "t")) # 2 distributions for now
 {
   n_obs <- nrow(resids)
   n_series <- ncol(resids)
-  names_series <- colnames(resids)
+  uniformize <- match.arg(uniformize)
   distro <- match.arg(distro)
 
-  res <- vector("list", length = n_series)
-  names(res) <- names_series
+  fitted_residuals_distr <- vector("list", length = n_series)
+  names(fitted_residuals_distr) <- colnames(resids)
+
   for (j in 1:n_series)
   {
     resid <- resids[,j]
@@ -589,29 +591,12 @@ select_residuals_dist <- function(resids,
                                         silent = TRUE))
     if (!inherits(try_get_res, "try-error"))
     {
-      res[[j]] <- try_get_res
+      fitted_residuals_distr[[j]] <- try_get_res
     } else {
       warning("distribution can't be fitted by MASS::fitdistr")
       return(NULL)
     }
   }
-  return(list(params = res, distro = distro))
-}
-
-# Simulation of residuals using copulas -----
-simulate_rvine <- function(obj,
-                           h = 5, seed = 123,
-                           uniformize = c("ranks", "ecdf"),
-                           tests = FALSE)
-{
-  resids <- obj$resids
-  n_obs <- nrow(resids)
-  n_series <- ncol(resids)
-  series_names <- colnames(resids)
-  uniformize <- match.arg(uniformize)
-  list_parameters_distro <- obj$list_parameters_distro
-  distro <- list_parameters_distro$distro
-  params <- list_parameters_distro$params
 
   if (uniformize == "ranks")
   {
@@ -626,11 +611,29 @@ simulate_rvine <- function(obj,
   RVM_U <- VineCopula::RVineStructureSelect(data = U, familyset = 1:6,
                                             type = 0, selectioncrit = "BIC")
 
+  return(list(params = fitted_residuals_distr,
+              distro = distro,
+              RVM_U = RVM_U))
+}
+
+# Simulation of residuals using copulas -----
+simulate_rvine <- function(obj, RVM_U,
+                           h = 5, seed = 123,
+                           tests = FALSE)
+{
+  resids <- obj$resids
+  n_obs <- nrow(resids)
+  n_series <- ncol(resids)
+  series_names <- colnames(resids)
+  params_distro <- obj$params_distro
+  distro <- params_distro$distro
+  params <- params_distro$params
+
   # simulate copula
   set.seed(seed)
   rvine_simulation <- VineCopula::RVineSim(N = h, RVM = RVM_U)
 
-  if (distro == "normal")
+  if (identical(distro, "normal"))
   {
     foo <- function (i)
     {
