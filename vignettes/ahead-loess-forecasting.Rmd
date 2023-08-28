@@ -12,10 +12,12 @@ vignette: >
 The model used in this demo is `stats::loess` (Local Polynomial Regression Fitting), 
 **adapted to univariate forecasting** in `ahead::loessf`. 
 
-Currently for this model (as of 2023-08-12), for **uncertainty quantification**, options are based on bootstrap aggregation of the residuals:
+Currently for this model (as of 2023-08-28), for **uncertainty quantification**, options are:
 
--   Independent **bootstrap** 
--   Multivariate circular **block bootstrap** 
+-   Independent **bootstrap** of the residuals
+-   Multivariate circular **block bootstrap** of the residuals
+-   Multivariate moving block bootstrap of the residuals
+-   Adjustment of a copula to the residuals
 -   **More options to come** in the future.
 
 Please remember that _in real life_, this model's hyperparameters will have to be tuned.
