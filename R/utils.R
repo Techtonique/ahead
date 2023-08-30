@@ -573,28 +573,32 @@ scale_ahead <- function(x, center = TRUE, scale = TRUE)
 # select residuals distribution -----
 select_residuals_dist <- function(resids,
                                   uniformize = c("ranks", "ecdf"),
-                                  distro = c("normal", "t")) # 2 distributions for now
+                                  distro = c("normal", "t", "empirical"))
 {
-  n_obs <- nrow(resids)
-  n_series <- ncol(resids)
+  n_obs <- dim(resids)[1]
+  n_series <- dim(resids)[2]
   uniformize <- match.arg(uniformize)
   distro <- match.arg(distro)
+  fitted_residuals_distr <- NULL
 
-  fitted_residuals_distr <- vector("list", length = n_series)
-  names(fitted_residuals_distr) <- colnames(resids)
-
-  for (j in 1:n_series)
+  if (distro %in% c("normal", "t"))
   {
-    resid <- resids[,j]
-    try_get_res <- suppressWarnings(try(fitdistr_ahead(resid,
-                                                       densfun = distro),
-                                        silent = TRUE))
-    if (!inherits(try_get_res, "try-error"))
+    fitted_residuals_distr <- vector("list", length = n_series)
+    names(fitted_residuals_distr) <- colnames(resids)
+
+    for (j in 1:n_series)
     {
-      fitted_residuals_distr[[j]] <- try_get_res
-    } else {
-      warning("distribution can't be fitted by MASS::fitdistr")
-      return(NULL)
+      resid <- resids[,j]
+      try_get_res <- suppressWarnings(try(fitdistr_ahead(resid,
+                                                         densfun = distro),
+                                          silent = TRUE))
+      if (!inherits(try_get_res, "try-error"))
+      {
+        fitted_residuals_distr[[j]] <- try_get_res
+      } else {
+        warning("distribution can't be fitted by MASS::fitdistr")
+        return(NULL)
+      }
     }
   }
 
@@ -622,8 +626,8 @@ simulate_rvine <- function(obj, RVM_U,
                            tests = FALSE)
 {
   resids <- obj$resids
-  n_obs <- nrow(resids)
-  n_series <- ncol(resids)
+  n_obs <- dim(resids)[1]
+  n_series <- dim(resids)[2]
   series_names <- colnames(resids)
   params_distro <- obj$params_distro
   distro <- params_distro$distro
@@ -654,8 +658,25 @@ simulate_rvine <- function(obj, RVM_U,
       cat("\n")
     }
     return(res)
-  } else {
-      stop("Not implemented on 2023-08-20, coming soon")
+  }
+
+  if (identical(distro, "empirical"))
+  {
+    foo <- function (i)
+    {
+      stats::quantile(x = resids[, i],
+                      probs = rvine_simulation[, i],
+                      type = 7L)
+    }
+
+    res <- sapply(1:n_series, function(i) foo(i))
+    colnames(res) <- series_names
+
+    return(res)
+  }
+
+  if (distro %in% c("student", "t")) {
+      stop("Not implemented")
   }
 
 }

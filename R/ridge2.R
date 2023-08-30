@@ -20,7 +20,7 @@
 #' "blockbootstrap", "movingblockbootstrap", "splitconformal" (very experimental right now),
 #' "rvinecopula" (with Gaussian margins for now, Student-t coming soon)
 #' @param block_length Length of block for circular or moving block bootstrap
-#' @param margins Distribution of margins "student" (postponed) or "gaussian" for
+#' @param margins Distribution of margins "gaussian", "empirical", "student" (postponed or never) for
 #' \code{type_pi == "rvinecopula"}
 #' @param seed Reproducibility seed for random stuff
 #' @param B Number of bootstrap replications or number of simulations (yes, 'B' is unfortunate)
@@ -133,7 +133,7 @@ ridge2f <- function(y,
                       "splitconformal"
                     ),
                     block_length = NULL,
-                    margins = "gaussian", # or "student"
+                    margins = c("gaussian", "empirical", "student"),
                     seed = 1,
                     B = 100L,
                     type_aggregation = c("mean", "median"),
@@ -522,6 +522,8 @@ ridge2f <- function(y,
 
   if (identical(type_pi, "rvinecopula"))
   {
+    margins <- match.arg(margins)
+
     cl <- floor(min(max(cl, 0L), parallel::detectCores()))
 
     if (cl <= 1L)
@@ -703,7 +705,9 @@ fit_ridge2_mts <- function(x,
                              "rvinecopula",
                              "splitconformal"
                            ),
-                           margins = "gaussian", # or "student"
+                           margins = c("gaussian",
+                                       "empirical",
+                                       "student"),
                            ...)
 {
   stopifnot(floor(nb_hidden) == nb_hidden)
@@ -713,10 +717,12 @@ fit_ridge2_mts <- function(x,
   nodes_sim <- match.arg(nodes_sim)
   activ <- match.arg(activ)
   type_pi <- match.arg(type_pi)
-  stopifnot(margins %in% c("gaussian", "student"))
-  margins <- switch(match.arg(margins), # this is convoluted
+  stopifnot(margins %in% c("gaussian", "empirical", "student"))
+  choice_margins <- match.arg(margins)
+  margins <- switch(choice_margins, # this is convoluted
                     gaussian = "normal",
-                    student = "t")
+                    student = "t",
+                    empirical = "empirical")
 
   series_names <- colnames(x)
 
@@ -823,7 +829,7 @@ fcast_ridge2_mts <- function(fit_obj,
                              type_forecast = c("recursive", "direct"),
                              level = 95,
                              type_simulation = c("none", "rvinecopula"), # other than bootstrap
-                             margins = c("gaussian", "student"),
+                             margins = c("gaussian", "empirical", "student"),
                              bootstrap = FALSE,
                              type_bootstrap = c("bootstrap",
                                                 "blockbootstrap",
@@ -835,7 +841,8 @@ fcast_ridge2_mts <- function(fit_obj,
   type_simulation <- match.arg(type_simulation)
   margins <- switch(match.arg(margins),
                    gaussian = "normal",
-                   student = "t")
+                   student = "t",
+                   empirical = "empirical")
 
   if (identical(bootstrap, FALSE))
   {

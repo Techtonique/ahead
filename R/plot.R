@@ -75,8 +75,6 @@ plot.mtsforecast <- function(x, selected_series,
       lines(y_upper, col="gray60")
       lines(y_lower, col="gray60")
       lines(y_mean)
-
-      return()
     }
 
     if (type_graph == "dist")
@@ -111,8 +109,6 @@ plot.mtsforecast <- function(x, selected_series,
       bands_add(abs, y_mean, col = color[3], ci_upper = x_summary[2, ],
                 ci_lower = x_summary[4, ])
 
-      return()
-
     }
 
     if (type_graph == "sims")
@@ -128,13 +124,13 @@ plot.mtsforecast <- function(x, selected_series,
       frequency_x <- frequency(x$x)
       start_preds <- start(x$mean)
 
-      (preds_simulations <-
+      preds_simulations <-
           ts(
             sapply(1:B, function (i)
               x$sims[[i]][, selected_series]),
             start = start_preds,
             frequency = frequency_x
-          ))
+          )
 
       out <- ts(
         data = rbind(series_reps, preds_simulations),
@@ -155,8 +151,6 @@ plot.mtsforecast <- function(x, selected_series,
         ...
       )
       lines(x = time_inputs, y = input_series, lwd = 2)
-
-      return()
     }
   } else {
     stop("Method not implemented for this type of object")
