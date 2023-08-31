@@ -21,7 +21,7 @@ ridge2f(
   type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap",
     "rvinecopula", "splitconformal"),
   block_length = NULL,
-  margins = "gaussian",
+  margins = c("gaussian", "empirical", "student"),
   seed = 1,
   B = 100L,
   type_aggregation = c("mean", "median"),
@@ -64,7 +64,7 @@ ridge2f(
 
 \item{block_length}{Length of block for circular or moving block bootstrap}
 
-\item{margins}{Distribution of margins "student" (postponed) or "gaussian" for
+\item{margins}{Distribution of margins "gaussian", "empirical", "student" (postponed or never) for
 \code{type_pi == "rvinecopula"}}
 
 \item{seed}{Reproducibility seed for random stuff}

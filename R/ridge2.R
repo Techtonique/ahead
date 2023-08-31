@@ -20,13 +20,15 @@
 #' "blockbootstrap", "movingblockbootstrap", "splitconformal" (very experimental right now),
 #' "rvinecopula" (with Gaussian margins for now, Student-t coming soon)
 #' @param block_length Length of block for circular or moving block bootstrap
-#' @param margins Distribution of margins "gaussian", "empirical", "student" (postponed or never) for
-#' \code{type_pi == "rvinecopula"}
+#' @param margins Distribution of margins: "gaussian", "empirical", "student" (postponed or
+#' never) for \code{type_pi == "rvinecopula"}
 #' @param seed Reproducibility seed for random stuff
 #' @param B Number of bootstrap replications or number of simulations (yes, 'B' is unfortunate)
 #' @param type_aggregation Type of aggregation, ONLY for bootstrapping; either "mean" or "median"
 #' @param centers Number of clusters for \code{type_clustering}
 #' @param type_clustering "kmeans" (K-Means clustering) or "hclust" (Hierarchical clustering)
+#' @param ym Yield to maturities; a list with components \code{maturities} (increasing) and
+#' \code{yield}. Default is \code{NULL}.
 #' @param cl An integer; the number of clusters for parallel execution, for bootstrap
 #' @param ... Additional parameters to be passed \code{\link{kmeans}} or \code{\link{hclust}}
 #'
@@ -139,6 +141,7 @@ ridge2f <- function(y,
                     type_aggregation = c("mean", "median"),
                     centers = NULL,
                     type_clustering = c("kmeans", "hclust"),
+                    ym = NULL,
                     cl = 1L,
                     ...)
 {
@@ -198,6 +201,12 @@ ridge2f <- function(y,
     colnames_y_clustering <- colnames(y)
     y <- cbind(y, matrix_clusters)
     colnames(y) <- c(colnames_y_clustering, colnames_clustering)
+  }
+
+  if (!is.null(ym))
+  {
+    # identical(length(ym$yield), length(ym$maturities))
+    # identical(time(y), ym$maturities)
   }
 
   series_names <- colnames(y)
