@@ -205,8 +205,9 @@ ridge2f <- function(y,
 
   if (!is.null(ym))
   {
-    # identical(length(ym$yield), length(ym$maturities))
-    # identical(time(y), ym$maturities)
+    stopifnot(all(ym$maturities == cummax(ym$maturities))) # increasing
+    stopifnot(identical(length(ym$yield), length(ym$maturities)))
+    # identical(stats::time(y), ym$maturities)
   }
 
   series_names <- colnames(y)

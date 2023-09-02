@@ -69,15 +69,14 @@ loessf <- function(y,
   tspy <- tsp(as.ts(y))
   start_preds <- tspy[2] + 1 / tspy[3]
 
-  # Adjust
-  input_times <- stats::time(y)
-
   if (!is.null(ym))
   {
-    # identical(length(ym$yield), length(ym$maturities))
-    # identical(input_times, ym$maturities)
+    stopifnot(all(ym$maturities == cummax(ym$maturities))) # increasing
+    stopifnot(identical(length(ym$yield), length(ym$maturities)))
+    # identical(stats::time(y), ym$maturities)
   }
 
+  # Adjust
   fit_loess <- stats::loess(
     value ~ time,
     data = cbind.data.frame(time = input_times,
