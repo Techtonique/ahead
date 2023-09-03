@@ -12,7 +12,8 @@ basicf(
   type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap"),
   block_length = NULL,
   seed = 1,
-  B = 100
+  B = 100,
+  ym = NULL
 )
 }
 \arguments{
@@ -27,11 +28,16 @@ basicf(
 \item{type_pi}{type of prediction interval currently, "gaussian", "bootstrap",
 "blockbootstrap" or "movingblockbootstrap"}
 
-\item{block_length}{length of block for (circular) "blockbootstrap" or "movingblockbootstrap"}
+\item{block_length}{length of block for (circular) "blockbootstrap" or
+"movingblockbootstrap"}
 
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
 
 \item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'}}
+
+\item{ym}{Univariate time series (\code{stats::ts}) of yield to maturities with
+\code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
+Default is \code{NULL}.}
 }
 \value{
 An object of class "mtsforecast"; a list containing the following elements:

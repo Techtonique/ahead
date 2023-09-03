@@ -2,7 +2,7 @@
 title: "Prediction intervals for multivariate time series (simulation-based)"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Prediction intervals (simulation-based) in R package `ahead`}
+  %\VignetteIndexEntry{Prediction intervals for multivariate time series (simulation-based)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

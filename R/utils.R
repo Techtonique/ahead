@@ -1,6 +1,5 @@
 # In alphabetical order
 
-
 # create new predictors -----
 create_new_predictors <- function(x,
                                   nb_hidden = 5,
@@ -527,6 +526,45 @@ my_sd <- function(x)
   )) ^ 2) ^ 0.5)
 }
 my_sd <- compiler::cmpfun(my_sd)
+
+# neutralize -----
+neutralize <- function(obj, ym, selected_series)
+{
+  sims_selected_series <- ahead::getsimulations(obj,
+                                                selected_series)$series
+
+  stopifnot(identical(start(sims_selected_series),
+                      start(ym)))
+  stopifnot(identical(frequency(sims_selected_series),
+                      frequency(ym)))
+  stopifnot(!is.null(dim(sims_selected_series)))
+  stopifnot(is.null(dim(ym)))
+  stopifnot(identical(length(ym), nrow(sims_selected_series)))
+  stopifnot(all.equal(cumsum(diff(
+    time(sims_selected_series)
+  )),
+  cumsum(diff(time(
+    ym
+  )))))
+  if (any(abs(sims_selected_series) > 2))
+    warnings(
+      "predictive simulations must contain returns or log-returns \n (use ahead::getreturns on input)"
+    )
+  n_simulations <- dim(sims_selected_series)[2]
+  centered_sims_selected_series <-
+    sims_selected_series - matrix(rep(rowMeans(sims_selected_series), n_simulations),
+                                  ncol = n_simulations,
+                                  byrow = FALSE)
+  res <- centered_sims_selected_series + matrix(rep(as.numeric(ym),
+                                                    n_simulations),
+                                                ncol = n_simulations,
+                                                byrow = FALSE)
+  return(ts(
+    res,
+    start = start(sims_selected_series),
+    frequency = frequency(sims_selected_series)
+  ))
+}
 
 # Ridge regression prediction -----
 predict_myridge <- function(fit_obj, newx)

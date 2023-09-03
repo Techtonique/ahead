@@ -12,8 +12,6 @@
 #' @param B number of bootstrap replications
 #' @param type_aggregation Type of aggregation, ONLY for bootstrapping; either "mean" or "median"
 #' @param seed reproducibility seed
-#' @param ym Yield to maturities; a list with components \code{maturities} (increasing) and
-#' \code{yield}. Default is \code{NULL}.
 #'
 #' @return An object of class "forecast"; a list containing the following elements:
 #'
@@ -51,8 +49,7 @@ loessf <- function(y,
                    b = NULL,
                    B = 250,
                    type_aggregation = c("mean", "median"),
-                   seed = 123,
-                   ym = NULL)
+                   seed = 123)
 {
   freq_y <- frequency(y)
   if (length(y) <= 2 * freq_y)
@@ -69,14 +66,8 @@ loessf <- function(y,
   tspy <- tsp(as.ts(y))
   start_preds <- tspy[2] + 1 / tspy[3]
 
-  if (!is.null(ym))
-  {
-    stopifnot(all(ym$maturities == cummax(ym$maturities))) # increasing
-    stopifnot(identical(length(ym$yield), length(ym$maturities)))
-    # identical(stats::time(y), ym$maturities)
-  }
-
   # Adjust
+  input_times <- stats::time(y)
   fit_loess <- stats::loess(
     value ~ time,
     data = cbind.data.frame(time = input_times,

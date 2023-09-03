@@ -27,10 +27,11 @@
 #' @param type_aggregation Type of aggregation, ONLY for bootstrapping; either "mean" or "median"
 #' @param centers Number of clusters for \code{type_clustering}
 #' @param type_clustering "kmeans" (K-Means clustering) or "hclust" (Hierarchical clustering)
-#' @param ym Yield to maturities; a list with components \code{maturities} (increasing) and
-#' \code{yield}. Default is \code{NULL}.
+#' @param ym Univariate time series (\code{stats::ts}) of yield to maturities with
+#' \code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
+#' Default is \code{NULL}.
 #' @param cl An integer; the number of clusters for parallel execution, for bootstrap
-#' @param ... Additional parameters to be passed \code{\link{kmeans}} or \code{\link{hclust}}
+#' @param ... Additional parameters to be passed to \code{\link{kmeans}} or \code{\link{hclust}}
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
 #'
@@ -201,13 +202,6 @@ ridge2f <- function(y,
     colnames_y_clustering <- colnames(y)
     y <- cbind(y, matrix_clusters)
     colnames(y) <- c(colnames_y_clustering, colnames_clustering)
-  }
-
-  if (!is.null(ym))
-  {
-    stopifnot(all(ym$maturities == cummax(ym$maturities))) # increasing
-    stopifnot(identical(length(ym$yield), length(ym$maturities)))
-    # identical(stats::time(y), ym$maturities)
   }
 
   series_names <- colnames(y)
@@ -484,6 +478,16 @@ ridge2f <- function(y,
       }
     }
 
+    if (!is.null(ym))
+    {
+      neutralized_sims <- lapply(series_names,
+                                 function(series)
+                                   neutralize(out, ym = ym,
+                                              selected_series = series))
+      names(neutralized_sims) <- series_names
+      out$neutralized_sims <- neutralized_sims
+    }
+
     return(structure(out, class = "mtsforecast"))
   }
 
@@ -685,6 +689,16 @@ ridge2f <- function(y,
           }
         }
       }
+    }
+
+    if (!is.null(ym))
+    {
+      neutralized_sims <- lapply(series_names,
+                                 function(series)
+                                   neutralize(out, ym = ym,
+                                              selected_series = series))
+      names(neutralized_sims) <- series_names
+      out$neutralized_sims <- neutralized_sims
     }
 
     return(structure(out, class = "mtsforecast"))
