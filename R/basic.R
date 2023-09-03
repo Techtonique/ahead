@@ -8,9 +8,13 @@
 #' @param method forecasting method, either "mean", "median", or random walk ("rw")
 #' @param type_pi type of prediction interval currently, "gaussian", "bootstrap",
 #' "blockbootstrap" or "movingblockbootstrap"
-#' @param block_length length of block for (circular) "blockbootstrap" or "movingblockbootstrap"
+#' @param block_length length of block for (circular) "blockbootstrap" or
+#' "movingblockbootstrap"
 #' @param seed reproducibility seed for \code{type_pi == 'bootstrap'}
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'}
+#' @param ym Univariate time series (\code{stats::ts}) of yield to maturities with
+#' \code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
+#' Default is \code{NULL}.
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
 #'
@@ -73,7 +77,8 @@ basicf <- function(y,
                                "movingblockbootstrap"),
                    block_length = NULL,
                    seed = 1,
-                   B = 100)
+                   B = 100,
+                   ym = NULL)
 {
   stopifnot(!is.null(ncol(y)))
 
@@ -83,6 +88,11 @@ basicf <- function(y,
   }
 
   stopifnot(!is.null(ncol(y)))
+
+  if (!is.null(ym))
+  {
+
+  }
 
   method <- match.arg(method)
   stopifnot(!is.null(ncol(y)))

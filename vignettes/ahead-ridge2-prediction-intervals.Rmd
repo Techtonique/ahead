@@ -2,14 +2,14 @@
 title: "Prediction intervals for multivariate time series (simulation-based)"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Prediction intervals (simulation-based) in R package `ahead`}
+  %\VignetteIndexEntry{Prediction intervals for multivariate time series (simulation-based)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 `ahead` is a package for **univariate** and **multivariate time series forecasting**, with uncertainty quantification (R and [Python](https://techtonique.github.io/ahead_python/)).
 
-The model used is in this demo is the one presented in [this paper](https://www.mdpi.com/2227-9091/6/1/22), and has actually been significantly improved since 2018, as you'll see here. 
+The model used in this demo is the one presented in [this paper](https://www.mdpi.com/2227-9091/6/1/22), and has actually been significantly improved since 2018, as you'll see here. 
 
 Currently for this model (as of 2023-08-28), for **uncertainty quantification**, I have:
 

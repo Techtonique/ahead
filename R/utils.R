@@ -1,6 +1,5 @@
 # In alphabetical order
 
-
 # create new predictors -----
 create_new_predictors <- function(x,
                                   nb_hidden = 5,
@@ -528,6 +527,45 @@ my_sd <- function(x)
 }
 my_sd <- compiler::cmpfun(my_sd)
 
+# neutralize -----
+neutralize <- function(obj, ym, selected_series)
+{
+  sims_selected_series <- ahead::getsimulations(obj,
+                                                selected_series)$series
+
+  stopifnot(identical(start(sims_selected_series),
+                      start(ym)))
+  stopifnot(identical(frequency(sims_selected_series),
+                      frequency(ym)))
+  stopifnot(!is.null(dim(sims_selected_series)))
+  stopifnot(is.null(dim(ym)))
+  stopifnot(identical(length(ym), nrow(sims_selected_series)))
+  stopifnot(all.equal(cumsum(diff(
+    time(sims_selected_series)
+  )),
+  cumsum(diff(time(
+    ym
+  )))))
+  if (any(abs(sims_selected_series) > 2))
+    warnings(
+      "predictive simulations must contain returns or log-returns \n (use ahead::getreturns on input)"
+    )
+  n_simulations <- dim(sims_selected_series)[2]
+  centered_sims_selected_series <-
+    sims_selected_series - matrix(rep(rowMeans(sims_selected_series), n_simulations),
+                                  ncol = n_simulations,
+                                  byrow = FALSE)
+  res <- centered_sims_selected_series + matrix(rep(as.numeric(ym),
+                                                    n_simulations),
+                                                ncol = n_simulations,
+                                                byrow = FALSE)
+  return(ts(
+    res,
+    start = start(sims_selected_series),
+    frequency = frequency(sims_selected_series)
+  ))
+}
+
 # Ridge regression prediction -----
 predict_myridge <- function(fit_obj, newx)
 {
@@ -573,28 +611,32 @@ scale_ahead <- function(x, center = TRUE, scale = TRUE)
 # select residuals distribution -----
 select_residuals_dist <- function(resids,
                                   uniformize = c("ranks", "ecdf"),
-                                  distro = c("normal", "t")) # 2 distributions for now
+                                  distro = c("normal", "t", "empirical"))
 {
-  n_obs <- nrow(resids)
-  n_series <- ncol(resids)
+  n_obs <- dim(resids)[1]
+  n_series <- dim(resids)[2]
   uniformize <- match.arg(uniformize)
   distro <- match.arg(distro)
+  fitted_residuals_distr <- NULL
 
-  fitted_residuals_distr <- vector("list", length = n_series)
-  names(fitted_residuals_distr) <- colnames(resids)
-
-  for (j in 1:n_series)
+  if (distro %in% c("normal", "t"))
   {
-    resid <- resids[,j]
-    try_get_res <- suppressWarnings(try(fitdistr_ahead(resid,
-                                                       densfun = distro),
-                                        silent = TRUE))
-    if (!inherits(try_get_res, "try-error"))
+    fitted_residuals_distr <- vector("list", length = n_series)
+    names(fitted_residuals_distr) <- colnames(resids)
+
+    for (j in 1:n_series)
     {
-      fitted_residuals_distr[[j]] <- try_get_res
-    } else {
-      warning("distribution can't be fitted by MASS::fitdistr")
-      return(NULL)
+      resid <- resids[,j]
+      try_get_res <- suppressWarnings(try(fitdistr_ahead(resid,
+                                                         densfun = distro),
+                                          silent = TRUE))
+      if (!inherits(try_get_res, "try-error"))
+      {
+        fitted_residuals_distr[[j]] <- try_get_res
+      } else {
+        warning("distribution can't be fitted by MASS::fitdistr")
+        return(NULL)
+      }
     }
   }
 
@@ -622,8 +664,8 @@ simulate_rvine <- function(obj, RVM_U,
                            tests = FALSE)
 {
   resids <- obj$resids
-  n_obs <- nrow(resids)
-  n_series <- ncol(resids)
+  n_obs <- dim(resids)[1]
+  n_series <- dim(resids)[2]
   series_names <- colnames(resids)
   params_distro <- obj$params_distro
   distro <- params_distro$distro
@@ -654,8 +696,25 @@ simulate_rvine <- function(obj, RVM_U,
       cat("\n")
     }
     return(res)
-  } else {
-      stop("Not implemented on 2023-08-20, coming soon")
+  }
+
+  if (identical(distro, "empirical"))
+  {
+    foo <- function (i)
+    {
+      stats::quantile(x = resids[, i],
+                      probs = rvine_simulation[, i],
+                      type = 7L)
+    }
+
+    res <- sapply(1:n_series, function(i) foo(i))
+    colnames(res) <- series_names
+
+    return(res)
+  }
+
+  if (distro %in% c("student", "t")) {
+      stop("Not implemented")
   }
 
 }

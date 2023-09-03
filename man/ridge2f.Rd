@@ -21,12 +21,13 @@ ridge2f(
   type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap",
     "rvinecopula", "splitconformal"),
   block_length = NULL,
-  margins = "gaussian",
+  margins = c("gaussian", "empirical", "student"),
   seed = 1,
   B = 100L,
   type_aggregation = c("mean", "median"),
   centers = NULL,
   type_clustering = c("kmeans", "hclust"),
+  ym = NULL,
   cl = 1L,
   ...
 )
@@ -64,8 +65,8 @@ ridge2f(
 
 \item{block_length}{Length of block for circular or moving block bootstrap}
 
-\item{margins}{Distribution of margins "student" (postponed) or "gaussian" for
-\code{type_pi == "rvinecopula"}}
+\item{margins}{Distribution of margins: "gaussian", "empirical", "student" (postponed or
+never) for \code{type_pi == "rvinecopula"}}
 
 \item{seed}{Reproducibility seed for random stuff}
 
@@ -76,6 +77,10 @@ ridge2f(
 \item{centers}{Number of clusters for \code{type_clustering}}
 
 \item{type_clustering}{"kmeans" (K-Means clustering) or "hclust" (Hierarchical clustering)}
+
+\item{ym}{Univariate time series (\code{stats::ts}) of yield to maturities with
+\code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
+Default is \code{NULL}.}
 
 \item{cl}{An integer; the number of clusters for parallel execution, for bootstrap}
 

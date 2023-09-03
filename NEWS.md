@@ -1,4 +1,9 @@
 
+# version 0.8.0
+
+- empirical marginals for R-Vine copula simulation 
+- risk-neutralize simulations
+
 # version 0.7.0
 
 - moving block bootstrap in `ridge2f`, `basicf` and `loessf`, in addition to circular block bootstrap from 0.6.2
