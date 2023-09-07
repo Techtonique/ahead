@@ -384,6 +384,8 @@ mbb2 <- function(r,
   n_obs <- dim(r)[1]
   n_series <- dim(r)[2]
   b <- floor(min(max(3L, b), n_obs - 1L))
+  if(n >= n_obs)
+    stop("forecasting horizon must be < number of observations")
   n <- min(n_obs, n)
 
   set.seed(seed) # important for base::sample below
@@ -406,7 +408,7 @@ mbb2 <- function(r,
   {
     return(tmp)
   } else {
-    return(arrayInd(match(tmp, r), .dim = dim(r))[1:dim(tmp)[1], 1])
+    return(arrayInd(match(tmp, r), .dim = dim(r))[1:n, 1])
   }
 }
 
