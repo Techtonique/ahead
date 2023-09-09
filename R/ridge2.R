@@ -330,7 +330,7 @@ ridge2f <- function(y,
     if (cl <= 1L)
     {
       # consider a loop with a progress bar
-      sims <- lapply(1:B,
+      sims <- lapply(cli::cli_progress_along(1:B, "Simulation"),
                      function(i)
                        ts(
                          fcast_ridge2_mts(
@@ -543,7 +543,7 @@ ridge2f <- function(y,
     if (cl <= 1L)
     {
       # consider a loop with a progress bar
-      sims <- lapply(1:B,
+      sims <- lapply(cli::cli_progress_along(1:B, "Simulation"),
                      function(i)
                        ts(
                          fcast_ridge2_mts(
