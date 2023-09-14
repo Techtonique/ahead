@@ -652,7 +652,7 @@ select_residuals_dist <- function(resids,
   {
     U <- apply(resids, 2, rank)/(n_obs + 1)
   } else { # uniformize == "ecdf"
-    ecdfs <- apply(obj$residuals, 2, ecdf)
+    ecdfs <- apply(resids, 2, ecdf)
     U <- sapply(1:n_series, function(i)
       ecdfs[[i]](resids[, i]))
   }

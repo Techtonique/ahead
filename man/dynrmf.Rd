@@ -68,6 +68,8 @@ plot(dynrmf(fdeaths, h=20, level=95))
 
 \dontrun{
 
+require(randomForest)
+
 par(mfrow=c(3, 2))
 plot(dynrmf(USAccDeaths, h=20, level=95, fit_func = randomForest::randomForest,
      fit_params = list(ntree = 50), predict_func = predict))
@@ -86,6 +88,8 @@ plot(dynrmf(fdeaths, h=20, level=95, fit_func = randomForest::randomForest,
 # Example 2: with SVM
 
 \dontrun{
+
+require(e1071)
 
 par(mfrow=c(2, 2))
 plot(dynrmf(fdeaths, h=20, level=95, fit_func = e1071::svm,

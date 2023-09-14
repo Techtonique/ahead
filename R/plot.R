@@ -197,7 +197,7 @@ plot.pairs <- function(x, y = NULL)
   }
 
   #placeholder plot - prints nothing at all
-  empty <- ggplot()+ggplot2::geom_point(ggplot2::aes(1,1), colour="white") +
+  empty <- ggplot2::ggplot()+ggplot2::geom_point(ggplot2::aes(1,1), colour="white") +
     ggplot2::theme(
       plot.background = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_blank(),
@@ -220,7 +220,7 @@ plot.pairs <- function(x, y = NULL)
     ggplot2::theme(legend.position=c(1,1),legend.justification=c(1,1))
 
   #marginal density of x - plot on top
-  plot_top <- ggplot(xy, ggplot2::aes(xvar, fill=zvar)) +
+  plot_top <- ggplot2::ggplot(xy, ggplot2::aes(xvar, fill=zvar)) +
     ggplot2::geom_density(alpha=.5) +
     ggplot2::scale_fill_manual(values = c("blue", "red")) +
     ggplot2::theme(legend.position = "none")
@@ -233,7 +233,7 @@ plot.pairs <- function(x, y = NULL)
     ggplot2::theme(legend.position = "none")
 
   #arrange the plots together, with appropriate height and width for each row and column
-  grid.arrange(plot_top, empty, scatter, plot_right, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
+  gridExtra::grid.arrange(plot_top, empty, scatter, plot_right, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
 }
 
 # plot bands # work in progress #scratchinghead

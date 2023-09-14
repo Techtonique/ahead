@@ -41,7 +41,7 @@ armagarchf <- function(y,
                        seed = 123) {
 
   if(is_package_available("fGarch") == FALSE)
-    install.packages("fGarch")
+    utils::install.packages("fGarch")
 
   dist <- match.arg(dist)
 

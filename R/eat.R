@@ -93,7 +93,7 @@ eatf <- function(y, h = 5,
                  ...) {
 
   if(is_package_available("forecast") == FALSE)
-    install.packages("forecast")
+    utils::install.packages("forecast")
 
   stopifnot(length(level) == 1)
 

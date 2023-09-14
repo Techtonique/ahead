@@ -56,6 +56,8 @@
 #'
 #' \dontrun{
 #'
+#' require(randomForest)
+#'
 #' par(mfrow=c(3, 2))
 #' plot(dynrmf(USAccDeaths, h=20, level=95, fit_func = randomForest::randomForest,
 #'      fit_params = list(ntree = 50), predict_func = predict))
@@ -74,6 +76,8 @@
 #' # Example 2: with SVM
 #'
 #'\dontrun{
+#'
+#' require(e1071)
 #'
 #' par(mfrow=c(2, 2))
 #' plot(dynrmf(fdeaths, h=20, level=95, fit_func = e1071::svm,
@@ -99,7 +103,7 @@ dynrmf <- function(y, h = 5,
                    ...)
 {
   if(is_package_available("forecast") == FALSE)
-    install.packages("forecast")
+    utils::install.packages("forecast")
 
   stopifnot(length(level) == 1)
 
@@ -357,6 +361,11 @@ dynrm_fit <- function(y,
      fits <- try(drop(predict_func(fit,
                               newx = X_j)),
                  silent = TRUE)
+     if (inherits(fits, "try-error") || is.null(fits))
+     {
+       fits <- try(drop(predict_func(fit, X_j)),
+                   silent = TRUE)
+       }
    }
 
    # cat("fits", "\n")
