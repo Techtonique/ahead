@@ -235,7 +235,7 @@ ridge2f <- function(y,
     )
   } else { # if (type_pi == "splitconformal") # experimental
 
-    y_train_calibration <- splitts(y, split_prob=0.8)
+    y_train_calibration <- splitts(y, split_prob=0.5)
     y_train <- y_train_calibration$training
     y_calibration <- y_train_calibration$testing
 

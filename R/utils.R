@@ -374,6 +374,12 @@ get_clusters <- function(x,
   }
 }
 
+# Check if package is available -----
+is_package_available <- function(pkg_name)
+{
+  return(pkg_name %in% rownames(installed.packages()))
+}
+
 # Multivariate moving block bootstrap (main loop adapted from Efron and Tibshirani (sec. 8.6)) -----
 mbb2 <- function(r,
                  n,
