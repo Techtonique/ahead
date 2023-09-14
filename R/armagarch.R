@@ -39,6 +39,10 @@ armagarchf <- function(y,
                        cl = 1L,
                        dist = c("student", "gaussian"),
                        seed = 123) {
+
+  if(is_package_available("fGarch") == FALSE)
+    install.packages("fGarch")
+
   dist <- match.arg(dist)
 
   # Fit ARIMA to original series

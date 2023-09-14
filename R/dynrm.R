@@ -98,6 +98,9 @@ dynrmf <- function(y, h = 5,
                    xreg_predict = NULL,
                    ...)
 {
+  if(is_package_available("forecast") == FALSE)
+    install.packages("forecast")
+
   stopifnot(length(level) == 1)
 
   type_pi <- match.arg(type_pi)

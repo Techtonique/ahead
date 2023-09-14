@@ -50,6 +50,9 @@ varf <- function(y, h = 5,
                               "both", "none"),
                  ...)
 {
+  if(is_package_available("vars") == FALSE)
+    install.packages("vars")
+
   if (!is.ts(y))
   {
     y <- ts(y)
