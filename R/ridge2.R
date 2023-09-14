@@ -146,6 +146,12 @@ ridge2f <- function(y,
                     cl = 1L,
                     ...)
 {
+  if(is_package_available("randtoolbox") == FALSE)
+    install.packages("randtoolbox")
+
+  if(is_package_available("VineCopula") == FALSE)
+    install.packages("VineCopula")
+
   stopifnot(!is.null(ncol(y)))
 
   stopifnot(floor(lags) == lags)
