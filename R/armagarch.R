@@ -40,6 +40,9 @@ armagarchf <- function(y,
                        dist = c("student", "gaussian"),
                        seed = 123) {
 
+  if(is_package_available("forecast") == FALSE)
+    utils::install.packages("forecast")
+
   if(is_package_available("fGarch") == FALSE)
     utils::install.packages("fGarch")
 
