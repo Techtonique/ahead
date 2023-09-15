@@ -2,7 +2,7 @@
 #'
 #' @param x result from \code{basicf}, \code{ridge2f} or \code{varf} (multivariate time series forecast)
 #' @param selected_series name of the time series selected for plotting
-#' @param type_graph "pi": basic prediction intervals;
+#' @param type "pi": basic prediction intervals;
 #' "dist": a distribution of predictions; "sims": the simulations
 #' @param level confidence levels for prediction intervals
 #' @param ... additional parameters to be passed to \code{plot} or \code{matplot}
@@ -28,30 +28,30 @@
 #' obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap",
 #' block_length=5, B = 10)
 #' par(mfrow=c(1, 2))
-#' plot(obj, selected_series = "Quotes", type_graph = "sims",
+#' plot(obj, selected_series = "Quotes", type = "sims",
 #' main = "Predictive simulation for Quotes")
-#' plot(obj, selected_series = "TV.advert", type_graph = "sims",
+#' plot(obj, selected_series = "TV.advert", type = "sims",
 #' main = "Predictive simulation for TV.advert")
 #'
 #'
 #' par(mfrow=c(1, 2))
-#' plot(obj, selected_series = "Quotes", type_graph = "dist",
+#' plot(obj, selected_series = "Quotes", type = "dist",
 #' main = "Predictive simulation for Quotes")
-#' plot(obj, selected_series = "TV.advert", type_graph = "dist",
+#' plot(obj, selected_series = "TV.advert", type = "dist",
 #' main = "Predictive simulation for TV.advert")
 #'
 #'
 plot.mtsforecast <- function(x, selected_series,
-                             type_graph = c("pi",
+                             type = c("pi",
                                             "dist",
                                             "sims"),
                              level = 95, ...)
 {
-  type_graph <- match.arg(type_graph)
+  type <- match.arg(type)
 
   if (inherits(x, 'mtsforecast'))
   {
-    if (type_graph == "pi")
+    if (type == "pi")
     {
       y <- x$x[, selected_series]
       mean_fcast <- x$mean[, selected_series]
@@ -77,7 +77,7 @@ plot.mtsforecast <- function(x, selected_series,
       lines(y_mean)
     }
 
-    if (type_graph == "dist")
+    if (type == "dist")
     {
       x <- ahead::getsimulations(x, selected_series = selected_series)$series
       start_x <- start(x)
@@ -111,7 +111,7 @@ plot.mtsforecast <- function(x, selected_series,
 
     }
 
-    if (type_graph == "sims")
+    if (type == "sims")
     {
       B <- length(x$sims)
 
@@ -170,12 +170,18 @@ plot.mtsforecast <- function(x, selected_series,
 #' block_length=5, B = 10)
 #'
 #' \dontrun{
-#' plot(obj$residuals, type_graph = "pairs")
+#' plot(obj$residuals, type = "pairs")
 #' }
 #'
 #'
 plot.pairs <- function(x, y = NULL)
 {
+  if(is_package_available("ggplot2") == FALSE)
+    utils::install.packages("ggplot2")
+
+  if(is_package_available("gridExtra") == FALSE)
+    utils::install.packages("gridExtra")
+
   x <- matrix(unlist(x), ncol = 2)
   if (!is.null(y))
   {
@@ -197,7 +203,7 @@ plot.pairs <- function(x, y = NULL)
   }
 
   #placeholder plot - prints nothing at all
-  empty <- ggplot()+ggplot2::geom_point(ggplot2::aes(1,1), colour="white") +
+  empty <- ggplot2::ggplot()+ggplot2::geom_point(ggplot2::aes(1,1), colour="white") +
     ggplot2::theme(
       plot.background = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_blank(),
@@ -214,26 +220,26 @@ plot.pairs <- function(x, y = NULL)
   # plot slow af
 
   #scatterplot of x and y variables
-  scatter <- ggplot(xy, ggplot2::aes(xvar, yvar)) +
+  scatter <- ggplot2::ggplot(xy, ggplot2::aes(xvar, yvar)) +
     ggplot2::geom_point(ggplot2::aes(color=zvar)) +
     ggplot2::scale_color_manual(values = c("blue", "red")) +
     ggplot2::theme(legend.position=c(1,1),legend.justification=c(1,1))
 
   #marginal density of x - plot on top
-  plot_top <- ggplot(xy, ggplot2::aes(xvar, fill=zvar)) +
+  plot_top <- ggplot2::ggplot(xy, ggplot2::aes(xvar, fill=zvar)) +
     ggplot2::geom_density(alpha=.5) +
     ggplot2::scale_fill_manual(values = c("blue", "red")) +
     ggplot2::theme(legend.position = "none")
 
   #marginal density of y - plot on the right
-  plot_right <- ggplot(xy, ggplot2::aes(yvar, fill=zvar)) +
+  plot_right <- ggplot2::ggplot(xy, ggplot2::aes(yvar, fill=zvar)) +
     ggplot2::geom_density(alpha=.5) +
     ggplot2::coord_flip() +
     ggplot2::scale_fill_manual(values = c("blue", "red")) +
     ggplot2::theme(legend.position = "none")
 
   #arrange the plots together, with appropriate height and width for each row and column
-  grid.arrange(plot_top, empty, scatter, plot_right, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
+  gridExtra::grid.arrange(plot_top, empty, scatter, plot_right, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
 }
 
 # plot bands # work in progress #scratchinghead

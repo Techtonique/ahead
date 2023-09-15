@@ -20,7 +20,7 @@ obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap",
 block_length=5, B = 10)
 
 \dontrun{
-plot(obj$residuals, type_graph = "pairs")
+plot(obj$residuals, type = "pairs")
 }
 
 

@@ -92,6 +92,9 @@ eatf <- function(y, h = 5,
                  type_pi = c("gaussian", "E", "A", "T"),
                  ...) {
 
+  if(is_package_available("forecast") == FALSE)
+    utils::install.packages("forecast")
+
   stopifnot(length(level) == 1)
 
   method <- match.arg(method)

@@ -84,7 +84,7 @@ Default is \code{NULL}.}
 
 \item{cl}{An integer; the number of clusters for parallel execution, for bootstrap}
 
-\item{...}{Additional parameters to be passed \code{\link{kmeans}} or \code{\link{hclust}}}
+\item{...}{Additional parameters to be passed to \code{\link{kmeans}} or \code{\link{hclust}}}
 }
 \value{
 An object of class "mtsforecast"; a list containing the following elements:
