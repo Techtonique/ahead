@@ -93,7 +93,8 @@ eatf <- function(y, h = 5,
                  ...) {
 
   if(is_package_available("forecast") == FALSE)
-    utils::install.packages("forecast")
+    utils::install.packages("forecast",
+                            repos = c(CRAN = "https://cloud.r-project.org"))
 
   stopifnot(length(level) == 1)
 

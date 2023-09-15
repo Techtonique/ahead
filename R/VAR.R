@@ -51,7 +51,8 @@ varf <- function(y, h = 5,
                  ...)
 {
   if(is_package_available("vars") == FALSE)
-    install.packages("vars")
+    install.packages("vars",
+                     repos = c(CRAN = "https://cloud.r-project.org"))
 
   if (!is.ts(y))
   {

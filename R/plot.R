@@ -177,10 +177,12 @@ plot.mtsforecast <- function(x, selected_series,
 plot.pairs <- function(x, y = NULL)
 {
   if(is_package_available("ggplot2") == FALSE)
-    utils::install.packages("ggplot2")
+    utils::install.packages("ggplot2",
+                            repos = c(CRAN = "https://cloud.r-project.org"))
 
   if(is_package_available("gridExtra") == FALSE)
-    utils::install.packages("gridExtra")
+    utils::install.packages("gridExtra",
+                            repos = c(CRAN = "https://cloud.r-project.org"))
 
   x <- matrix(unlist(x), ncol = 2)
   if (!is.null(y))

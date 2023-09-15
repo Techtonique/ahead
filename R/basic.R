@@ -31,6 +31,8 @@
 #'
 #' @examples
 #'
+#' require(fpp)
+#'
 #' res <- ahead::basicf(fpp::insurance, h=10)
 #' par(mfrow=c(1, 2))
 #' plot(res, "TV.advert")

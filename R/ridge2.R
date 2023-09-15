@@ -147,10 +147,12 @@ ridge2f <- function(y,
                     ...)
 {
   if(is_package_available("randtoolbox") == FALSE)
-    install.packages("randtoolbox")
+    install.packages("randtoolbox",
+                     repos = c(CRAN = "https://cloud.r-project.org"))
 
   if(is_package_available("VineCopula") == FALSE)
-    install.packages("VineCopula")
+    install.packages("VineCopula",
+                     repos = c(CRAN = "https://cloud.r-project.org"))
 
   stopifnot(!is.null(ncol(y)))
 
