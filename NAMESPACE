@@ -1,6 +1,5 @@
 useDynLib(ahead, .registration=TRUE)
 S3method(plot, mtsforecast)
-S3method(plot, pairs)
 S3method(predict, ridge)
 importFrom(Rcpp, evalCpp)
 importFrom("grDevices", "colorRampPalette")

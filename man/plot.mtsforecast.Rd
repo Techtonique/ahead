@@ -4,14 +4,14 @@
 \alias{plot.mtsforecast}
 \title{Plot multivariate time series forecast or residuals}
 \usage{
-\method{plot}{mtsforecast}(x, selected_series, type_graph = c("pi", "dist", "sims"), level = 95, ...)
+\method{plot}{mtsforecast}(x, selected_series, type = c("pi", "dist", "sims"), level = 95, ...)
 }
 \arguments{
 \item{x}{result from \code{basicf}, \code{ridge2f} or \code{varf} (multivariate time series forecast)}
 
 \item{selected_series}{name of the time series selected for plotting}
 
-\item{type_graph}{"pi": basic prediction intervals;
+\item{type}{"pi": basic prediction intervals;
 "dist": a distribution of predictions; "sims": the simulations}
 
 \item{level}{confidence levels for prediction intervals}
@@ -40,16 +40,16 @@ plot(fit_obj_ridge2, "TV.advert")
 obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap",
 block_length=5, B = 10)
 par(mfrow=c(1, 2))
-plot(obj, selected_series = "Quotes", type_graph = "sims",
+plot(obj, selected_series = "Quotes", type = "sims",
 main = "Predictive simulation for Quotes")
-plot(obj, selected_series = "TV.advert", type_graph = "sims",
+plot(obj, selected_series = "TV.advert", type = "sims",
 main = "Predictive simulation for TV.advert")
 
 
 par(mfrow=c(1, 2))
-plot(obj, selected_series = "Quotes", type_graph = "dist",
+plot(obj, selected_series = "Quotes", type = "dist",
 main = "Predictive simulation for Quotes")
-plot(obj, selected_series = "TV.advert", type_graph = "dist",
+plot(obj, selected_series = "TV.advert", type = "dist",
 main = "Predictive simulation for TV.advert")
 
 
