@@ -1,4 +1,8 @@
 
+# version 0.9.0
+
+- progress bars for bootstrap (independent, circular block, moving block)
+
 # version 0.8.0
 
 - empirical marginals for R-Vine copula simulation 

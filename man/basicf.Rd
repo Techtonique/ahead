@@ -13,7 +13,8 @@ basicf(
   block_length = NULL,
   seed = 1,
   B = 100,
-  ym = NULL
+  ym = NULL,
+  show_progress = TRUE
 )
 }
 \arguments{
@@ -38,6 +39,8 @@ basicf(
 \item{ym}{Univariate time series (\code{stats::ts}) of yield to maturities with
 \code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
 Default is \code{NULL}.}
+
+\item{show_progress}{A boolean; show progress bar for bootstrapping? Default is TRUE.}
 }
 \value{
 An object of class "mtsforecast"; a list containing the following elements:

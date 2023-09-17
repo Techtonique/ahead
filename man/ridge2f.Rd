@@ -85,6 +85,8 @@ Default is \code{NULL}.}
 
 \item{cl}{An integer; the number of clusters for parallel execution, for bootstrap}
 
+\item{show_progress}{A boolean; show progress bar for bootstrapping? Default is TRUE.}
+
 \item{...}{Additional parameters to be passed to \code{\link{kmeans}} or \code{\link{hclust}}}
 }
 \value{
