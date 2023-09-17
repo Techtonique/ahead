@@ -29,6 +29,7 @@ ridge2f(
   type_clustering = c("kmeans", "hclust"),
   ym = NULL,
   cl = 1L,
+  show_progress = TRUE,
   ...
 )
 }
