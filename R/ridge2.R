@@ -434,10 +434,9 @@ ridge2f <- function(y,
           i = 1:B,
           #.packages = packages,
           #.combine = rbind,
-          .errorhandling = errorhandling,
+          .errorhandling = "stop",
           .options.snow = opts,
-          .verbose = FALSE,
-          .export = c("fcast_ridge2_mts", "fit_obj")
+          .verbose = FALSE
         ) %op% {
 
           ts(
