@@ -29,6 +29,7 @@ ridge2f(
   type_clustering = c("kmeans", "hclust"),
   ym = NULL,
   cl = 1L,
+  show_progress = TRUE,
   ...
 )
 }
@@ -83,6 +84,8 @@ never) for \code{type_pi == "rvinecopula"}}
 Default is \code{NULL}.}
 
 \item{cl}{An integer; the number of clusters for parallel execution, for bootstrap}
+
+\item{show_progress}{A boolean; show progress bar for bootstrapping? Default is TRUE.}
 
 \item{...}{Additional parameters to be passed to \code{\link{kmeans}} or \code{\link{hclust}}}
 }

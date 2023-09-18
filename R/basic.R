@@ -15,6 +15,7 @@
 #' @param ym Univariate time series (\code{stats::ts}) of yield to maturities with
 #' \code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
 #' Default is \code{NULL}.
+#' @param show_progress A boolean; show progress bar for bootstrapping? Default is TRUE.
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
 #'
@@ -80,7 +81,8 @@ basicf <- function(y,
                    block_length = NULL,
                    seed = 1,
                    B = 100,
-                   ym = NULL)
+                   ym = NULL,
+                   show_progress = TRUE)
 {
   stopifnot(!is.null(ncol(y)))
 
@@ -93,7 +95,7 @@ basicf <- function(y,
 
   if (!is.null(ym))
   {
-
+    stop("Not implemented")
   }
 
   method <- match.arg(method)
@@ -156,38 +158,79 @@ basicf <- function(y,
 
   if (type_pi %in% c("bootstrap", "blockbootstrap", "movingblockbootstrap"))
   {
+
     sims <- vector("list", length = B)
-    for (i in 1:B)
+
+    if (show_progress == FALSE)
     {
-      # sampling from the residuals
-      set.seed(seed + i*100 + nchar(method))
+      for (i in 1:B)
+      {
+        # sampling from the residuals
+        set.seed(seed + i*100 + nchar(method))
 
-      idx <- switch(
-        type_pi,
-        bootstrap = sample.int(
-          n = nrow(resids),
-          size = h,
-          replace = TRUE
-        ),
-        blockbootstrap = mbb(
-          r = resids,
-          n = h,
-          b = block_length,
-          return_indices = TRUE,
-          seed = seed + i * 100 + nchar(method)
-        ),
-        movingblockbootstrap = mbb2(
-          r = resids,
-          n = h,
-          b = block_length,
-          return_indices = TRUE,
-          seed = seed + i * 100 + nchar(method)
+        idx <- switch(
+          type_pi,
+          bootstrap = sample.int(
+            n = nrow(resids),
+            size = h,
+            replace = TRUE
+          ),
+          blockbootstrap = mbb(
+            r = resids,
+            n = h,
+            b = block_length,
+            return_indices = TRUE,
+            seed = seed + i * 100 + nchar(method)
+          ),
+          movingblockbootstrap = mbb2(
+            r = resids,
+            n = h,
+            b = block_length,
+            return_indices = TRUE,
+            seed = seed + i * 100 + nchar(method)
+          )
         )
-      )
 
-      sims[[i]] <- ts(as.matrix(fcast) + as.matrix(resids[idx, ]),
-                      start = start_preds,
-                      frequency = freq_x)
+        sims[[i]] <- ts(as.matrix(fcast) + as.matrix(resids[idx, ]),
+                        start = start_preds,
+                        frequency = freq_x)
+      }
+    } else { # show_progress == FALSE
+
+      pb <- utils::txtProgressBar(min = 0, max = B, style = 3)
+      for (i in 1:B)
+      {
+        # sampling from the residuals
+        set.seed(seed + i*100 + nchar(method))
+
+        idx <- switch(
+          type_pi,
+          bootstrap = sample.int(
+            n = nrow(resids),
+            size = h,
+            replace = TRUE
+          ),
+          blockbootstrap = mbb(
+            r = resids,
+            n = h,
+            b = block_length,
+            return_indices = TRUE,
+            seed = seed + i * 100 + nchar(method)
+          ),
+          movingblockbootstrap = mbb2(
+            r = resids,
+            n = h,
+            b = block_length,
+            return_indices = TRUE,
+            seed = seed + i * 100 + nchar(method)
+          )
+        )
+
+        sims[[i]] <- ts(as.matrix(fcast) + as.matrix(resids[idx, ]),
+                        start = start_preds,
+                        frequency = freq_x)
+        utils::setTxtProgressBar(pb, i)
+      }
     }
 
     preds_upper <- matrix(0, ncol = n_series, nrow = h)

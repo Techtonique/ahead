@@ -31,6 +31,7 @@
 #' \code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
 #' Default is \code{NULL}.
 #' @param cl An integer; the number of clusters for parallel execution, for bootstrap
+#' @param show_progress A boolean; show progress bar for bootstrapping? Default is TRUE.
 #' @param ... Additional parameters to be passed to \code{\link{kmeans}} or \code{\link{hclust}}
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
@@ -144,6 +145,7 @@ ridge2f <- function(y,
                     type_clustering = c("kmeans", "hclust"),
                     ym = NULL,
                     cl = 1L,
+                    show_progress = TRUE,
                     ...)
 {
   if(is_package_available("randtoolbox") == FALSE)
@@ -337,45 +339,126 @@ ridge2f <- function(y,
 
     if (cl <= 1L)
     {
-      # consider a loop with a progress bar
-      sims <- lapply(1:B,
-                     function(i)
-                       ts(
-                         fcast_ridge2_mts(
-                           fit_obj,
-                           h = h,
-                           type_forecast = type_forecast,
-                           bootstrap = TRUE,
-                           type_bootstrap = type_pi,
-                           block_length = block_length,
-                           seed = seed + i * 100
-                         ),
-                         start = start_preds,
-                         frequency = freq_x
-                       ))
-    } else {
-      # consider a loop with a progress bar
-      cluster <- parallel::makeCluster(getOption("cl.cores", cl))
-      sims <-
-        parallel::parLapply(
-          cl = cluster,
-          X = 1:B,
-          fun = function(i)
-            ts(
-              fcast_ridge2_mts(
-                fit_obj,
-                h = h,
-                type_forecast = type_forecast,
-                bootstrap = TRUE,
-                type_bootstrap = type_pi,
-                block_length = block_length,
-                seed = seed + i * 100
-              ),
-              start = start_preds,
-              frequency = freq_x
-            )
-        )
-      parallel::stopCluster(cluster)
+
+      if (show_progress == FALSE)
+      {
+
+        sims <- lapply(1:B,
+                       function(i)
+                         ts(
+                           fcast_ridge2_mts(
+                             fit_obj,
+                             h = h,
+                             type_forecast = type_forecast,
+                             bootstrap = TRUE,
+                             type_bootstrap = type_pi,
+                             block_length = block_length,
+                             seed = seed + i * 100
+                           ),
+                           start = start_preds,
+                           frequency = freq_x
+                         ))
+
+      } else { # show_progress == TRUE
+
+        sims <- base::vector("list", B)
+
+        pb <- utils::txtProgressBar(min = 0, max = B, style = 3)
+
+        for (i in 1:B)
+        {
+          sims[[i]] <- ts(
+            fcast_ridge2_mts(
+              fit_obj,
+              h = h,
+              type_forecast = type_forecast,
+              bootstrap = TRUE,
+              type_bootstrap = type_pi,
+              block_length = block_length,
+              seed = seed + i * 100
+            ),
+            start = start_preds,
+            frequency = freq_x
+          )
+          utils::setTxtProgressBar(pb, i)
+        }
+
+        base::close(pb)
+
+      }
+
+    } else { # parallel exec.
+
+      if (show_progress == FALSE)
+      {
+        cluster <- parallel::makeCluster(getOption("cl.cores", cl))
+        sims <-
+          parallel::parLapply(
+            cl = cluster,
+            X = 1:B,
+            fun = function(i)
+              ts(
+                fcast_ridge2_mts(
+                  fit_obj,
+                  h = h,
+                  type_forecast = type_forecast,
+                  bootstrap = TRUE,
+                  type_bootstrap = type_pi,
+                  block_length = block_length,
+                  seed = seed + i * 100
+                ),
+                start = start_preds,
+                frequency = freq_x
+              )
+          )
+        parallel::stopCluster(cluster)
+      } else { # show_progress == TRUE
+
+        cl_SOCK <- parallel::makeCluster(cl, type = "SOCK")
+
+        doSNOW::registerDoSNOW(cl_SOCK)
+
+        `%op%` <-  foreach::`%dopar%`
+
+        pb <- txtProgressBar(min = 0,
+                             max = B,
+                             style = 3)
+
+        progress <- function(i) utils::setTxtProgressBar(pb, i)
+
+        opts <- list(progress = progress)
+
+        i <- NULL
+
+        sims <- foreach::foreach(
+          i = 1:B,
+          #.packages = packages,
+          #.combine = rbind,
+          .errorhandling = "stop",
+          .options.snow = opts,
+          .verbose = FALSE
+        ) %op% {
+
+          ts(
+            fcast_ridge2_mts(
+              fit_obj,
+              h = h,
+              type_forecast = type_forecast,
+              bootstrap = TRUE,
+              type_bootstrap = type_pi,
+              block_length = block_length,
+              seed = seed + i * 100
+            ),
+            start = start_preds,
+            frequency = freq_x
+          )
+
+        }
+
+        close(pb)
+        snow::stopCluster(cl_SOCK)
+
+      }
     }
 
     if (use_xreg) # with external regressors
