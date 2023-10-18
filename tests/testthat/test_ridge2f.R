@@ -55,6 +55,11 @@ res21 <- ahead::ridge2f(x, xreg = xreg, centers = 2L, type_clustering = "kmeans"
 res22 <- ahead::ridge2f(x, xreg = xreg2, centers = 2L, type_clustering = "hclust")
 res23 <- ahead::ridge2f(x, xreg = xreg3, centers = 2L, type_clustering = "kmeans")
 
+# 1 - 7 direct forecasting ----
+
+res25 <- ahead::ridge2f(x, type_forecast = "direct")
+res26 <- ahead::ridge2f(x, type_forecast = "direct",
+                        type_pi = "bootstrap", B=5L)
 
 # 2 - tests -----
 
@@ -101,16 +106,26 @@ testthat::test_that("4 - tests on clustering", {
 
 # 2 - 5 xreg ----
 
-testthat::test_that("4 - tests on xreg", {
+testthat::test_that("5 - tests on xreg", {
   expect_equal(as.numeric(round(res18$mean[1, 1], 2)), -0.03)
   expect_equal(as.numeric(round(res19$mean[1, 1], 2)), -0.16)
   expect_equal(as.numeric(round(res20$mean[1, 1], 2)), -0.71)
 })
 
-# 2 - 5 xreg with clustering ----
+# 2 - 6 xreg with clustering ----
 
-testthat::test_that("5 - tests on xreg and clustering", {
+testthat::test_that("6 - tests on xreg and clustering", {
   expect_equal(as.numeric(round(res21$mean[1, 1], 2)), -0.13)
   expect_equal(as.numeric(round(res22$mean[1, 1], 2)), 0.04)
   expect_equal(as.numeric(round(res23$mean[1, 1], 2)), -0.76)
+})
+
+
+# 2 - 7 direct forecasting ----
+
+testthat::test_that("7 - tests on direct forecasting", {
+  expect_equal(as.numeric(round(res25$mean[1, 3], 2)), 0.74)
+  expect_equal(as.numeric(round(res25$upper[1, 3], 2)), 2.32)
+  expect_equal(as.numeric(round(res26$mean[1, 3], 2)), 0.86)
+  expect_equal(as.numeric(round(res26$upper[1, 3], 2)), 1.41)
 })
