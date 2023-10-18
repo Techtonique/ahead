@@ -3,6 +3,7 @@
 
 Univariate and multivariate time series forecasting, with uncertainty quantification.
 
+[![HitCount](https://hits.dwyl.com/Techtonique/ahead.svg?style=flat-square)](http://hits.dwyl.com/Techtonique/ahead)
 
 ### Installation for R (Python is [here](https://github.com/Techtonique/ahead_python))
 
