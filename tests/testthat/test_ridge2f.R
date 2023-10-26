@@ -5,18 +5,18 @@ context("Tests on `ridge2f`")
 library(testthat)
 library(ahead)
 
-set.seed(123)
-x <- ts(matrix(rnorm(100), ncol = 5))
+set.seed(123L)
+x <- ts(matrix(rnorm(100L), ncol = 5L))
 
 # 1 - 1 type of residuals 'simulation' ----
 
-res1 <- ahead::ridge2f(x, type_pi = "gaussian", B=5)
-res2 <- ahead::ridge2f(x, type_pi = "bootstrap", B=5)
-res3 <- ahead::ridge2f(x, type_pi = "bootstrap", B=5)
-res4 <- ahead::ridge2f(x, type_pi = "blockbootstrap", B=5)
-res5 <- ahead::ridge2f(x, type_pi = "movingblockbootstrap", B=5)
-res6 <- ahead::ridge2f(x, type_pi = "rvinecopula", B=5)
-res24 <- ahead::ridge2f(x, type_pi = "bootstrap", B=5,
+res1 <- ahead::ridge2f(x, type_pi = "gaussian", B=5L)
+res2 <- ahead::ridge2f(x, type_pi = "bootstrap", B=5L)
+res3 <- ahead::ridge2f(x, type_pi = "bootstrap", B=5L)
+res4 <- ahead::ridge2f(x, type_pi = "blockbootstrap", B=5L)
+res5 <- ahead::ridge2f(x, type_pi = "movingblockbootstrap", B=5L)
+res6 <- ahead::ridge2f(x, type_pi = "rvinecopula", B=5L)
+res24 <- ahead::ridge2f(x, type_pi = "bootstrap", B=5L,
                         show_progress = FALSE)
 
 # 1 - 2 type of residuals nodes' simulation' ----

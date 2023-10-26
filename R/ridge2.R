@@ -420,7 +420,7 @@ ridge2f <- function(y,
 
         `%op%` <-  foreach::`%dopar%`
 
-        pb <- txtProgressBar(min = 0,
+        pb <- utils::txtProgressBar(min = 0,
                              max = B,
                              style = 3)
 
