@@ -3,6 +3,7 @@
 
 Univariate and multivariate time series forecasting, with uncertainty quantification.
 
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Ftechtonique.r-universe.dev%2Fbin%2Flinux%2Fjammy%2F4.3%2Fsrc%2Fcontrib%2Fahead_0.9.0.tar.gz&count_bg=%233DC887&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=source+downloads&edge_flat=false)](https://hits.seeyoufarm.com)
 [![HitCount](https://hits.dwyl.com/Techtonique/ahead.svg?style=flat-square)](http://hits.dwyl.com/Techtonique/ahead)
 
 ### Installation for R (Python is [here](https://github.com/Techtonique/ahead_python))
