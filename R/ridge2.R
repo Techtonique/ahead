@@ -312,7 +312,8 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       residuals = fit_obj$resids,
-      coefficients = fit_obj$coef
+      coefficients = fit_obj$coef,
+      loocv = fit_obj$loocv
     )
 
     if (use_xreg || use_clustering)
@@ -538,7 +539,8 @@ ridge2f <- function(y,
       x = y,
       level = level,
       method = "ridge2",
-      residuals = fit_obj$resids
+      residuals = fit_obj$resids,
+      loocv = fit_obj$loocv
     )
 
     if (use_xreg || use_clustering)
@@ -605,7 +607,8 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       residuals = fit_obj_train$resids,
-      coefficients = fit_obj_train$coef
+      coefficients = fit_obj_train$coef,
+      loocv = fit_obj$loocv
     )
 
     if (use_xreg || use_clustering)
@@ -751,7 +754,8 @@ ridge2f <- function(y,
       method = "ridge2",
       residuals = fit_obj$resids,
       copula = fit_obj$params_distro,
-      margins = margins
+      margins = margins,
+      loocv = fit_obj$loocv
     )
 
     if (use_xreg || use_clustering) # refactor this
@@ -910,6 +914,10 @@ fit_ridge2_mts <- function(x,
                                            uniformize = "ranks",
                                            distro = margins)
 
+  smoother_matrix <- scaled_regressors %*% tcrossprod(inv, 
+  scaled_regressors)
+  loocv <- mean((resids / (1 - mean(diag(smoother_matrix))))^2)                                        
+
   return(
     list(
       y = y,
@@ -932,7 +940,8 @@ fit_ridge2_mts <- function(x,
       scales = xsd,
       coef = lscoef,
       resids = resids,
-      params_distro = params_distro
+      params_distro = params_distro,
+      loocv = loocv
     )
   )
 }
