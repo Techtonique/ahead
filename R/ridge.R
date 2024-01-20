@@ -1,152 +1,106 @@
-#' Fit Ridge regression
+#' Forecasts from elastic net and ridge regression models
 #'
-#' @param x matrix of examples
-#' @param y a vector, the response
-#' @param lambda regularization parameters
+#' @param y A multivariate time series of class \code{ts} (preferred) or a \code{matrix}
+#' @param lags Number of lags to include in the model
+#' @param nb_hidden Number of hidden units in the neural network
+#' @param fit_method Method to fit the model. Either \code{ridge} for elastic net or \code{mgaussian} for multivariate Gaussian elastic net
+#' @param nodes_sim Method to generate the nodes for the simulation of the multivariate . Either \code{sobol}, \code{halton} or \code{unif}
+#' @param activ Activation function for the hidden layer. Either \code{relu}, \code{sigmoid}, \code{tanh}, \code{leakyrelu}, \code{elu} or \code{linear}
+#' @param hidden_layer_bias Whether to include a bias term in the hidden layer
+#' @param a Hyperparameter for activation function "leakyrelu", "elu"
+#' @param lambda Hyperparameter for elastic net (regularization parameter)
+#' @param alpha Hyperparameter for elastic net (compromise between ridge and lasso)
+#' @param seed Seed for reproducibility
+#' @param h Forecasting horizon
+#' @param type_ci Type of confidence interval. Either \code{none}, \code{parametric} or \code{nonparametric}
+#' @param type_forecast Type of forecast. Either \code{recursive} or \code{direct}
+#' @param level Confidence level for prediction intervals
 #'
-#' @return a list, an object of class 'ridge'
-#'
+#' @return an object of class \code{mforecast}; a list containing the following elements: 
+#' \item{mean}{Point forecasts for the time series} \item{resid}{Residuals from the fitted model} 
+#' \item{model}{A list containing information about the fitted model} 
+#' \item{method}{The name of the forecasting method as a character string} 
+#' \item{x}{The original time series}
+#' 
 #' @export
 #'
 #' @examples
-#'
-#' set.seed(123)
-#' n <- 100 ; p <- 10
-#' X <- matrix(rnorm(n * p), n, p)
-#' y <- rnorm(n)
-#'
-#' fit_obj <- ahead::ridge(X, y)
-#'
-#' par(mfrow=c(1, 2))
-#'
-#' matplot(log(fit_obj$lambda), t(fit_obj$coef), type = 'l',
-#' main="coefficients \n f(lambda)")
-#'
-#' plot(log(fit_obj$lambda), fit_obj$GCV, type='l',
-#' main="GCV error")
-#'
-ridge <- function(x, y, lambda=10^seq(-10, 10,
-                                          length.out = 100))
+ridgef <- function(y,
+                   lags = 1,
+                   nb_hidden = 5,
+                   fit_method = c("ridge", "mgaussian"),
+                   nodes_sim = c("sobol", "halton", "unif"),
+                   activ = c("relu", "sigmoid", "tanh",
+                             "leakyrelu", "elu", "linear"),
+                   hidden_layer_bias = FALSE,
+                   a = 0.01,
+                   lambda = 0.1,
+                   alpha = 0.5,
+                   seed = 1,
+                   h = 5,
+                   type_pi = "none",
+                   type_forecast = c("recursive", "direct"),
+                   level = 95)
 {
-  # adapted from MASS::lm.ridge
-  x <- as.matrix(x)
-  y <- as.vector(y)
-  nlambda <- length(lambda)
-
-  ym <- mean(y)
-  centered_y <- y - ym
-
-  x_scaled <- base::scale(x)
-  attrs <- attributes(x_scaled)
-  X <- as.matrix(x_scaled[,])
-
-  Xs <- La.svd(X)
-  rhs <- crossprod(Xs$u, centered_y)
-  d <- Xs$d
-  nb_di <- length(d)
-  div <- d ^ 2 + rep(lambda, rep(nb_di, nlambda))
-  a <- drop(d * rhs) / div
-  dim(a) <- c(nb_di, nlambda)
-  n <- nrow(X)
-
-  coef <- crossprod(Xs$vt, a)
-  colnames(coef) <- lambda
-  centered_y_hat <- X %*% coef
-
-  fitted_values <- drop(ym +  centered_y_hat)
-  if (length(lambda) > 1)
+  if (!is.ts(y))
   {
-    colnames(fitted_values) <- lambda
+    x <- ts(y)
+  } else {
+    x <- y
   }
-  residuals <- centered_y - centered_y_hat
-  GCV <- colSums(residuals^2)/(n - colSums(matrix(d^2/div, nb_di)))^2
-  BIC <- n*log(colMeans(residuals^2)) + (ncol(X) + 2)*log(n)
 
-  out <- list(
-      coef = drop(coef),
-      ym = ym,
-      xm = attrs$`scaled:center`,
-      xsd = attrs$`scaled:scale`,
-      lambda = lambda,
-      best_lam = lambda[which.min(GCV)],
-      fitted_values = fitted_values,
-      residuals = drop(centered_y - centered_y_hat),
-      GCV = GCV,
-      BIC = BIC,
-      x = x,
-      y = y
-    )
+  freq_x <- frequency(x)
+  start_fits <- start(x)
+  start_preds <- tsp(x)[2] + 1/freq_x
+  n_series <- ncol(x) 
 
-  return(structure(out, class = "ridge"))
+  fit_method <- match.arg(fit_method)
+  nodes_sim <- match.arg(nodes_sim)
+  activ <- match.arg(activ)
+  type_forecast <- match.arg(type_forecast)
+
+  # Fitting a regularized regression model to multiple time series
+  fit_obj <- fit_ridge_mts(
+    x,
+    lags = lags,
+    nb_hidden = nb_hidden,
+    fit_method = fit_method,
+    nodes_sim = nodes_sim,
+    activ = activ,
+    hidden_layer_bias = hidden_layer_bias,
+    a = a,
+    lambda = lambda,
+    alpha = alpha,
+    seed = seed
+  )
+
+  # Forecast from fit_obj
+
+  preds <- ts(data = fcast_obj_mts(fit_obj,
+    h = h,
+    type_pi = type_pi,
+    type_forecast = type_forecast,
+    level = level),
+    start = start_preds, frequency = freq_x)
+
+  resids <- ts(data = fit_obj$resid,
+               start = start_preds, frequency = freq_x)
+
+  # Forecast from fit_obj  
+  forecasts <- lapply(1:n_series, 
+                      FUN = function (i) {structure(ts(preds[,i], 
+                      start = start_preds, 
+                      frequency = freq_x), class = "forecast")})
+
+  names(forecasts) <- colnames(x)
+
+  out <- list(mean = preds,
+              residuals = resids, 
+              method = fit_method,
+              model = fit_obj, 
+              x = x, 
+              forecast = forecasts)
+
+  return(structure(out, class = "mforecast"))
 }
-
-
-#' Predict from Ridge regression
-#'
-#' @param object object fitted by function `ridge`
-#' @param newx new examples
-#'
-#' @return predicted values for \code{newx}
-#' @export
-#'
-#' @examples
-#'
-#' set.seed(123)
-#'
-#' n <- 100 ; p <- 2
-#' X <- matrix(rnorm(n * p), n, p) # no intercept!
-#' y <- rnorm(n)
-#'
-#' fit_obj <- ahead::ridge(X, y)
-#'
-#' n_test <- 10
-#'
-#' predict(fit_obj, newx=matrix(rnorm(n_test * p), n_test, p))
-#'
-#'
-predict.ridge <- function(object, newx)
-{
-  if (length(object$lambda) > 1)
-  {
-    res <- try(drop(base::scale(newx, center=object$xm,
-                                scale=object$xsd)%*%object$coef[,which.min(object$GCV)] + object$ym),
-               silent = TRUE)
-    if (inherits(res, "try-error"))
-    {
-      res <- try(drop(base::scale(newx, center=object$xm,
-                                  scale=object$xsd)%*%object$coef[which.min(object$GCV)] + object$ym),
-                 silent = TRUE)
-      return(res)
-    } else {
-      return(res)
-    }
-  }  else {
-    return(drop(base::scale(newx, center=object$xm,
-                            scale=object$xsd)%*%object$coef + object$ym))
-  }
-}
-
-
-#
-# predict.ridge <- function(object, newx, cv=TRUE)
-# {
-#
-#   if (cv){
-#     res <- try(drop(base::scale(newx, center=object$xm,
-#                                 scale=object$xsd)%*%object$coef[,which.min(object$GCV)] + object$ym),
-#                silent = TRUE)
-#     if (inherits(res, "try-error"))
-#     {
-#       res <- try(drop(base::scale(newx, center=object$xm,
-#                                   scale=object$xsd)%*%object$coef[which.min(object$GCV)] + object$ym),
-#                  silent = TRUE)
-#       return(res)
-#     } else {
-#       return(res)
-#     }
-#   }
-#
-#   return(base::scale(newx, center=object$xm,
-#                      scale=object$xsd)%*%object$coef + object$ym)
-# }
-
+ridgef <- compiler::cmpfun(ridgef)

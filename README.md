@@ -96,6 +96,15 @@ With `ridge2f` (type `?ridge2f` in R console for more details), the model from :
 
 Your contributions are welcome. Please, make sure to __read__ the [Code of Conduct](CONTRIBUTING.md) first.
 
+### Note to self
+
+```bash
+git remote set-url origin https://username:your_generated_token@github.com/xxx/repo.git
+```
+
+```bash
+git remote set-url origin https://MY_GITHUB_TOKEN@github.com/Techtonique/ahead.git
+```
 
 ### License
 
