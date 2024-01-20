@@ -2,6 +2,7 @@ docs
 inst/doc
 .DS_Store
 .Rhistory
+.Rprofile
 .Rproj.user
 .Rproj.user/
 .Rproj.user/**
