@@ -3,7 +3,7 @@
 
 Univariate and multivariate time series forecasting, with uncertainty quantification.
 
-[![HitCount](https://hits.dwyl.com/Techtonique/ahead.svg?style=flat-square)](http://hits.dwyl.com/Techtonique/ahead)
+[![ahead status badge](https://techtonique.r-universe.dev/badges/ahead)](https://techtonique.r-universe.dev/ahead) [![HitCount](https://hits.dwyl.com/Techtonique/ahead.svg?style=flat-square)](http://hits.dwyl.com/Techtonique/ahead)
 
 ### Installation for R (Python is [here](https://github.com/Techtonique/ahead_python))
 
@@ -96,6 +96,15 @@ With `ridge2f` (type `?ridge2f` in R console for more details), the model from :
 
 Your contributions are welcome. Please, make sure to __read__ the [Code of Conduct](CONTRIBUTING.md) first.
 
+### Note to self
+
+```bash
+git remote set-url origin https://username:your_generated_token@github.com/xxx/repo.git
+```
+
+```bash
+git remote set-url origin https://MY_GITHUB_TOKEN@github.com/Techtonique/ahead.git
+```
 
 ### License
 
