@@ -1,0 +1,30 @@
+---
+title: "Univariate forecasting with `ridge2f` in `ahead`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Univariate forecasting with `ridge2f` in `ahead`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r}
+library(ahead)
+library(forecast)
+```
+
+
+```{r}
+x <- fdeaths 
+xreg <- ahead::createtrendseason(x)
+(z <- ahead::ridge2f(x, xreg = xreg, h=20))
+autoplot(z)
+```
+
+```{r}
+x <- USAccDeaths
+xreg <- ahead::createtrendseason(x)
+(z <- ahead::ridge2f(x, xreg = xreg, h=20))
+autoplot(z)
+```
+

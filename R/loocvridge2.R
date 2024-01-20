@@ -61,11 +61,11 @@
 #'
 #' print(ahead::loocvridge2f(fpp::insurance))
 #' print(ahead::loocvridge2f(fpp::usconsumption))
-#' 
+#'
 #' foo <- function(xx) ahead::loocvridge2f(fpp::insurance, lambda_1=10^xx[1], lambda_2=10^xx[2])
 #' (opt <- stats::nlminb(objective=foo, lower=c(-10,-10), upper=c(10,10), start=c(0, 0)))
 #' print(ahead::loocvridge2f(fpp::insurance, lambda_1=10^opt$par[1], lambda_2=10^opt$par[2]))
-#' 
+#'
 loocvridge2f <- function(y,
                         xreg = NULL,
                         h = 5,
@@ -105,7 +105,7 @@ loocvridge2f <- function(y,
                         type_pi <- match.arg(type_pi)
                         margins <- match.arg(margins)
                         type_aggregation <- match.arg(type_aggregation)
-                        type_clustering <- match.arg(type_clustering)                    
+                        type_clustering <- match.arg(type_clustering)
                         return(ridge2f(y = y,
                                        xreg = xreg,
                                        h = h,
@@ -130,5 +130,5 @@ loocvridge2f <- function(y,
                                        ym = ym,
                                        cl = cl,
                                        show_progress = show_progress,
-                                       ...)$loocv)
+                                       ...))
                     }

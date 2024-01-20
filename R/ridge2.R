@@ -2,7 +2,7 @@
 #'
 #' Random Vector functional link network model with 2 regularization parameters
 #'
-#' @param y A multivariate time series of class \code{ts} (preferred) or a \code{matrix}
+#' @param y A univariate of multivariate time series of class \code{ts} (preferred) or a \code{matrix}
 #' @param xreg External regressors. A data.frame (preferred) or a \code{matrix}
 #' @param h Forecasting horizon
 #' @param level Confidence level for prediction intervals
@@ -156,7 +156,26 @@ ridge2f <- function(y,
     install.packages("VineCopula",
                      repos = c(CRAN = "https://cloud.r-project.org"))
 
-  stopifnot(!is.null(ncol(y)))
+  if (is.null(dim(y)))
+  {
+    dimensionality <- "univariate"
+
+    is_ts_y_uni <- is.ts(y)
+
+    if (is_ts_y_uni)
+    {
+      start_y_uni <- start(y)
+      freq_y_uni <- frequency(y)
+    }
+    y <- cbind(y, seq_along(y))
+    colnames(y) <- c("y", "trend_univariate")
+    if (is_ts_y_uni){
+      y <- ts(y, start = start_y_uni,
+              frequency = freq_y_uni)
+    }
+  } else {
+    dimensionality <- "multivariate"
+  }
 
   stopifnot(floor(lags) == lags)
 
@@ -275,7 +294,6 @@ ridge2f <- function(y,
       frequency = freq_x
     )
 
-
     matrix_y_calibration <- matrix(as.numeric(y_calibration), ncol = 2)
     matrix_y_pred_calibration <- matrix(as.numeric(y_pred_calibration), ncol = 2)
     abs_residuals <- abs(matrix_y_calibration - matrix_y_pred_calibration)
@@ -313,7 +331,9 @@ ridge2f <- function(y,
       method = "ridge2",
       residuals = fit_obj$resids,
       coefficients = fit_obj$coef,
-      loocv = fit_obj$loocv
+      loocv = fit_obj$loocv,
+      weighted_loocv = fit_obj$weighted_loocv,
+      loocv_per_series = fit_obj$loocv_per_series
     )
 
     if (use_xreg || use_clustering)
@@ -328,6 +348,21 @@ ridge2f <- function(y,
           out[[i]] <- try_delete_xreg
         }
       }
+    }
+
+    if (dimensionality == "univariate")
+    {
+      for (i in 1:length(out))
+      {
+        try_delete_trend <-
+          try(delete_columns(out[[i]], "trend_univariate"), silent = TRUE)
+        if (!inherits(try_delete_trend, "try-error") &&
+            !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_trend
+        }
+      }
+      return(structure(out, class = "forecast"))
     }
 
     return(structure(out, class = "mtsforecast"))
@@ -540,7 +575,9 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       residuals = fit_obj$resids,
-      loocv = fit_obj$loocv
+      loocv = fit_obj$loocv,
+      weighted_loocv = fit_obj$weighted_loocv,
+      loocv_per_series = fit_obj$loocv_per_series
     )
 
     if (use_xreg || use_clustering)
@@ -581,6 +618,35 @@ ridge2f <- function(y,
       out$neutralized_sims <- neutralized_sims
     }
 
+    if (dimensionality == "univariate")
+    {
+      names_out <- names(out)
+      for (i in 1:length(out))
+      {
+        try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"),
+                               silent = TRUE)
+        if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_trend
+        } else {
+          if (identical(names_out[i], "sims")) # too much ifs man
+          {
+            # with simulations, it's a bit more tedious
+            for (j in 1:B)
+            {
+              try_delete_trend_sims <- try(delete_columns(out$sims[[j]], "trend_univariate"),
+                                          silent = TRUE)
+              if (!inherits(try_delete_trend_sims, "try-error"))
+              {
+                out$sims[[j]] <- try_delete_trend_sims
+              }
+            }
+          }
+        }
+      }
+      return(structure(out, class = "forecast"))
+    }
+
     return(structure(out, class = "mtsforecast"))
   }
 
@@ -608,7 +674,9 @@ ridge2f <- function(y,
       method = "ridge2",
       residuals = fit_obj_train$resids,
       coefficients = fit_obj_train$coef,
-      loocv = fit_obj$loocv
+      loocv = fit_obj$loocv,
+      weighted_loocv = fit_obj$weighted_loocv,
+      loocv_per_series = fit_obj$loocv_per_series
     )
 
     if (use_xreg || use_clustering)
@@ -623,6 +691,21 @@ ridge2f <- function(y,
           out[[i]] <- try_delete_xreg
         }
       }
+    }
+
+    if (dimensionality == "univariate")
+    {
+      for (i in 1:length(out))
+      {
+        try_delete_trend <-
+          try(delete_columns(out[[i]], "trend_univariate"), silent = TRUE)
+        if (!inherits(try_delete_trend, "try-error") &&
+            !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_trend
+        }
+      }
+      return(structure(out, class = "forecast"))
     }
 
     return(structure(out, class = "mtsforecast"))
@@ -755,7 +838,9 @@ ridge2f <- function(y,
       residuals = fit_obj$resids,
       copula = fit_obj$params_distro,
       margins = margins,
-      loocv = fit_obj$loocv
+      loocv = fit_obj$loocv,
+      weighted_loocv = fit_obj$weighted_loocv,
+      loocv_per_series = fit_obj$loocv_per_series
     )
 
     if (use_xreg || use_clustering) # refactor this
@@ -795,6 +880,36 @@ ridge2f <- function(y,
       names(neutralized_sims) <- series_names
       out$neutralized_sims <- neutralized_sims
     }
+
+    if (dimensionality == "univariate") # refactor this
+    {
+      names_out <- names(out)
+      for (i in 1:length(out))
+      {
+        try_delete_trend_univariate <- try(delete_columns(out[[i]], "trend_univariate"),
+                               silent = TRUE)
+        if (!inherits(try_delete_trend_univariate, "try-error") && !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_trend_univariate
+        } else {
+          if (identical(names_out[i], "sims")) # too much ifs man
+          {
+            # with simulations, it's a bit more tedious
+            for (j in 1:B)
+            {
+              try_delete_trend_univariate_sims <- try(delete_columns(out$sims[[j]], "trend_univariate"),
+                                          silent = TRUE)
+              if (!inherits(try_delete_trend_univariate_sims, "try-error"))
+              {
+                out$sims[[j]] <- try_delete_trend_univariate_sims
+              }
+            }
+          }
+        }
+      }
+      return(structure(out, class = "forecast"))
+    }
+
 
     return(structure(out, class = "mtsforecast"))
   }
@@ -914,9 +1029,14 @@ fit_ridge2_mts <- function(x,
                                            uniformize = "ranks",
                                            distro = margins)
 
-  smoother_matrix <- scaled_regressors %*% tcrossprod(inv, 
+  smoother_matrix <- scaled_regressors %*% tcrossprod(inv,
   scaled_regressors)
-  loocv <- mean((resids / (1 - mean(diag(smoother_matrix))))^2)                                        
+  loocv_matrix <- (resids / (1 - mean(diag(smoother_matrix))))^2
+  loocv_per_series <- colMeans(loocv_matrix)
+  names(loocv_per_series) <- series_names
+  loocv_weights <- apply(resids, 2, sd)
+  weighted_loocv <- mean(scale(loocv_matrix))
+  loocv <- mean(loocv_matrix)
 
   return(
     list(
@@ -941,7 +1061,9 @@ fit_ridge2_mts <- function(x,
       coef = lscoef,
       resids = resids,
       params_distro = params_distro,
-      loocv = loocv
+      loocv = loocv,
+      weighted_loocv = weighted_loocv,
+      loocv_per_series = loocv_per_series
     )
   )
 }

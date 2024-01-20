@@ -109,6 +109,45 @@ create_new_predictors <- function(x,
   }
 }
 
+# create trend and seasonality features -----
+
+#' Create trend and seasonality features for univariate time series
+#'
+#' @param y a univariate time series
+#'
+#' @return a vector or matrix of features
+#' @export
+#'
+#' @examples
+#'
+#' y <- ts(rnorm(100), start = 1, frequency = 12)
+#' createtrendseason(y)
+#'
+#' createtrendseason(USAccDeaths)
+#'
+createtrendseason <- function(y) {
+  seq_along_y <- seq_along(y)
+  frequency_y <- frequency(y)
+  theta <- 2 * pi * seq_along_y/frequency_y
+  sin_season <- sin(theta)
+  cos_season <- cos(theta)
+
+  if(all(cos_season == 1) || sum(sin_season^2) < .Machine$double.eps) {
+    return(ts(seq_along(y),
+              start = start(y)))
+  }
+  result_data <- data.frame(
+    sin_season = sin_season,
+    cos_season = cos_season
+  )
+  res <- ts(as.matrix(cbind(1:length(y),
+                            result_data)),
+            start = start(y),
+            frequency = frequency(y))
+  colnames(res) <- c("trend", "sin_season", "cos_season")
+  return(res)
+}
+
 # delete columns using a string pattern -----
 delete_columns <- function(x, pattern)
 {
@@ -2617,7 +2656,7 @@ simulate_rvine <- function(obj, RVM_U,
 
 }
 
-# Sort data frame 
+# Sort data frame
 sort_df <- function(df, by_col)
 {
   df[with(df, order(by_col)), ]
