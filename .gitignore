@@ -6,3 +6,4 @@ inst/doc
 .Rproj.user
 .Rproj.user/
 .Rproj.user/**
+*.Rproj
