@@ -103,8 +103,18 @@ dynrmf <- function(y, h = 5,
                    ...)
 {
   if(is_package_available("forecast") == FALSE)
-    utils::install.packages("forecast",
-                            repos = c(CRAN = "https://cloud.r-project.org"))
+  {
+    try(try_forecast <- utils::install.packages("forecast",
+                                                repos = c("https://cloud.r-project.org",
+                                                          "https://cran.rstudio.com")),
+    silent = TRUE)
+    if(inherits(try_forecast, "try-error"))
+    {
+      try(utils::install.packages("remotes",
+                                  repos = c("https://cloud.r-project.org", "https://cran.rstudio.com")))
+      try(remotes::install_github('robjhyndman/forecast', dependencies=TRUE), silent=TRUE)
+    }
+  }
 
   stopifnot(length(level) == 1)
 
