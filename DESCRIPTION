@@ -11,7 +11,7 @@ Imports: Rcpp (>= 1.0.6)
 LinkingTo: Rcpp
 RoxygenNote: 7.3.0
 Encoding: UTF-8
-Depends: R (>= 3.5.0), foreach, forecast, snow
+Depends: R (>= 3.5.0), foreach, snow
 Suggests: 
     knitr,
     rmarkdown,
