@@ -3,10 +3,10 @@
 #' Random Vector functional link network model with 2 regularization parameters
 #'
 #' @param y A univariate of multivariate time series of class \code{ts} (preferred) or a \code{matrix}
-#' @param xreg External regressors. A data.frame (preferred) or a \code{matrix}
 #' @param h Forecasting horizon
 #' @param level Confidence level for prediction intervals
 #' @param lags Number of lags
+#' @param xreg External regressors. A data.frame (preferred) or a \code{matrix}
 #' @param nb_hidden Number of nodes in hidden layer
 #' @param nodes_sim Type of simulation for nodes in the hidden layer
 #' @param activ Activation function
@@ -115,9 +115,9 @@
 #'
 #'
 ridge2f <- function(y,
-                    xreg = NULL,
                     h = 5,
                     level = 95,
+                    xreg = NULL,
                     lags = 1,
                     nb_hidden = 5,
                     nodes_sim = c("sobol", "halton", "unif"),

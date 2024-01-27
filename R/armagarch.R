@@ -27,9 +27,9 @@
 #' y <- datasets::EuStockMarkets[ , "DAX"]
 #' log_returns <- ts(log(y[-1]/y[-length(y)]))
 #'
-#' require(forecast)
-#' z <- ahead::armagarchf(y=log_returns, h=200)
-#' plot(z)
+#' # require(forecast)
+#' # z <- ahead::armagarchf(y=log_returns, h=200)
+#' # plot(z)
 #'
 #'
 armagarchf <- function(y,

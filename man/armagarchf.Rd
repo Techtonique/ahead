@@ -48,9 +48,9 @@ ARMA(1, 1)-GARCH(1, 1) forecasting (with simulation)
 y <- datasets::EuStockMarkets[ , "DAX"]
 log_returns <- ts(log(y[-1]/y[-length(y)]))
 
-require(forecast)
-z <- ahead::armagarchf(y=log_returns, h=200)
-plot(z)
+# require(forecast)
+# z <- ahead::armagarchf(y=log_returns, h=200)
+# plot(z)
 
 
 }

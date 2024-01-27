@@ -1,6 +1,8 @@
-#' Forecasts from elastic net and ridge regression models
+#' Forecasts from ridge regression models
 #'
 #' @param y A multivariate time series of class \code{ts} (preferred) or a \code{matrix}
+#' @param h Forecasting horizon
+#' @param level Confidence level for prediction intervals
 #' @param lags Number of lags to include in the model
 #' @param nb_hidden Number of hidden units in the neural network
 #' @param fit_method Method to fit the model. Either \code{ridge} for elastic net or \code{mgaussian} for multivariate Gaussian elastic net
@@ -11,21 +13,20 @@
 #' @param lambda Hyperparameter for elastic net (regularization parameter)
 #' @param alpha Hyperparameter for elastic net (compromise between ridge and lasso)
 #' @param seed Seed for reproducibility
-#' @param h Forecasting horizon
 #' @param type_ci Type of confidence interval. Either \code{none}, \code{parametric} or \code{nonparametric}
 #' @param type_forecast Type of forecast. Either \code{recursive} or \code{direct}
-#' @param level Confidence level for prediction intervals
 #'
-#' @return an object of class \code{mforecast}; a list containing the following elements: 
-#' \item{mean}{Point forecasts for the time series} \item{resid}{Residuals from the fitted model} 
-#' \item{model}{A list containing information about the fitted model} 
-#' \item{method}{The name of the forecasting method as a character string} 
+#' @return an object of class \code{mforecast}; a list containing the following elements:
+#' \item{mean}{Point forecasts for the time series} \item{resid}{Residuals from the fitted model}
+#' \item{model}{A list containing information about the fitted model}
+#' \item{method}{The name of the forecasting method as a character string}
 #' \item{x}{The original time series}
-#' 
+#'
 #' @export
 #'
 #' @examples
-ridgef <- function(y,
+ridgef <- function(y, h = 5,
+                   level = 95,
                    lags = 1,
                    nb_hidden = 5,
                    fit_method = c("ridge", "mgaussian"),
@@ -37,10 +38,8 @@ ridgef <- function(y,
                    lambda = 0.1,
                    alpha = 0.5,
                    seed = 1,
-                   h = 5,
                    type_pi = "none",
-                   type_forecast = c("recursive", "direct"),
-                   level = 95)
+                   type_forecast = c("recursive", "direct"))
 {
   if (!is.ts(y))
   {
@@ -52,7 +51,7 @@ ridgef <- function(y,
   freq_x <- frequency(x)
   start_fits <- start(x)
   start_preds <- tsp(x)[2] + 1/freq_x
-  n_series <- ncol(x) 
+  n_series <- ncol(x)
 
   fit_method <- match.arg(fit_method)
   nodes_sim <- match.arg(nodes_sim)
@@ -86,19 +85,19 @@ ridgef <- function(y,
   resids <- ts(data = fit_obj$resid,
                start = start_preds, frequency = freq_x)
 
-  # Forecast from fit_obj  
-  forecasts <- lapply(1:n_series, 
-                      FUN = function (i) {structure(ts(preds[,i], 
-                      start = start_preds, 
+  # Forecast from fit_obj
+  forecasts <- lapply(1:n_series,
+                      FUN = function (i) {structure(ts(preds[,i],
+                      start = start_preds,
                       frequency = freq_x), class = "forecast")})
 
   names(forecasts) <- colnames(x)
 
   out <- list(mean = preds,
-              residuals = resids, 
+              residuals = resids,
               method = fit_method,
-              model = fit_obj, 
-              x = x, 
+              model = fit_obj,
+              x = x,
               forecast = forecasts)
 
   return(structure(out, class = "mforecast"))

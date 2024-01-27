@@ -148,6 +148,14 @@ createtrendseason <- function(y) {
   return(res)
 }
 
+# prehistoric stuff -----
+debug_print <- function(x) {
+  cat("\n")
+  print(paste0(deparse(substitute(x)), "'s value:"))
+  print(x)
+  cat("\n")
+}
+
 # delete columns using a string pattern -----
 delete_columns <- function(x, pattern)
 {
@@ -1485,6 +1493,8 @@ fit_ridge_mts <- function(x,
 
   if (nb_hidden > 0)
   {
+    debug_print(y_x$xreg)
+    debug_print(blocks_index)
     list_xreg <- create_new_predictors(
       as.matrix(y_x$xreg[, blocks_index]),
       nb_hidden = nb_hidden,

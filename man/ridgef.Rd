@@ -2,10 +2,12 @@
 % Please edit documentation in R/ridge.R
 \name{ridgef}
 \alias{ridgef}
-\title{Forecasts from elastic net and ridge regression models}
+\title{Forecasts from ridge regression models}
 \usage{
 ridgef(
   y,
+  h = 5,
+  level = 95,
   lags = 1,
   nb_hidden = 5,
   fit_method = c("ridge", "mgaussian"),
@@ -16,14 +18,16 @@ ridgef(
   lambda = 0.1,
   alpha = 0.5,
   seed = 1,
-  h = 5,
   type_pi = "none",
-  type_forecast = c("recursive", "direct"),
-  level = 95
+  type_forecast = c("recursive", "direct")
 )
 }
 \arguments{
 \item{y}{A multivariate time series of class \code{ts} (preferred) or a \code{matrix}}
+
+\item{h}{Forecasting horizon}
+
+\item{level}{Confidence level for prediction intervals}
 
 \item{lags}{Number of lags to include in the model}
 
@@ -45,21 +49,17 @@ ridgef(
 
 \item{seed}{Seed for reproducibility}
 
-\item{h}{Forecasting horizon}
-
 \item{type_forecast}{Type of forecast. Either \code{recursive} or \code{direct}}
-
-\item{level}{Confidence level for prediction intervals}
 
 \item{type_ci}{Type of confidence interval. Either \code{none}, \code{parametric} or \code{nonparametric}}
 }
 \value{
-an object of class \code{mforecast}; a list containing the following elements: 
-\item{mean}{Point forecasts for the time series} \item{resid}{Residuals from the fitted model} 
-\item{model}{A list containing information about the fitted model} 
-\item{method}{The name of the forecasting method as a character string} 
+an object of class \code{mforecast}; a list containing the following elements:
+\item{mean}{Point forecasts for the time series} \item{resid}{Residuals from the fitted model}
+\item{model}{A list containing information about the fitted model}
+\item{method}{The name of the forecasting method as a character string}
 \item{x}{The original time series}
 }
 \description{
-Forecasts from elastic net and ridge regression models
+Forecasts from ridge regression models
 }
