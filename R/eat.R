@@ -92,11 +92,6 @@ eatf <- function(y, h = 5,
                  type_pi = c("gaussian", "E", "A", "T"),
                  ...) {
 
-  if(is_package_available("forecast") == FALSE)
-    try(utils::install.packages("forecast",
-                            repos = c(CRAN = "https://cloud.r-project.org")),
-        silent = TRUE)
-
   stopifnot(length(level) == 1)
 
   method <- match.arg(method)
