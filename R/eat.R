@@ -159,12 +159,22 @@ eatf <- function(y, h = 5,
 
         out$model <- list(method=method, weights=weights, type_pi=type_pi)
 
-        out$mean <- ts(drop(crossprod(weights, fcasts)),
+        out$mean <- try(ts(drop(crossprod(weights, fcasts)),
                            start = start_preds,
-                           frequency = freq_y)
+                           frequency = freq_y), silent = TRUE)
+        if (inherits(out$mean, "try-error")) {
+          out$mean <- try(ts(drop(tcrossprod(weights, fcasts)),
+                           start = start_preds,
+                           frequency = freq_y), silent = TRUE)
+        }      
         out$residuals <- ts(drop(crossprod(weights, resids)),
                                 start = start(y),
                                 frequency = frequency(y))
+        if (inherits(out$residuals, "try-error")) {
+          out$residuals <- ts(drop(tcrossprod(weights, resids)),
+                                start = start(y),
+                                frequency = frequency(y))
+        }                        
         out$method <- paste0("EAT(", type_pi, ")")
 
     } else { # if (any(weights == 0))

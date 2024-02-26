@@ -42,11 +42,18 @@ armagarchf <- function(y,
 
   if(is_package_available("forecast") == FALSE)
     utils::install.packages("forecast",
-                            repos = c(CRAN = "https://cloud.r-project.org"))
+                            repos = c(CRAN = "https://cloud.r-project.org"),
+                            dependencies = TRUE)
+
+  if(is_package_available("fBasics") == FALSE)
+    utils::install.packages("fBasics",
+                            repos = c(CRAN = "https://cloud.r-project.org"),
+                            dependencies = TRUE)
 
   if(is_package_available("fGarch") == FALSE)
     utils::install.packages("fGarch",
-                            repos = c(CRAN = "https://cloud.r-project.org"))
+                            repos = c(CRAN = "https://cloud.r-project.org"),
+                            dependencies = TRUE)
 
   dist <- match.arg(dist)
 
