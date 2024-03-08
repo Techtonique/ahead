@@ -293,8 +293,8 @@ testthat::test_that("11 - parallel exec", {
 
 # 2 - 12 ym -----
 
-testthat::test_that("11 - parallel exec", {
-  print("running tests on parallel exec")
+testthat::test_that("11 - ym", {
+  print("running tests on ym")
   expect_equal(as.numeric(round(res39$mean[1, 1], 4)),
                0.0026)
 })
