@@ -11,13 +11,13 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // embedc
-NumericMatrix embedc(NumericVector x, int lags);
+NumericMatrix embedc(NumericVector x, unsigned int lags);
 RcppExport SEXP _ahead_embedc(SEXP xSEXP, SEXP lagsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type lags(lagsSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type lags(lagsSEXP);
     rcpp_result_gen = Rcpp::wrap(embedc(x, lags));
     return rcpp_result_gen;
 END_RCPP

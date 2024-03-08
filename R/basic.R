@@ -12,9 +12,6 @@
 #' "movingblockbootstrap"
 #' @param seed reproducibility seed for \code{type_pi == 'bootstrap'}
 #' @param B Number of bootstrap replications for \code{type_pi == 'bootstrap'}
-#' @param ym Univariate time series (\code{stats::ts}) of yield to maturities with
-#' \code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
-#' Default is \code{NULL}.
 #' @param show_progress A boolean; show progress bar for bootstrapping? Default is TRUE.
 #'
 #' @return An object of class "mtsforecast"; a list containing the following elements:
@@ -81,7 +78,6 @@ basicf <- function(y,
                    block_length = NULL,
                    seed = 1,
                    B = 100,
-                   ym = NULL,
                    show_progress = TRUE)
 {
   stopifnot(!is.null(ncol(y)))
@@ -92,11 +88,6 @@ basicf <- function(y,
   }
 
   stopifnot(!is.null(ncol(y)))
-
-  if (!is.null(ym))
-  {
-    stop("Not implemented")
-  }
 
   method <- match.arg(method)
   stopifnot(!is.null(ncol(y)))

@@ -17,7 +17,7 @@
 #' @param seed Reproducibility seed for `nodes_sim == unif`
 #' @param type_forecast Recursive or direct forecast
 #' @param type_pi Type of prediction interval currently "gaussian", "bootstrap",
-#' "blockbootstrap", "movingblockbootstrap", "splitconformal" (very experimental right now),
+#' "blockbootstrap", "movingblockbootstrap", "splitconformal" (removed for now),
 #' "rvinecopula" (with Gaussian margins for now, Student-t coming soon)
 #' @param block_length Length of block for circular or moving block bootstrap
 #' @param margins Distribution of margins: "gaussian", "empirical", "student" (postponed or
@@ -263,43 +263,43 @@ ridge2f <- function(y,
       margins = margins
     )
   } else { # if (type_pi == "splitconformal") # experimental
-
-    y_train_calibration <- splitts(y, split_prob=0.5)
-    y_train <- y_train_calibration$training
-    y_calibration <- y_train_calibration$testing
-
-    fit_obj_train <- fit_ridge2_mts(
-      y_train,
-      lags = lags,
-      nb_hidden = nb_hidden,
-      nodes_sim = nodes_sim,
-      activ = activ,
-      a = a,
-      lambda_1 = lambda_1,
-      lambda_2 = lambda_2,
-      dropout = dropout,
-      centers = centers,
-      type_clustering = type_clustering,
-      seed = seed
-    )
-
-    y_pred_calibration <- ts(
-      data = fcast_ridge2_mts(
-        fit_obj_train,
-        h = nrow(y_calibration),
-        type_forecast = type_forecast,
-        level = level
-      ),
-      start = start_preds,
-      frequency = freq_x
-    )
-
-    matrix_y_calibration <- matrix(as.numeric(y_calibration), ncol = 2)
-    matrix_y_pred_calibration <- matrix(as.numeric(y_pred_calibration), ncol = 2)
-    abs_residuals <- abs(matrix_y_calibration - matrix_y_pred_calibration)
-
-    quantile_absolute_residuals_conformal <- quantile_scp(abs_residuals = abs_residuals,
-                                                          alpha = (1 - level/100))
+    stop("removed (for now)")
+    # y_train_calibration <- splitts(y, split_prob=0.5)
+    # y_train <- y_train_calibration$training
+    # y_calibration <- y_train_calibration$testing
+    #
+    # fit_obj_train <- fit_ridge2_mts(
+    #   y_train,
+    #   lags = lags,
+    #   nb_hidden = nb_hidden,
+    #   nodes_sim = nodes_sim,
+    #   activ = activ,
+    #   a = a,
+    #   lambda_1 = lambda_1,
+    #   lambda_2 = lambda_2,
+    #   dropout = dropout,
+    #   centers = centers,
+    #   type_clustering = type_clustering,
+    #   seed = seed
+    # )
+    #
+    # y_pred_calibration <- ts(
+    #   data = fcast_ridge2_mts(
+    #     fit_obj_train,
+    #     h = nrow(y_calibration),
+    #     type_forecast = type_forecast,
+    #     level = level
+    #   ),
+    #   start = start_preds,
+    #   frequency = freq_x
+    # )
+    #
+    # matrix_y_calibration <- matrix(as.numeric(y_calibration), ncol = 2)
+    # matrix_y_pred_calibration <- matrix(as.numeric(y_pred_calibration), ncol = 2)
+    # abs_residuals <- abs(matrix_y_calibration - matrix_y_pred_calibration)
+    #
+    # quantile_absolute_residuals_conformal <- quantile_scp(abs_residuals = abs_residuals,
+    #                                                       alpha = (1 - level/100))
   }
 
   if (identical(type_pi, "gaussian"))

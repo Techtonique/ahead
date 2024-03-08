@@ -75,6 +75,7 @@ plot.mtsforecast <- function(x, selected_series,
       lines(y_upper, col="gray60")
       lines(y_lower, col="gray60")
       lines(y_mean)
+      return(invisible(NULL))
     }
 
     if (type == "dist")
@@ -108,7 +109,7 @@ plot.mtsforecast <- function(x, selected_series,
                 ci_lower = qt_lower)
       bands_add(abs, y_mean, col = color[3], ci_upper = x_summary[2, ],
                 ci_lower = x_summary[4, ])
-
+      return(invisible(NULL))
     }
 
     if (type == "sims")
@@ -151,6 +152,7 @@ plot.mtsforecast <- function(x, selected_series,
         ...
       )
       lines(x = time_inputs, y = input_series, lwd = 2)
+      return(invisible(NULL))
     }
   } else {
     stop("Method not implemented for this type of object")
