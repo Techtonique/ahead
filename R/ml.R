@@ -26,6 +26,14 @@
 
 
 # 0 - inputs and parameters -----
+# For uncertainty:
+# Gaussian
+# Independant bootstrap
+# MB bootstrap
+# circular block bootstrap
+# rgaussiandens
+# rsurr
+# rboot
 model_fit <- function(y,
                       lags = 1L,
                       obj = randomForest::randomForest,

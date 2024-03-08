@@ -6,11 +6,13 @@ library(testthat)
 library(ahead)
 
 set.seed(123L)
-x <- ts(matrix(rnorm(100L), ncol = 5L))
+z <- matrix(rnorm(100L), ncol = 5L)
+x <- ts(z)
 
 # 1 - 1 type of residuals 'simulation' ----
 
 res1 <- ahead::ridge2f(x, type_pi = "gaussian", B = 5L)
+res37 <- ahead::ridge2f(z, type_pi = "gaussian", B = 5L)
 res2 <- ahead::ridge2f(x, type_pi = "bootstrap", B = 5L)
 res3 <- ahead::ridge2f(x, type_pi = "bootstrap", B = 5L)
 res4 <- ahead::ridge2f(x, type_pi = "blockbootstrap", B = 5L)
@@ -147,6 +149,28 @@ res35 <- plot(res32,
 set.seed(123L); x <- ts(matrix(rnorm(50L), ncol = 2L))
 res36 <- ahead::ridge2f(x, type_pi = "movingblockbootstrap",
                         B = 10L, cl=2L)
+res38 <- ahead::ridge2f(x, type_pi = "movingblockbootstrap",
+                        B = 10L, cl=2L,
+                        show_progress = FALSE)
+
+# 1 - 14 ym ----
+
+data(EuStockMarkets)
+EuStocks <- ts(EuStockMarkets[1:100, ],
+               start = start(EuStockMarkets),
+               frequency = frequency(EuStockMarkets))
+EuStocksLogReturns <- ahead::getreturns(EuStocks, type = "log")
+ym <- c(0.03013425, 0.03026776, 0.03040053, 0.03053258,
+        0.03066390, 0.03079450, 0.03092437)
+freq <- frequency(EuStocksLogReturns)
+(start_preds <- tsp(EuStocksLogReturns)[2] + 1 / freq)
+(ym <- stats::ts(ym,
+                 start = start_preds,
+                 frequency = frequency(EuStocksLogReturns)))
+res39 <- ahead::ridge2f(EuStocksLogReturns, h = 7L,
+                        type_pi = 'bootstrap',
+                        B = 10L, ym = ym,
+                        show_progress = FALSE)
 
 
 # 2 - tests -----
@@ -156,6 +180,7 @@ res36 <- ahead::ridge2f(x, type_pi = "movingblockbootstrap",
 testthat::test_that("1 - tests on types of residuals' simulations", {
   print("running tests on types of residuals' simulations")
   expect_equal(as.numeric(round(res1$mean[1, 1], 2)), 1.16)
+  expect_equal(as.numeric(round(res37$mean[1, 1], 2)), 1.16)
   expect_equal(as.numeric(round(res2$mean[1, 1], 2)), 1.01)
   expect_equal(as.numeric(round(res1$lower[1, 1], 2)),-0.34)
   expect_equal(as.numeric(round(res2$lower[1, 1], 2)), 0.31)
@@ -262,4 +287,14 @@ testthat::test_that("11 - parallel exec", {
   print("running tests on parallel exec")
   expect_equal(as.numeric(round(res36$mean[1, 1], 2)),
                0.35)
+  expect_equal(as.numeric(round(res38$mean[1, 1], 2)),
+               0.35)
+})
+
+# 2 - 12 ym -----
+
+testthat::test_that("11 - parallel exec", {
+  print("running tests on parallel exec")
+  expect_equal(as.numeric(round(res39$mean[1, 1], 4)),
+               0.0026)
 })
