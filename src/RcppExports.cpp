@@ -11,13 +11,13 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // embedc
-NumericMatrix embedc(NumericVector x, int lags);
+NumericMatrix embedc(NumericVector x, unsigned int lags);
 RcppExport SEXP _ahead_embedc(SEXP xSEXP, SEXP lagsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type lags(lagsSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type lags(lagsSEXP);
     rcpp_result_gen = Rcpp::wrap(embedc(x, lags));
     return rcpp_result_gen;
 END_RCPP
@@ -117,18 +117,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cbind_cpp
-NumericMatrix cbind_cpp(NumericMatrix x, NumericMatrix y);
-RcppExport SEXP _ahead_cbind_cpp(SEXP xSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(cbind_cpp(x, y));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ahead_embedc", (DL_FUNC) &_ahead_embedc, 2},
@@ -139,7 +127,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ahead_reformat_cpp", (DL_FUNC) &_ahead_reformat_cpp, 2},
     {"_ahead_rev_matrix_cpp", (DL_FUNC) &_ahead_rev_matrix_cpp, 1},
     {"_ahead_rbind_vecmat_cpp", (DL_FUNC) &_ahead_rbind_vecmat_cpp, 2},
-    {"_ahead_cbind_cpp", (DL_FUNC) &_ahead_cbind_cpp, 2},
     {NULL, NULL, 0}
 };
 

@@ -1,21 +1,13 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// This is a simple example of exporting a C++ function to R. You can
-// source this function into an R session using the Rcpp::sourceCpp
-// function (or via the Source button on the editor toolbar). Learn
-// more about Rcpp at:
-//
-//   http://www.rcpp.org/
-//   http://adv-r.had.co.nz/Rcpp.html
-//   http://gallery.rcpp.org/
-//
-
 // [[Rcpp::export]]
-NumericMatrix embedc(NumericVector x, int lags) {
+NumericMatrix embedc(NumericVector x,
+                     unsigned int lags) {
   unsigned long int n = x.size();
   unsigned long int i = 0;
   unsigned long int j = 0;
+  lags -= 1;
   unsigned long int n_lags = n-lags;
   unsigned int lag_plus = lags + 1;
   NumericMatrix res(n_lags, lag_plus);

@@ -75,6 +75,7 @@ plot.mtsforecast <- function(x, selected_series,
       lines(y_upper, col="gray60")
       lines(y_lower, col="gray60")
       lines(y_mean)
+      return(invisible(NULL))
     }
 
     if (type == "dist")
@@ -108,7 +109,7 @@ plot.mtsforecast <- function(x, selected_series,
                 ci_lower = qt_lower)
       bands_add(abs, y_mean, col = color[3], ci_upper = x_summary[2, ],
                 ci_lower = x_summary[4, ])
-
+      return(invisible(NULL))
     }
 
     if (type == "sims")
@@ -151,98 +152,13 @@ plot.mtsforecast <- function(x, selected_series,
         ...
       )
       lines(x = time_inputs, y = input_series, lwd = 2)
+      return(invisible(NULL))
     }
   } else {
     stop("Method not implemented for this type of object")
   }
 }
 
-
-#' Plot bivariate distributions
-#'
-#' @param x bivariate matrix or time series
-#' @param y additional series (default is \code{NULL})
-#' @export
-#'
-#' @examples
-#'
-#' obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap",
-#' block_length=5, B = 10)
-#'
-#' \dontrun{
-#' plot(obj$residuals, type = "pairs")
-#' }
-#'
-#'
-plot.pairs <- function(x, y = NULL)
-{
-  if(is_package_available("ggplot2") == FALSE)
-    utils::install.packages("ggplot2",
-                            repos = c(CRAN = "https://cloud.r-project.org"))
-
-  if(is_package_available("gridExtra") == FALSE)
-    utils::install.packages("gridExtra",
-                            repos = c(CRAN = "https://cloud.r-project.org"))
-
-  x <- matrix(unlist(x), ncol = 2)
-  if (!is.null(y))
-  {
-    y <- matrix(unlist(y), ncol = 2)
-    if (length(x) != length(y)) stop("'x' and 'y' must have the same dimensions")
-    xvar <- c(x[,1], y[,1])
-    yvar <- c(x[,2], y[,2])
-    nb  <- dim(x)[1]
-    zvar <- as.factor(c(rep("x", nb), rep("y", nb)))
-    xy <- data.frame(xvar, yvar, zvar)
-  }
-  else
-  {
-    xvar <- x[,1]
-    yvar <- x[,2]
-    nb  <- dim(x)[1]
-    zvar <- as.factor(rep("x", nb))
-    xy <- data.frame(xvar, yvar, zvar)
-  }
-
-  #placeholder plot - prints nothing at all
-  empty <- ggplot2::ggplot()+ggplot2::geom_point(ggplot2::aes(1,1), colour="white") +
-    ggplot2::theme(
-      plot.background = ggplot2::element_blank(),
-      panel.grid.major = ggplot2::element_blank(),
-      panel.grid.minor = ggplot2::element_blank(),
-      panel.border = ggplot2::element_blank(),
-      panel.background = ggplot2::element_blank(),
-      axis.title.x = ggplot2::element_blank(),
-      axis.title.y = ggplot2::element_blank(),
-      axis.text.x = ggplot2::element_blank(),
-      axis.text.y = ggplot2::element_blank(),
-      axis.ticks = ggplot2::element_blank()
-    )
-
-  # plot slow af
-
-  #scatterplot of x and y variables
-  scatter <- ggplot2::ggplot(xy, ggplot2::aes(xvar, yvar)) +
-    ggplot2::geom_point(ggplot2::aes(color=zvar)) +
-    ggplot2::scale_color_manual(values = c("blue", "red")) +
-    ggplot2::theme(legend.position=c(1,1),legend.justification=c(1,1))
-
-  #marginal density of x - plot on top
-  plot_top <- ggplot2::ggplot(xy, ggplot2::aes(xvar, fill=zvar)) +
-    ggplot2::geom_density(alpha=.5) +
-    ggplot2::scale_fill_manual(values = c("blue", "red")) +
-    ggplot2::theme(legend.position = "none")
-
-  #marginal density of y - plot on the right
-  plot_right <- ggplot2::ggplot(xy, ggplot2::aes(yvar, fill=zvar)) +
-    ggplot2::geom_density(alpha=.5) +
-    ggplot2::coord_flip() +
-    ggplot2::scale_fill_manual(values = c("blue", "red")) +
-    ggplot2::theme(legend.position = "none")
-
-  #arrange the plots together, with appropriate height and width for each row and column
-  gridExtra::grid.arrange(plot_top, empty, scatter, plot_right, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
-}
 
 # plot bands # work in progress #scratchinghead
 bands_plot <- function(x, y_mean, ci_upper, ci_lower, col, y.goal = NULL, goal.col = "blue", ...)

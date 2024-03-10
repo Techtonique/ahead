@@ -13,7 +13,6 @@ basicf(
   block_length = NULL,
   seed = 1,
   B = 100,
-  ym = NULL,
   show_progress = TRUE
 )
 }
@@ -35,10 +34,6 @@ basicf(
 \item{seed}{reproducibility seed for \code{type_pi == 'bootstrap'}}
 
 \item{B}{Number of bootstrap replications for \code{type_pi == 'bootstrap'}}
-
-\item{ym}{Univariate time series (\code{stats::ts}) of yield to maturities with
-\code{frequency = frequency(y)} and \code{start = tsp(y)[2] + 1 / frequency(y)}.
-Default is \code{NULL}.}
 
 \item{show_progress}{A boolean; show progress bar for bootstrapping? Default is TRUE.}
 }
