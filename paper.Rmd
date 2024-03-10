@@ -11,8 +11,8 @@ tags:
 date: "March 10, 2024"
 output:
   pdf_document: default
-  html_document:
-    df_print: paged
+html_document:
+  df_print: paged
 urlcolor: blue
 author: "T. Moudiki"
 affiliation: "techtonique.github.io"
@@ -106,15 +106,13 @@ ggplot2::autoplot(z) # plot forecast
 
 `EuStocksLogReturns` contains the daily log-returns of major European stock indices, Germany DAX (Ibis), Switzerland SMI, France CAC, and UK FTSE, with 1860 observations. Only the first 100 dates of DAX index are used in the example below. 
 
-```{r "1-ridge2-uni-2", echo=TRUE, include=TRUE, fig.width=6}
+```{r "1-ridge2-uni-2", echo=TRUE, fig.width=6}
 data(EuStockMarkets)
 EuStocks <- ts(EuStockMarkets[1:100, ],
                start = start(EuStockMarkets),
                frequency = frequency(EuStockMarkets)) # original data
 EuStocksLogReturns <- ahead::getreturns(EuStocks, type = "log") # obtain log-returns
 res <- ahead::ridge2f(EuStocksLogReturns[, "DAX"], h = 20L,
-                        type_pi = 'movingblockbootstrap',
-                        B = 50L,
                         show_progress = FALSE)
 ggplot2::autoplot(res) # plot forecast
 ```
