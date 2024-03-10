@@ -1,4 +1,20 @@
 
+# version 0.11.0
+
+- Include tests (90% coverage). After cloning, run: 
+
+```R
+install.packages("covr")
+covr::report()
+```
+
+# version 0.10.0
+
+- Univariate forecasting for `ridge2f`. 
+See https://thierrymoudiki.github.io/blog/2024/02/26/python/r/julia/ahead-v0100.
+- Fast calibration for `ridge2f` (univariate and multivariate case). 
+See https://thierrymoudiki.github.io/blog/2024/02/26/python/r/julia/ahead-v0100.
+
 # version 0.9.0
 
 - progress bars for bootstrap (independent, circular block, moving block)

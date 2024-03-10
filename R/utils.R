@@ -1,9 +1,51 @@
 # In alphabetical order
 
+# compute prediction intervals for univariate time series -----
+
+# compute_uni_pi <- function(out, h = 5,
+#                            type_pi = c("E", "A", "T", "gaussian"))
+# {
+#   tspx <- tsp(out$x)
+#
+#   if (type_pi == "E")
+#   {
+#     resid_fcast <- forecast::forecast(forecast::ets(out$residuals),
+#                                       h = h, level=out$level)
+#   }
+#
+#   if (type_pi == "A")
+#   {
+#     resid_fcast <- forecast::forecast(forecast::auto.arima(out$residuals),
+#                                       h = h, level=out$level)
+#   }
+#
+#   if (type_pi == "T")
+#   {
+#     resid_fcast <- forecast::thetaf(out$residuals, h = h, level=out$level)
+#   }
+#
+#   if (type_pi == "gaussian")
+#   {
+#     qt_sd <- -qnorm(0.5 - out$level/200)*sd(out$residuals)
+#     rep_qt_sd <- ts(rep(qt_sd, h), start = tspx[2] + 1 / tspx[3],
+#                     frequency = tspx[3])
+#
+#     resid_fcast <- list()
+#     resid_fcast$mean <- 0
+#     resid_fcast$lower <- -rep_qt_sd
+#     resid_fcast$upper <- rep_qt_sd
+#   }
+#
+#   out$mean <-  drop(out$mean  + resid_fcast$mean)
+#   out$lower <- drop(out$mean + resid_fcast$lower)
+#   out$upper <- drop(out$mean + resid_fcast$upper)
+#
+#   return(structure(out, class = "forecast"))
+# }
+
 # create new predictors -----
 create_new_predictors <- function(x,
                                   nb_hidden = 5,
-                                  hidden_layer_bias = FALSE,
                                   method = c("sobol", "halton", "unif"),
                                   activ = c("relu", "sigmoid", "tanh",
                                             "leakyrelu", "elu", "linear"),
@@ -11,9 +53,8 @@ create_new_predictors <- function(x,
                                   seed = 123)
 {
   n <- nrow(x)
+  stopifnot(nb_hidden > 0)
 
-  if (nb_hidden > 0)
-  {
     p <- ncol(x)
     method <- match.arg(method)
 
@@ -34,47 +75,22 @@ create_new_predictors <- function(x,
         x
     )
 
-    if (hidden_layer_bias == FALSE)
-    {
-      # used for columns sample and for 'method == unif'
-      set.seed(seed + 1)
-      w <- remove_zero_cols(switch(
-        method,
-        "sobol" = 2 * t(randtoolbox::sobol(nb_hidden + 1, p)) - 1,
-        "halton" = 2 * t(randtoolbox::halton(nb_hidden, p)) - 1,
-        "unif" = matrix(
-          runif(nb_hidden * p, min = -1, max = 1),
-          nrow = p,
-          ncol = nb_hidden
-        )
-      ))
-      scaled_x <- my_scale(x)
-      hidden_layer_obj <- remove_zero_cols(g(scaled_x$res %*% w),
-                                           with_index = TRUE)
-      hidden_layer <- hidden_layer_obj$mat
-
-    } else {
-      # hidden_layer_bias == TRUE
-      pp <- p + 1
-      # used for columns sample and for 'method == unif'
-      set.seed(seed + 1)
-      w <- remove_zero_cols(switch(
-        method,
-        "sobol" = 2 * t(randtoolbox::sobol(nb_hidden + 1, pp)) - 1,
-        "halton" = 2 * t(randtoolbox::halton(nb_hidden, pp)) - 1,
-        "unif" = matrix(
-          runif(nb_hidden * pp, min = -1, max = 1),
-          nrow = pp,
-          ncol = nb_hidden
-        )
-      ))
-
-      scaled_x <- my_scale(x)
-      hidden_layer_obj <-
-        remove_zero_cols(g(cbind(1, scaled_x$res) %*% w),
-                         with_index = TRUE)
-      hidden_layer <- hidden_layer_obj$mat
-    }
+    # used for columns sample and for 'method == unif'
+    set.seed(seed + 1)
+    w <- remove_zero_cols(switch(
+      method,
+      "sobol" = 2 * t(randtoolbox::sobol(nb_hidden + 1, p)) - 1,
+      "halton" = 2 * t(randtoolbox::halton(nb_hidden, p)) - 1,
+      "unif" = matrix(
+        runif(nb_hidden * p, min = -1, max = 1),
+        nrow = p,
+        ncol = nb_hidden
+      )
+    ))
+    scaled_x <- my_scale(x)
+    hidden_layer_obj <- remove_zero_cols(g(scaled_x$res %*% w),
+                                         with_index = TRUE)
+    hidden_layer <- hidden_layer_obj$mat
 
     res <- cbind(x, hidden_layer)
     nb_nodes <- ncol(hidden_layer)
@@ -95,18 +111,7 @@ create_new_predictors <- function(x,
         hidden_layer_index = hidden_layer_obj$index
       )
     )
-  } else {
-    # if nb_hidden <= 0
-    scaled_x <- my_scale(x)
-    return(
-      list(
-        xm = scaled_x$xm,
-        xsd = scaled_x$xsd,
-        predictors = x,
-        hidden_layer_index = hidden_layer_obj$index
-      )
-    )
-  }
+
 }
 
 # create trend and seasonality features -----
@@ -216,23 +221,24 @@ fitdistr_ahead <- function (x, densfun, start = NULL, seed = 123, ...)
     if (is.null(densfun))
       stop("unsupported distribution")
     if (distname %in% c("lognormal", "log-normal")) {
-      if (!is.null(start))
-        stop(gettextf("supplying pars for the %s distribution is not supported",
-                      "log-Normal"), domain = NA)
-      if (any(x <= 0))
-        stop("need positive values to fit a log-Normal")
-      lx <- log(x)
-      sd0 <- sqrt((n - 1)/n) * sd(lx)
-      mx <- mean(lx)
-      estimate <- c(mx, sd0)
-      sds <- c(sd0/sqrt(n), sd0/sqrt(2 * n))
-      names(estimate) <- names(sds) <- c("meanlog", "sdlog")
-      vc <- matrix(c(sds[1]^2, 0, 0, sds[2]^2), ncol = 2,
-                   dimnames = list(names(sds), names(sds)))
-      names(estimate) <- names(sds) <- c("meanlog", "sdlog")
-      return(structure(list(estimate = estimate, sd = sds,
-                            vcov = vc, n = n, loglik = sum(stats::dlnorm(x, mx,
-                                                                  sd0, log = TRUE))), class = "fitdistr"))
+      stop("uncomment")
+      # if (!is.null(start))
+      #   stop(gettextf("supplying pars for the %s distribution is not supported",
+      #                 "log-Normal"), domain = NA)
+      # if (any(x <= 0))
+      #   stop("need positive values to fit a log-Normal")
+      # lx <- log(x)
+      # sd0 <- sqrt((n - 1)/n) * sd(lx)
+      # mx <- mean(lx)
+      # estimate <- c(mx, sd0)
+      # sds <- c(sd0/sqrt(n), sd0/sqrt(2 * n))
+      # names(estimate) <- names(sds) <- c("meanlog", "sdlog")
+      # vc <- matrix(c(sds[1]^2, 0, 0, sds[2]^2), ncol = 2,
+      #              dimnames = list(names(sds), names(sds)))
+      # names(estimate) <- names(sds) <- c("meanlog", "sdlog")
+      # return(structure(list(estimate = estimate, sd = sds,
+      #                       vcov = vc, n = n, loglik = sum(stats::dlnorm(x, mx,
+      #                                                             sd0, log = TRUE))), class = "fitdistr"))
     }
     if (distname == "normal") {
       if (!is.null(start))
@@ -249,119 +255,119 @@ fitdistr_ahead <- function (x, densfun, start = NULL, seed = 123, ...)
                             vcov = vc, n = n, loglik = sum(stats::dnorm(x, mx, sd0,
                                                                  log = TRUE))), class = "fitdistr"))
     }
-    if (distname == "poisson") {
-      if (!is.null(start))
-        stop(gettextf("supplying pars for the %s distribution is not supported",
-                      "Poisson"), domain = NA)
-      estimate <- mean(x)
-      sds <- sqrt(estimate/n)
-      names(estimate) <- names(sds) <- "lambda"
-      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("lambda",
-                                                              "lambda"))
-      return(structure(list(estimate = estimate, sd = sds,
-                            vcov = vc, n = n, loglik = sum(stats::dpois(x, estimate,
-                                                                 log = TRUE))), class = "fitdistr"))
-    }
-    if (distname == "exponential") {
-      if (any(x < 0))
-        stop("Exponential values must be >= 0")
-      if (!is.null(start))
-        stop(gettextf("supplying pars for the %s distribution is not supported",
-                      "exponential"), domain = NA)
-      estimate <- 1/mean(x)
-      sds <- estimate/sqrt(n)
-      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("rate",
-                                                              "rate"))
-      names(estimate) <- names(sds) <- "rate"
-      return(structure(list(estimate = estimate, sd = sds,
-                            vcov = vc, n = n, loglik = sum(stats::dexp(x, estimate,
-                                                                log = TRUE))), class = "fitdistr"))
-    }
-    if (distname == "geometric") {
-      if (!is.null(start))
-        stop(gettextf("supplying pars for the %s distribution is not supported",
-                      "geometric"), domain = NA)
-      estimate <- 1/(1 + mean(x))
-      sds <- estimate * sqrt((1 - estimate)/n)
-      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("prob",
-                                                              "prob"))
-      names(estimate) <- names(sds) <- "prob"
-      return(structure(list(estimate = estimate, sd = sds,
-                            vcov = vc, n = n, loglik = sum(stats::dgeom(x, estimate,
-                                                                 log = TRUE))), class = "fitdistr"))
-    }
-    if (distname == "weibull" && is.null(start)) {
-      if (any(x <= 0))
-        stop("Weibull values must be > 0")
-      lx <- log(x)
-      m <- mean(lx)
-      v <- stats::var(lx)
-      shape <- 1.2/sqrt(v)
-      scale <- exp(m + 0.572/shape)
-      start <- list(shape = shape, scale = scale)
-      start <- start[!is.element(names(start), dots)]
-    }
-    if (distname == "gamma" && is.null(start)) {
-      if (any(x < 0))
-        stop("gamma values must be >= 0")
-      m <- mean(x)
-      v <- stats::var(x)
-      start <- list(shape = m^2/v, rate = m/v)
-      start <- start[!is.element(names(start), dots)]
-      control <- list(parscale = c(1, start$rate))
-    }
-    if (distname == "negative binomial" && is.null(start)) {
-      m <- mean(x)
-      v <- stats::var(x)
-      size <- if (v > m)
-        m^2/(v - m)
-      else 100
-      start <- list(size = size, mu = m)
-      start <- start[!is.element(names(start), dots)]
-    }
-    if (is.element(distname, c("cauchy", "logistic")) &&
-        is.null(start)) {
-      start <- list(location = median(x), scale = stats::IQR(x)/2)
-      start <- start[!is.element(names(start), dots)]
-    }
+    # if (distname == "poisson") {
+    #   if (!is.null(start))
+    #     stop(gettextf("supplying pars for the %s distribution is not supported",
+    #                   "Poisson"), domain = NA)
+    #   estimate <- mean(x)
+    #   sds <- sqrt(estimate/n)
+    #   names(estimate) <- names(sds) <- "lambda"
+    #   vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("lambda",
+    #                                                           "lambda"))
+    #   return(structure(list(estimate = estimate, sd = sds,
+    #                         vcov = vc, n = n, loglik = sum(stats::dpois(x, estimate,
+    #                                                              log = TRUE))), class = "fitdistr"))
+    # }
+    # if (distname == "exponential") {
+    #   if (any(x < 0))
+    #     stop("Exponential values must be >= 0")
+    #   if (!is.null(start))
+    #     stop(gettextf("supplying pars for the %s distribution is not supported",
+    #                   "exponential"), domain = NA)
+    #   estimate <- 1/mean(x)
+    #   sds <- estimate/sqrt(n)
+    #   vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("rate",
+    #                                                           "rate"))
+    #   names(estimate) <- names(sds) <- "rate"
+    #   return(structure(list(estimate = estimate, sd = sds,
+    #                         vcov = vc, n = n, loglik = sum(stats::dexp(x, estimate,
+    #                                                             log = TRUE))), class = "fitdistr"))
+    # }
+    # if (distname == "geometric") {
+    #   if (!is.null(start))
+    #     stop(gettextf("supplying pars for the %s distribution is not supported",
+    #                   "geometric"), domain = NA)
+    #   estimate <- 1/(1 + mean(x))
+    #   sds <- estimate * sqrt((1 - estimate)/n)
+    #   vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("prob",
+    #                                                           "prob"))
+    #   names(estimate) <- names(sds) <- "prob"
+    #   return(structure(list(estimate = estimate, sd = sds,
+    #                         vcov = vc, n = n, loglik = sum(stats::dgeom(x, estimate,
+    #                                                              log = TRUE))), class = "fitdistr"))
+    # }
+    # if (distname == "weibull" && is.null(start)) {
+    #   if (any(x <= 0))
+    #     stop("Weibull values must be > 0")
+    #   lx <- log(x)
+    #   m <- mean(lx)
+    #   v <- stats::var(lx)
+    #   shape <- 1.2/sqrt(v)
+    #   scale <- exp(m + 0.572/shape)
+    #   start <- list(shape = shape, scale = scale)
+    #   start <- start[!is.element(names(start), dots)]
+    # }
+    # if (distname == "gamma" && is.null(start)) {
+    #   if (any(x < 0))
+    #     stop("gamma values must be >= 0")
+    #   m <- mean(x)
+    #   v <- stats::var(x)
+    #   start <- list(shape = m^2/v, rate = m/v)
+    #   start <- start[!is.element(names(start), dots)]
+    #   control <- list(parscale = c(1, start$rate))
+    # }
+    # if (distname == "negative binomial" && is.null(start)) {
+    #   m <- mean(x)
+    #   v <- stats::var(x)
+    #   size <- if (v > m)
+    #     m^2/(v - m)
+    #   else 100
+    #   start <- list(size = size, mu = m)
+    #   start <- start[!is.element(names(start), dots)]
+    # }
+    # if (is.element(distname, c("cauchy", "logistic")) &&
+    #     is.null(start)) {
+    #   start <- list(location = median(x), scale = stats::IQR(x)/2)
+    #   start <- start[!is.element(names(start), dots)]
+    # }
     if (distname == "t" && is.null(start)) {
       start <- list(m = median(x), s = stats::IQR(x)/2, df = 10)
       start <- start[!is.element(names(start), dots)]
     }
   }
-  if (is.null(start) || !is.list(start))
-    stop("'start' must be a named list")
-  nm <- names(start)
-  f <- formals(densfun)
-  args <- names(f)
-  m <- match(nm, args)
-  if (any(is.na(m)))
-    stop("'start' specifies names which are not arguments to 'densfun'")
-  formals(densfun) <- c(f[c(1, m)], f[-c(1, m)])
-  dens <- function(parm, x, ...) densfun(x, parm, ...)
-  if ((l <- length(nm)) > 1L)
-    body(dens) <- parse(text = paste("densfun(x,", paste("parm[",
-                                                         1L:l, "]", collapse = ", "), ", ...)"))
-
-  Call[[1L]] <- quote(stats::nlminb)
-  Call$densfun <- Call$start <- NULL
-  Call$x <- x
-  Call$start <- start
-
-  Call$objective <- if ("log" %in% args)
-    mylogfn
-  else myfn
-
-  Call$hessian <- TRUE # in MASS::fitdistr
-  # Call$hessian <- NULL
-  if (length(control))
-    Call$control <- control
-
-  res <- eval.parent(Call)
-
-  return(list(estimate = res$par,
-              convergence = res$convergence,
-              objective = res$objective))
+  # if (is.null(start) || !is.list(start))
+  #   stop("'start' must be a named list")
+  # nm <- names(start)
+  # f <- formals(densfun)
+  # args <- names(f)
+  # m <- match(nm, args)
+  # if (any(is.na(m)))
+  #   stop("'start' specifies names which are not arguments to 'densfun'")
+  # formals(densfun) <- c(f[c(1, m)], f[-c(1, m)])
+  # dens <- function(parm, x, ...) densfun(x, parm, ...)
+  # if ((l <- length(nm)) > 1L)
+  #   body(dens) <- parse(text = paste("densfun(x,", paste("parm[",
+  #                                                        1L:l, "]", collapse = ", "), ", ...)"))
+  #
+  # Call[[1L]] <- quote(stats::nlminb)
+  # Call$densfun <- Call$start <- NULL
+  # Call$x <- x
+  # Call$start <- start
+  #
+  # Call$objective <- if ("log" %in% args)
+  #   mylogfn
+  # else myfn
+  #
+  # Call$hessian <- TRUE # in MASS::fitdistr
+  # # Call$hessian <- NULL
+  # if (length(control))
+  #   Call$control <- control
+  #
+  # res <- eval.parent(Call)
+  #
+  # return(list(estimate = res$par,
+  #             convergence = res$convergence,
+  #             objective = res$objective))
 }
 
 # clustering matrix -----
@@ -745,7 +751,7 @@ scale_ahead <- function(x, center = TRUE, scale = TRUE)
 # select residuals distribution -----
 select_residuals_dist <- function(resids,
                                   uniformize = c("ranks", "ecdf"),
-                                  distro = c("normal", "t", "empirical"))
+                                  distro = c("normal", "empirical"))
 {
   n_obs <- dim(resids)[1]
   n_series <- dim(resids)[2]
@@ -753,7 +759,7 @@ select_residuals_dist <- function(resids,
   distro <- match.arg(distro)
   fitted_residuals_distr <- NULL
 
-  if (distro %in% c("normal", "t"))
+  if (identical(distro, "normal"))
   {
     fitted_residuals_distr <- vector("list", length = n_series)
     names(fitted_residuals_distr) <- colnames(resids)
@@ -847,9 +853,9 @@ simulate_rvine <- function(obj, RVM_U,
     return(res)
   }
 
-  if (distro %in% c("student", "t")) {
-      stop("Not implemented")
-  }
+  # if (distro %in% c("student", "t")) {
+  #     stop("Not implemented")
+  # }
 
 }
 
@@ -860,40 +866,40 @@ sort_df <- function(df, by_col)
 }
 
 # Split a time series -----
-splitts <- function(y, split_prob = 0.5, return_indices = FALSE, ...)
-{
-    n_y <- base::ifelse(test = is.null(dim(y)),
-                      yes = length(y),
-                      no = dim(y)[1])
-
-    index_train <- 1:floor(split_prob*n_y)
-    if (return_indices)
-      return(index_train)
-
-    start_y <- stats::start(y)
-    frequency_y <- stats::frequency(y)
-
-    if(is.null(ncol(y))) # univariate case
-    {
-        training <- ts(y[index_train],
-                       start = start_y,
-                       frequency = frequency_y)
-        start_testing <- tsp(training )[2] + 1 / frequency_y
-        return(list(training = training,
-                    testing = ts(y[-index_train],
-                                 start = start_testing,
-                                 frequency = frequency_y)))
-    } else { # multivariate case
-      training <- ts(y[index_train, ],
-                     start = start_y,
-                     frequency = frequency_y)
-      start_testing <- tsp(training)[2] + 1 / frequency_y
-      return(list(training = training,
-                  testing = ts(y[-index_train, ],
-                               start = start_testing,
-                               frequency = frequency_y)))
-    }
-}
-splitts  <- compiler::cmpfun(splitts)
-
-
+# splitts <- function(y, split_prob = 0.5, return_indices = FALSE, ...)
+# {
+#     n_y <- base::ifelse(test = is.null(dim(y)),
+#                       yes = length(y),
+#                       no = dim(y)[1])
+#
+#     index_train <- 1:floor(split_prob*n_y)
+#     if (return_indices)
+#       return(index_train)
+#
+#     start_y <- stats::start(y)
+#     frequency_y <- stats::frequency(y)
+#
+#     if(is.null(ncol(y))) # univariate case
+#     {
+#         training <- ts(y[index_train],
+#                        start = start_y,
+#                        frequency = frequency_y)
+#         start_testing <- tsp(training )[2] + 1 / frequency_y
+#         return(list(training = training,
+#                     testing = ts(y[-index_train],
+#                                  start = start_testing,
+#                                  frequency = frequency_y)))
+#     } else { # multivariate case
+#       training <- ts(y[index_train, ],
+#                      start = start_y,
+#                      frequency = frequency_y)
+#       start_testing <- tsp(training)[2] + 1 / frequency_y
+#       return(list(training = training,
+#                   testing = ts(y[-index_train, ],
+#                                start = start_testing,
+#                                frequency = frequency_y)))
+#     }
+# }
+# splitts  <- compiler::cmpfun(splitts)
+#
+#

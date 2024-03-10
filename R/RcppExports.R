@@ -33,7 +33,3 @@ rbind_vecmat_cpp <- function(y, x) {
     .Call(`_ahead_rbind_vecmat_cpp`, y, x)
 }
 
-cbind_cpp <- function(x, y) {
-    .Call(`_ahead_cbind_cpp`, x, y)
-}
-

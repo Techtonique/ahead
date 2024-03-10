@@ -14,14 +14,14 @@ library(forecast)
 ```
 
 
-```{r}
+```{r fig.width=6.5}
 x <- fdeaths 
 xreg <- ahead::createtrendseason(x)
 (z <- ahead::ridge2f(x, xreg = xreg, h=20))
 autoplot(z)
 ```
 
-```{r}
+```{r fig.width=6.5}
 x <- USAccDeaths
 xreg <- ahead::createtrendseason(x)
 (z <- ahead::ridge2f(x, xreg = xreg, h=20))

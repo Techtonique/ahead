@@ -17,11 +17,9 @@
 #' @param seed Reproducibility seed for `nodes_sim == unif`
 #' @param type_forecast Recursive or direct forecast
 #' @param type_pi Type of prediction interval currently "gaussian", "bootstrap",
-#' "blockbootstrap", "movingblockbootstrap", "splitconformal" (removed for now),
-#' "rvinecopula" (with Gaussian margins for now, Student-t coming soon)
+#' "blockbootstrap", "movingblockbootstrap", "rvinecopula" (with Gaussian and empirical margins for now)
 #' @param block_length Length of block for circular or moving block bootstrap
-#' @param margins Distribution of margins: "gaussian", "empirical", "student" (postponed or
-#' never) for \code{type_pi == "rvinecopula"}
+#' @param margins Distribution of margins: "gaussian", "empirical" for \code{type_pi == "rvinecopula"}
 #' @param seed Reproducibility seed for random stuff
 #' @param B Number of bootstrap replications or number of simulations (yes, 'B' is unfortunate)
 #' @param type_aggregation Type of aggregation, ONLY for bootstrapping; either "mean" or "median"
@@ -133,11 +131,10 @@ ridge2f <- function(y,
                       "bootstrap",
                       "blockbootstrap",
                       "movingblockbootstrap",
-                      "rvinecopula",
-                      "splitconformal"
+                      "rvinecopula"
                     ),
                     block_length = NULL,
-                    margins = c("gaussian", "empirical", "student"),
+                    margins = c("gaussian", "empirical"),
                     seed = 1,
                     B = 100L,
                     type_aggregation = c("mean", "median"),
@@ -263,7 +260,7 @@ ridge2f <- function(y,
       margins = margins
     )
   } else { # if (type_pi == "splitconformal") # experimental
-    stop("removed (for now)")
+    stop("forthcoming")
     # y_train_calibration <- splitts(y, split_prob=0.5)
     # y_train <- y_train_calibration$training
     # y_calibration <- y_train_calibration$testing
@@ -622,31 +619,32 @@ ridge2f <- function(y,
 
     if (dimensionality == "univariate")
     {
-      names_out <- names(out)
-      for (i in 1:length(out))
-      {
-        try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"),
-                               silent = TRUE)
-        if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]]))
-        {
-          out[[i]] <- try_delete_trend
-        } else {
-          if (identical(names_out[i], "sims")) # too much ifs man
-          {
-            # with simulations, it's a bit more tedious
-            for (j in 1:B)
-            {
-              try_delete_trend_sims <- try(delete_columns(out$sims[[j]], "trend_univariate"),
-                                          silent = TRUE)
-              if (!inherits(try_delete_trend_sims, "try-error"))
-              {
-                out$sims[[j]] <- try_delete_trend_sims
-              }
-            }
-          }
-        }
-      }
-      return(structure(out, class = "forecast"))
+      stop("not implemented yet")
+      # names_out <- names(out)
+      # for (i in 1:length(out))
+      # {
+      #   try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"),
+      #                          silent = TRUE)
+      #   if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]]))
+      #   {
+      #     out[[i]] <- try_delete_trend
+      #   } else {
+      #     if (identical(names_out[i], "sims")) # too much ifs man
+      #     {
+      #       # with simulations, it's a bit more tedious
+      #       for (j in 1:B)
+      #       {
+      #         try_delete_trend_sims <- try(delete_columns(out$sims[[j]], "trend_univariate"),
+      #                                     silent = TRUE)
+      #         if (!inherits(try_delete_trend_sims, "try-error"))
+      #         {
+      #           out$sims[[j]] <- try_delete_trend_sims
+      #         }
+      #       }
+      #     }
+      #   }
+      # }
+      # return(structure(out, class = "forecast"))
     }
 
     return(structure(out, class = "mtsforecast"))
@@ -654,64 +652,65 @@ ridge2f <- function(y,
 
   if (identical(type_pi, "splitconformal")) # experimental
   {
-    preds <- ts(
-      data = fcast_ridge2_mts(
-        fit_obj_train,
-        h = h,
-        type_forecast = type_forecast,
-        level = level
-      ),
-      start = start_preds,
-      frequency = freq_x
-    )
-
-    # Forecast from fit_obj_train
-    out <- list(
-      mean = preds,
-      lower = preds - quantile_absolute_residuals_conformal,
-      upper = preds + quantile_absolute_residuals_conformal,
-      sims = NULL,
-      x = y,
-      level = level,
-      method = "ridge2",
-      residuals = ts(fit_obj_train$resids,
-                     start = start_x),
-      coefficients = fit_obj_train$coef,
-      loocv = fit_obj$loocv,
-      weighted_loocv = fit_obj$weighted_loocv,
-      loocv_per_series = fit_obj$loocv_per_series
-    )
-
-    if (use_xreg || use_clustering)
-    {
-      for (i in 1:length(out))
-      {
-        try_delete_xreg <-
-          try(delete_columns(out[[i]], "xreg_"), silent = TRUE)
-        if (!inherits(try_delete_xreg, "try-error") &&
-            !is.null(out[[i]]))
-        {
-          out[[i]] <- try_delete_xreg
-        }
-      }
-    }
-
-    if (dimensionality == "univariate")
-    {
-      for (i in 1:length(out))
-      {
-        try_delete_trend <-
-          try(delete_columns(out[[i]], "trend_univariate"), silent = TRUE)
-        if (!inherits(try_delete_trend, "try-error") &&
-            !is.null(out[[i]]))
-        {
-          out[[i]] <- try_delete_trend
-        }
-      }
-      return(structure(out, class = "forecast"))
-    }
-
-    return(structure(out, class = "mtsforecast"))
+    stop("forthcoming")
+    # preds <- ts(
+    #   data = fcast_ridge2_mts(
+    #     fit_obj_train,
+    #     h = h,
+    #     type_forecast = type_forecast,
+    #     level = level
+    #   ),
+    #   start = start_preds,
+    #   frequency = freq_x
+    # )
+    #
+    # # Forecast from fit_obj_train
+    # out <- list(
+    #   mean = preds,
+    #   lower = preds - quantile_absolute_residuals_conformal,
+    #   upper = preds + quantile_absolute_residuals_conformal,
+    #   sims = NULL,
+    #   x = y,
+    #   level = level,
+    #   method = "ridge2",
+    #   residuals = ts(fit_obj_train$resids,
+    #                  start = start_x),
+    #   coefficients = fit_obj_train$coef,
+    #   loocv = fit_obj$loocv,
+    #   weighted_loocv = fit_obj$weighted_loocv,
+    #   loocv_per_series = fit_obj$loocv_per_series
+    # )
+    #
+    # if (use_xreg || use_clustering)
+    # {
+    #   for (i in 1:length(out))
+    #   {
+    #     try_delete_xreg <-
+    #       try(delete_columns(out[[i]], "xreg_"), silent = TRUE)
+    #     if (!inherits(try_delete_xreg, "try-error") &&
+    #         !is.null(out[[i]]))
+    #     {
+    #       out[[i]] <- try_delete_xreg
+    #     }
+    #   }
+    # }
+    #
+    # if (dimensionality == "univariate")
+    # {
+    #   for (i in 1:length(out))
+    #   {
+    #     try_delete_trend <-
+    #       try(delete_columns(out[[i]], "trend_univariate"), silent = TRUE)
+    #     if (!inherits(try_delete_trend, "try-error") &&
+    #         !is.null(out[[i]]))
+    #     {
+    #       out[[i]] <- try_delete_trend
+    #     }
+    #   }
+    #   return(structure(out, class = "forecast"))
+    # }
+    #
+    # return(structure(out, class = "mtsforecast"))
   }
 
   if (identical(type_pi, "rvinecopula"))
@@ -940,12 +939,11 @@ fit_ridge2_mts <- function(x,
                              "bootstrap",
                              "blockbootstrap",
                              "movingblockbootstrap",
-                             "rvinecopula",
-                             "splitconformal"
+                             "rvinecopula"
                            ),
                            margins = c("gaussian",
-                                       "empirical",
-                                       "student"),
+                                       "empirical"),
+                           hidden_layer_bias = FALSE,
                            ...)
 {
   stopifnot(floor(nb_hidden) == nb_hidden)
@@ -955,11 +953,10 @@ fit_ridge2_mts <- function(x,
   nodes_sim <- match.arg(nodes_sim)
   activ <- match.arg(activ)
   type_pi <- match.arg(type_pi)
-  stopifnot(margins %in% c("gaussian", "empirical", "student"))
+  stopifnot(margins %in% c("gaussian", "empirical"))
   choice_margins <- match.arg(margins)
   margins <- switch(choice_margins, # this is convoluted
                     gaussian = "normal",
-                    student = "t",
                     empirical = "empirical")
 
   series_names <- colnames(x)
@@ -1028,10 +1025,21 @@ fit_ridge2_mts <- function(x,
   colnames(resids) <- series_names
 
   params_distro <- NULL
-  if (identical(type_pi, "rvinecopula"))
-    params_distro <- select_residuals_dist(resids,
-                                           uniformize = "ranks",
-                                           distro = margins)
+  if (identical(type_pi, "rvinecopula")){
+    params_distro <- try(select_residuals_dist(resids,
+                                               uniformize = "ranks",
+                                               distro = margins),
+                         silent = TRUE)
+    if (inherits(params_distro, "try-error"))
+    {
+      params_distro <- try(select_residuals_dist(resids,
+                                                 uniformize = "ecdf",
+                                                 distro = margins),
+                           silent = TRUE)
+    }
+  }
+
+
 
   smoother_matrix <- scaled_regressors %*% tcrossprod(inv,
   scaled_regressors)
@@ -1079,7 +1087,7 @@ fcast_ridge2_mts <- function(fit_obj,
                              type_forecast = c("recursive", "direct"),
                              level = 95,
                              type_simulation = c("none", "rvinecopula"), # other than bootstrap
-                             margins = c("gaussian", "empirical", "student"),
+                             margins = c("gaussian", "empirical"),
                              bootstrap = FALSE,
                              type_bootstrap = c("bootstrap",
                                                 "blockbootstrap",
@@ -1091,7 +1099,6 @@ fcast_ridge2_mts <- function(fit_obj,
   type_simulation <- match.arg(type_simulation)
   margins <- switch(match.arg(margins),
                    gaussian = "normal",
-                   student = "t",
                    empirical = "empirical")
 
   if (identical(bootstrap, FALSE))

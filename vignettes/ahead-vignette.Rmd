@@ -76,7 +76,7 @@ library(e1071)
 In this section, we illustrate `dynrmf` forecasting, with Random Forest and SVM. Do not hesitate to type `?dynrmf`, 
 `?armagarchf` or `?eatf` in R console for more details and examples. 
 
-```{r}
+```{r fig.width=6.5}
 
 # Plotting forecasts
 # With a Random Forest regressor, an horizon of 20, 
@@ -106,7 +106,7 @@ In this section, we illustrate `ridge2f` and `varf` forecasting. Do not hesitate
 to type `?ridge2f` or `?varf` in R console for more details on both functions. 
 
 
-```{r}
+```{r fig.width=6.5}
 # Forecast using ridge2
 # With 2 time series lags, an horizon of 10, 
 # and a 95% prediction interval

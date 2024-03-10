@@ -269,14 +269,12 @@ dynrm_fit <- function(y,
 
   if (is.null(alpha) == FALSE)
   {
-    n_alphas <- nrow(lags.X)
-    alphas <- alpha*((1-alpha)^((n_alphas + p + P - 2):0))
-    # cat("alphas: ", "\n")
-    # print(dim(exp(embedc(alphas, p + P -1))))
-    # cat("\n")
-    # Add xreg into lagged matrix
-    lags.X <- cbind(lags.X*exp(embedc(alphas, ncol(lags.X)-1)),
-                    xxreg[-(1:maxlag), ])
+    stop("not used yet")
+    # n_alphas <- nrow(lags.X)
+    # alphas <- alpha*((1-alpha)^((n_alphas + p + P - 2):0))
+    # # Add xreg into lagged matrix
+    # lags.X <- cbind(lags.X*exp(embedc(alphas, ncol(lags.X)-1)),
+    #                 xxreg[-(1:maxlag), ])
   } else {
     # Add xreg into lagged matrix
     lags.X <- cbind(lags.X, xxreg[-(1:maxlag), ])
@@ -614,15 +612,8 @@ dynrm_predict <- function(out,
   }
 
   out$mean <-  drop(fcast  + resid_fcast$mean)
-  # print("out$mean")
-  # print(out$mean)
-  # print("\n")
   out$lower <- drop(fcast + resid_fcast$lower)
-  # print("out$lower")
-  # print(out$lower)
-  # print("\n")
   out$upper <- drop(fcast + resid_fcast$upper)
-
   out$level <- level
 
   return(structure(out, class = "forecast"))

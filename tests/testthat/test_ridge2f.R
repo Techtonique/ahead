@@ -18,6 +18,10 @@ res3 <- ahead::ridge2f(x, type_pi = "bootstrap", B = 5L)
 res4 <- ahead::ridge2f(x, type_pi = "blockbootstrap", B = 5L)
 res5 <- ahead::ridge2f(x, type_pi = "movingblockbootstrap", B = 5L)
 res6 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L)
+res41 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L,
+                        margins = "empirical")
+res43 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L,
+                        margins = "empirical", cl=2L)
 res24 <- ahead::ridge2f(x,
                         type_pi = "bootstrap",
                         B = 5L,
@@ -73,6 +77,31 @@ res23 <-
                  centers = 2L,
                  type_clustering = "kmeans")
 
+res21_ <-
+  ahead::ridge2f(x,
+                 xreg = xreg,
+                 centers = 2L,
+                 type_clustering = "kmeans",
+                 show_progress = TRUE,
+                 type_pi = "bootstrap",
+                 cl = 2L)
+res22_ <-
+  ahead::ridge2f(x,
+                 xreg = xreg2,
+                 centers = 2L,
+                 type_clustering = "hclust",
+                 show_progress = TRUE,
+                 type_pi = "bootstrap",
+                 cl = 2L)
+res23_ <-
+  ahead::ridge2f(x,
+                 xreg = xreg3,
+                 centers = 2L,
+                 type_clustering = "kmeans",
+                 show_progress = TRUE,
+                 type_pi = "bootstrap",
+                 cl = 2L)
+
 # 1 - 7 direct forecasting ----
 
 res25 <- ahead::ridge2f(x, type_forecast = "direct")
@@ -84,6 +113,7 @@ res26 <- ahead::ridge2f(
   show_progress = FALSE
 )
 res26_ <- ahead::getsimulations(res26, 1)
+res26__ <- ahead::getsimulations(res26, 1, transpose = TRUE)
 
 # 1 - 8 univariate with xreg ----
 
@@ -172,7 +202,6 @@ res39 <- ahead::ridge2f(EuStocksLogReturns, h = 7L,
                         B = 10L, ym = ym,
                         show_progress = FALSE)
 
-
 # 2 - tests -----
 
 # 2 - 1 type of residuals 'simulation' ----
@@ -188,6 +217,8 @@ testthat::test_that("1 - tests on types of residuals' simulations", {
   expect_equal(as.numeric(round(res4$mean[1, 1], 2)), 1.46)
   expect_equal(as.numeric(round(res3$lower[1, 1], 2)), 0.31)
   expect_equal(as.numeric(round(res4$lower[1, 1], 2)), 0.55)
+  expect_equal(as.numeric(round(res41$mean[1, 1], 2)), 1.34)
+  expect_equal(as.numeric(round(res43$mean[1, 1], 2)), 1.34)
   expect_equal(as.numeric(round(res24$mean[1, 1], 2)), 1.01)
   expect_equal(as.numeric(round(res27$mean[1], 2)), 727.05)
   expect_equal(as.numeric(round(res28$mean[1], 2)), 0.8)
@@ -239,6 +270,9 @@ testthat::test_that("6 - tests on xreg and clustering", {
   expect_equal(as.numeric(round(res21$mean[1, 1], 2)),-0.13)
   expect_equal(as.numeric(round(res22$mean[1, 1], 2)), 0.04)
   expect_equal(as.numeric(round(res23$mean[1, 1], 2)),-0.76)
+  expect_equal(as.numeric(round(res21_$mean[1, 1], 2)),-0.26)
+  expect_equal(as.numeric(round(res22_$mean[1, 1], 2)), -0.04)
+  expect_equal(as.numeric(round(res23_$mean[1, 1], 2)), -0.83)
 })
 
 
@@ -251,6 +285,7 @@ testthat::test_that("7 - tests on direct forecasting", {
   expect_equal(as.numeric(round(res26$mean[1, 3], 2)), 0.86)
   expect_equal(as.numeric(round(res26$upper[1, 3], 2)), 1.41)
   expect_equal(as.numeric(round(res26_$series[1, 1], 2)), 0.45)
+  expect_equal(as.numeric(round(res26__$series[1, 1], 2)), 0.45)
 })
 
 
