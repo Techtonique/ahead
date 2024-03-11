@@ -19,7 +19,7 @@ ridge2f(
   dropout = 0,
   type_forecast = c("recursive", "direct"),
   type_pi = c("gaussian", "bootstrap", "blockbootstrap", "movingblockbootstrap",
-    "rvinecopula", "splitconformal"),
+    "rvinecopula"),
   block_length = NULL,
   margins = c("gaussian", "empirical"),
   seed = 1,
@@ -61,8 +61,7 @@ ridge2f(
 \item{type_forecast}{Recursive or direct forecast}
 
 \item{type_pi}{Type of prediction interval currently "gaussian", "bootstrap",
-"blockbootstrap", "movingblockbootstrap", "splitconformal" (removed for now),
-"rvinecopula" (with Gaussian and empirical margins for now)}
+"blockbootstrap", "movingblockbootstrap", "rvinecopula" (with Gaussian and empirical margins for now)}
 
 \item{block_length}{Length of block for circular or moving block bootstrap}
 

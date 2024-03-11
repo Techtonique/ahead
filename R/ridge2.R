@@ -619,32 +619,31 @@ ridge2f <- function(y,
 
     if (dimensionality == "univariate")
     {
-      stop("not implemented yet")
-      # names_out <- names(out)
-      # for (i in 1:length(out))
-      # {
-      #   try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"),
-      #                          silent = TRUE)
-      #   if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]]))
-      #   {
-      #     out[[i]] <- try_delete_trend
-      #   } else {
-      #     if (identical(names_out[i], "sims")) # too much ifs man
-      #     {
-      #       # with simulations, it's a bit more tedious
-      #       for (j in 1:B)
-      #       {
-      #         try_delete_trend_sims <- try(delete_columns(out$sims[[j]], "trend_univariate"),
-      #                                     silent = TRUE)
-      #         if (!inherits(try_delete_trend_sims, "try-error"))
-      #         {
-      #           out$sims[[j]] <- try_delete_trend_sims
-      #         }
-      #       }
-      #     }
-      #   }
-      # }
-      # return(structure(out, class = "forecast"))
+      names_out <- names(out)
+      for (i in 1:length(out))
+      {
+        try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"),
+                               silent = TRUE)
+        if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]]))
+        {
+          out[[i]] <- try_delete_trend
+        } else {
+          if (identical(names_out[i], "sims")) # too much ifs man
+          {
+            # with simulations, it's a bit more tedious
+            for (j in 1:B)
+            {
+              try_delete_trend_sims <- try(delete_columns(out$sims[[j]], "trend_univariate"),
+                                          silent = TRUE)
+              if (!inherits(try_delete_trend_sims, "try-error"))
+              {
+                out$sims[[j]] <- try_delete_trend_sims
+              }
+            }
+          }
+        }
+      }
+      return(structure(out, class = "forecast"))
     }
 
     return(structure(out, class = "mtsforecast"))
