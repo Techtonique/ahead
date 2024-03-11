@@ -10,18 +10,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// embedc
-NumericMatrix embedc(NumericVector x, unsigned int lags);
-RcppExport SEXP _ahead_embedc(SEXP xSEXP, SEXP lagsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type lags(lagsSEXP);
-    rcpp_result_gen = Rcpp::wrap(embedc(x, lags));
-    return rcpp_result_gen;
-END_RCPP
-}
 // forecast_innovs_loop_cpp
 NumericVector forecast_innovs_loop_cpp(NumericVector eps, NumericVector rts, double eps_prev, double omega, double alpha, double beta, unsigned int df, unsigned int h);
 RcppExport SEXP _ahead_forecast_innovs_loop_cpp(SEXP epsSEXP, SEXP rtsSEXP, SEXP eps_prevSEXP, SEXP omegaSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP dfSEXP, SEXP hSEXP) {
@@ -119,7 +107,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ahead_embedc", (DL_FUNC) &_ahead_embedc, 2},
     {"_ahead_forecast_innovs_loop_cpp", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp, 8},
     {"_ahead_forecast_innovs_loop_cpp2", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp2, 8},
     {"_ahead_create_lags_cpp", (DL_FUNC) &_ahead_create_lags_cpp, 2},

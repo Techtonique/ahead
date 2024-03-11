@@ -618,7 +618,7 @@ ridge2f <- function(y,
     }
 
     if (dimensionality == "univariate")
-    {      
+    {
       names_out <- names(out)
       for (i in 1:length(out))
       {

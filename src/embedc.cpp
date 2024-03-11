@@ -1,7 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
 NumericMatrix embedc(NumericVector x,
                      unsigned int lags) {
   unsigned long int n = x.size();

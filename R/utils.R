@@ -716,7 +716,7 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
   return(structure(out, class = "ridge"))
 }
 
-
+#' @export
 predict.ridge <- function(object, newx)
 {
   if (length(object$lambda) > 1)

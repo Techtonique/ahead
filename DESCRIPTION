@@ -2,7 +2,7 @@ Package: ahead
 Type: Package
 Title: Time Series Forecasting with uncertainty quantification
 Version: 0.11.0
-Date: 2024-03-10
+Date: 2024-03-11
 Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
 Description: Univariate and multivariate time series forecasting with uncertainty quantification.
@@ -13,6 +13,7 @@ RoxygenNote: 7.3.0
 Encoding: UTF-8
 Depends: R (>= 3.5.0), foreach, snow
 Suggests: 
+    doSNOW,
     knitr,
     rmarkdown,
     testthat,
