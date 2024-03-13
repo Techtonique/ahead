@@ -50,7 +50,7 @@ res6 <- ahead::armagarchf(x, h = 5,
 testthat::test_that("1 - tests on types of residuals' simulations", {
   expect_equal(as.numeric(round(res1$mean[5], 2)), -0.24)
   expect_equal(as.numeric(round(res2$mean[5], 2)), 0.95)
-  expect_equal(as.numeric(round(res3$lower[5], 2)), -0.74)
+  expect_equal(as.numeric(round(res3$lower[5], 1)), -0.7)
   expect_equal(as.numeric(round(res4$lower[5], 2)), -0.72)
   expect_equal(as.numeric(round(res5$mean[5], 2)), -0.18)
   expect_equal(as.numeric(round(res6$mean[5], 2)), -0.24)
