@@ -9,31 +9,15 @@ tags:
 - Machine Learning
 - Uncertainty
 date: "March 10, 2024"
-output:
-  pdf_document: default
-html_document:
-  df_print: paged
-urlcolor: blue
-author: "T. Moudiki"
-affiliation: "techtonique.github.io"
 authors:
 - name: "T. Moudiki"
   orcid: "0000-0002-9422-5459"
   equal-contrib: yes
   affiliation: 1, 2
-- name: Author with no affiliation
-  corresponding: yes
-  affiliation: 3
 bibliography: biblio.bib
-aas-doi: "10.3847/xxxxx <- update this with the DOI from AAS once you know it."
-aas-journal: "Journal of Open Source Software."
 affiliations:
 - name: T Moudiki
 ---
-
-```python
-!pip install rpy2
-```
 
 # Summary
 
@@ -263,5 +247,4 @@ main = "prediction intervals")
     
 ![png](paper_files/paper_30_1.png)
     
-
-# Citations
+# References
