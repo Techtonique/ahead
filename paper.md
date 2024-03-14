@@ -7,16 +7,17 @@ tags:
 - Time series
 - Forecasting
 - Machine Learning
-- Uncertainty
-date: "March 10, 2024"
+- Uncertainty quantification
+date: March 10, 2024
 authors:
-- name: "T. Moudiki"
+- name: T. Moudiki
   orcid: "0000-0002-9422-5459"
   equal-contrib: yes
-  affiliation: 1, 2
+  affiliation: 1
 bibliography: biblio.bib
 affiliations:
-- name: T Moudiki
+- name: techtonique.github.io, Anywhere
+  index: 1
 ---
 
 # Summary
