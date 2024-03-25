@@ -316,7 +316,7 @@ fitforecast <- function(y,
                                                    scale = TRUE)
         set.seed(seed)
         simulated_scaled_calibrated_residuals <-
-          tseries::surrogatesogate(scaled_calibrated_residuals,
+          tseries::surrogates(scaled_calibrated_residuals,
                                    ns =
                                      B)[seq_along(h_test), ]
 
@@ -340,7 +340,7 @@ fitforecast <- function(y,
                       scale = FALSE) / sigmat
         set.seed(seed)
         simulated_scaled_calibrated_residuals <-
-          tseries::surrogatesogate(scaled_calibrated_residuals,
+          tseries::surrogates(scaled_calibrated_residuals,
                                    ns =
                                      B)[seq_along(h_test), ]
         sd_calibrated_residuals <-
