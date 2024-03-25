@@ -41,6 +41,7 @@ fitforecast <- function(y,
                         method = c("thetaf",
                                    "arima",
                                    "ets",
+                                   "te",
                                    "tbats",
                                    "tslm",
                                    "dynrmf",
@@ -129,7 +130,7 @@ fitforecast <- function(y,
 
   if (method %in% c("dynrmf", "ridge2f",
                     "naive", "snaive",
-                    "thetaf"))
+                    "thetaf", "te"))
   {
     method <- match.arg(method)
 
@@ -139,7 +140,9 @@ fitforecast <- function(y,
       ridge2f = ahead::ridge2f,
       naive = forecast::naive,
       snaive = forecast::snaive,
-      thetaf = forecast::thetaf
+      thetaf = forecast::thetaf,
+      te = function (y, h, level, ...) {ahead::eatf(y, h, level, method = "EAT",
+                                    weights = c(0.5, 0, 0.5), ...)}
     )
 
     if (conformalize == TRUE &&
