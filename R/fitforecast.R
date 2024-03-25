@@ -18,7 +18,7 @@
 #' @param gap length of training set for loocv conformal (do not use)
 #' @param agg "mean" or "median" (aggregation method) for
 #' @param vol "constant" or "garch" (type of volatility modeling for calibrated residuals)
-#' @param type_sim "kde", "surrogates", "bootstrap" (type of simulation for calibrated residuals)
+#' @param type_sim "kde", "surrogate", "bootstrap" (type of simulation for calibrated residuals)
 #' @param ...
 #'
 #' @return an object of class 'forecast' with additional information
@@ -59,7 +59,7 @@ fitforecast <- function(y,
                         gap = 3L,
                         agg = c("mean", "median"),
                         vol = c("constant", "garch"),
-                        type_sim = c("kde", "surrogates", "bootstrap"),
+                        type_sim = c("kde", "surrogate", "bootstrap"),
                         ...)
 {
   method <- match.arg(method)
@@ -311,7 +311,7 @@ fitforecast <- function(y,
       }
     }
 
-    if (type_sim == "surrogates") {
+    if (type_sim == "surrogate") {
       if (vol == "constant")
       {
         scaled_calibrated_residuals <- base::scale(calibrated_raw_residuals,
@@ -319,7 +319,7 @@ fitforecast <- function(y,
                                                    scale = TRUE)
         set.seed(seed)
         simulated_scaled_calibrated_residuals <-
-          tseries::surrogates(scaled_calibrated_residuals,
+          tseries::surrogate(scaled_calibrated_residuals,
                                    ns =
                                      B)[seq_along(h_test), ]
 
@@ -343,7 +343,7 @@ fitforecast <- function(y,
                       scale = FALSE) / sigmat
         set.seed(seed)
         simulated_scaled_calibrated_residuals <-
-          tseries::surrogates(scaled_calibrated_residuals,
+          tseries::surrogate(scaled_calibrated_residuals,
                                    ns =
                                      B)[seq_along(h_test), ]
         sd_calibrated_residuals <-
