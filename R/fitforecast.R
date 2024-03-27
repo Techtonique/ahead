@@ -385,7 +385,7 @@ fitforecast <- function(y,
                                                    scale = TRUE)
         set.seed(seed)
         simulated_scaled_calibrated_residuals <-
-          tseries::tsbootstrapstrap(
+          tseries::tsbootstrap(
             scaled_calibrated_residuals,
             nb =
               B,
@@ -413,7 +413,7 @@ fitforecast <- function(y,
                       scale = FALSE) / sigmat
         set.seed(seed)
         simulated_scaled_calibrated_residuals <-
-          tseries::tsbootstrapstrap(
+          tseries::tsbootstrap(
             scaled_calibrated_residuals,
             nb =
               B,
