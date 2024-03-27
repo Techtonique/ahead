@@ -16,6 +16,7 @@ importFrom("stats", "as.ts", "complete.cases", "ecdf", "end", "frequency",
            "ts", "tsp", "tsp<-")
 importFrom("utils", "tail")
 importFrom("utils", "install.packages", "installed.packages")
+# interface
 export("armagarchf")
 export("basicf")
 export("eatf")
@@ -26,6 +27,9 @@ export("loocvridge2f")
 export("ridge2f")
 export("ridge")
 export("varf")
+# utils
+export("createtrendseason")
 export("getreturns")
 export("getsimulations")
-export("createtrendseason")
+export("removenas")
+
