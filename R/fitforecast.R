@@ -19,7 +19,7 @@
 #' @param agg "mean" or "median" (aggregation method) for
 #' @param vol "constant" or "garch" (type of volatility modeling for calibrated residuals)
 #' @param type_sim "kde", "surrogate", "bootstrap" (type of simulation for calibrated residuals)
-#' @param ...
+#' @param ... additional parameters
 #'
 #' @return an object of class 'forecast' with additional information
 #' @export

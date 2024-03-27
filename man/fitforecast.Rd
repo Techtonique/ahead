@@ -59,7 +59,7 @@ and \code{pct_calibration} are used)}
 
 \item{type_sim}{"kde", "surrogate", "bootstrap" (type of simulation for calibrated residuals)}
 
-\item{...}{}
+\item{...}{additional parameters}
 }
 \value{
 an object of class 'forecast' with additional information
