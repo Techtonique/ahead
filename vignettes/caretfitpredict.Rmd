@@ -1,0 +1,33 @@
+---
+title: "Fit and forecast using caret+dynrmf"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Fit and forecast using caret+dynrmf}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r}
+library(ahead)
+library(forecast)
+```
+
+```{r}
+myfitfunc <- function(x, y) ahead::fit_func(x, y, method = "glmnet")
+```
+
+
+```{r fig.width=7.5}
+(obj1 <- ahead::dynrmf(USAccDeaths, h=20L, level=99))
+(obj2 <- ahead::dynrmf(USAccDeaths, fit_func = myfitfunc, predict_func = ahead::predict_func, h=20L, level=99))
+```
+
+```{r fig.width=7.5}
+plot(obj1)
+```
+
+```{r fig.width=7.5}
+plot(obj2)
+```
+

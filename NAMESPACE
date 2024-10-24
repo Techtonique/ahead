@@ -30,4 +30,6 @@ export("createtrendseason")
 export("getreturns")
 export("getsimulations")
 export("removenas")
+export("fit_func")
+export("predict_func")
 
