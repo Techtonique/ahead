@@ -19,6 +19,7 @@ Suggests:
     rmarkdown,
     testthat,
     forecast,
+    ForecastComb,
     fpp,
     e1071,
     randomForest
