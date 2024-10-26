@@ -33,6 +33,7 @@ build: setwd ## build package
 
 buildsite: setwd ## create a website for the package
 	Rscript -e "pkgdown::build_site('.')"
+	cp -rf docs/* ~/Documents/Pro_Website/Techtonique.github.io/ahead/
 
 check: clean setwd ## check package 
 	@read -p "Enter options (e.g: --no-tests --no-examples) or leave empty: " pckgcheckoptions; \

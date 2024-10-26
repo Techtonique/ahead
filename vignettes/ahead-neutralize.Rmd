@@ -92,31 +92,31 @@ freq <- frequency(EuStocksLogReturns)
 
 ## 2 - 2 Risk-neutralized simulations
 
-```{r echo=TRUE}
+```{r echo=TRUE, eval=FALSE}
 obj <- ahead::ridge2f(EuStocksLogReturns, h = 7L,
                       type_pi = 'bootstrap',
                       B = 10L, ym = ym)
 ```
 
-```{r echo=TRUE}
+```{r echo=TRUE, eval=FALSE}
 rowMeans(obj$neutralized_sims$CAC)
 ```
 
-```{r echo=TRUE}
+```{r echo=TRUE, eval=FALSE}
 print(ym)
 ```
 
-```{r echo=TRUE}
+```{r echo=TRUE, eval=FALSE}
 rowMeans(obj$neutralized_sims$DAX)
 ```
 
-```{r echo=TRUE}
+```{r echo=TRUE, eval=FALSE}
 print(ym)
 ```
 
 # 3 - Visualization
 
-```{r echo=TRUE, fig.width=7.2}
+```{r echo=TRUE, fig.width=7.2, eval=FALSE}
 
 #par(mfrow = c(2, 2))
 
