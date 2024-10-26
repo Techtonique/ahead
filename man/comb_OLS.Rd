@@ -10,7 +10,7 @@ comb_OLS(x, custom_error = NULL)
 \item{x}{An object of class 'foreccomb'. Contains training set (actual values + matrix of model forecasts) and optionally a test set.}
 }
 \value{
-Returns an object of class \code{foreccomb_res} with the following components:
+Returns an object of class \code{ForecastComb::foreccomb_res} with the following components:
 \item{Method}{Returns the best-fit forecast combination method.}
 \item{Models}{Returns the individual input models that were used for the forecast combinations.}
 \item{Weights}{Returns the combination weights obtained by applying the combination method to the training set.}
@@ -44,7 +44,7 @@ when predictors are highly correlated (which is the norm in forecast combination
 can cause major shifts of the coefficient vector (\sQuote{bouncing betas}) -- often causing poor out-of-sample performance.
 This issue is addressed by the \code{\link{comb_LAD}} method that is more robust to outliers.
 
-The results are stored in an object of class 'foreccomb_res', for which separate plot and summary functions are provided.
+The results are stored in an object of class 'ForecastComb::foreccomb_res', for which separate plot and summary functions are provided.
 }
 \examples{
 obs <- rnorm(100)
@@ -61,8 +61,8 @@ ahead::comb_OLS(data)
 \seealso{
 \code{\link[ForecastCombinations]{Forecast_comb}},
 \code{\link{foreccomb}},
-\code{\link{plot.foreccomb_res}},
-\code{\link{summary.foreccomb_res}},
+\code{\link{plot.ForecastComb::foreccomb_res}},
+\code{\link{summary.ForecastComb::foreccomb_res}},
 \code{\link[forecast]{accuracy}}
 }
 \keyword{models}

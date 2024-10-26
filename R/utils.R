@@ -661,6 +661,7 @@ remove_zero_cols <- function(x, with_index = FALSE)
 }
 
 # Fit Ridge regression -----
+#' @export 
 ridge <- function(x, y, lambda=10^seq(-10, 10,
                                           length.out = 100))
 {

@@ -71,8 +71,10 @@ data <- ForecastComb::foreccomb(train_obs, train_pred, test_obs, test_pred)
 
 ```{r fig.width=7.5}
 start <- proc.time()[3]
-obj <- ForecastComb::comb_OLS(data, custom_error=custom_error)
+obj <- ahead::comb_OLS(data, custom_error=custom_error)
 print(proc.time()[3] - start)
+
+print(class(obj))
 
 print(obj$Accuracy_Test)
 
@@ -90,12 +92,14 @@ plot(obj)
 
 ```{r eval=TRUE}
 start <- proc.time()[3]
-obj <- ForecastComb::comb_Ridge(data, custom_error=custom_error)
+obj <- ahead::comb_Ridge(data, custom_error=custom_error)
 print(proc.time()[3] - start)
 ```
 
 ```{r eval=TRUE}
 print(summary(obj))
+
+print(class(obj))
 
 print(obj$Accuracy_Test)
 
@@ -111,12 +115,14 @@ plot(obj)
 
 ```{r eval=TRUE}
 start <- proc.time()[3]
-obj <- ForecastComb::comb_GLMNET(data, custom_error=custom_error)
+obj <- ahead::comb_GLMNET(data, custom_error=custom_error)
 print(proc.time()[3] - start)
 ```
 
 ```{r eval=TRUE}
 print(obj$Accuracy_Test)
+
+print(class(obj))
 
 print(mean(predict(obj, test_pred) - test_obs))
 ```

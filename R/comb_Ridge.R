@@ -6,11 +6,11 @@
 #' The function integrates the Ridge Regression forecast combination implementation of the
 #' \emph{ForecastCombinations} package into ForecastComb.
 #'
-#' The results are stored in an object of class 'foreccomb_res', for which separate plot and summary functions are provided.
+#' The results are stored in an object of class 'ForecastComb::foreccomb_res', for which separate plot and summary functions are provided.
 #'
 #' @param x An object of class 'foreccomb'. Contains training set (actual values + matrix of model forecasts) and optionally a test set.
 #'
-#' @return Returns an object of class \code{foreccomb_res} with the following components:
+#' @return Returns an object of class \code{ForecastComb::foreccomb_res} with the following components:
 #' \item{Method}{Returns the best-fit forecast combination method.}
 #' \item{Models}{Returns the individual input models that were used for the forecast combinations.}
 #' \item{Weights}{Returns the combination weights obtained by applying the combination method to the training set.}
@@ -35,8 +35,8 @@
 #' @seealso
 #' \code{\link[ForecastCombinations]{Forecast_comb}},
 #' \code{\link{foreccomb}},
-#' \code{\link{plot.foreccomb_res}},
-#' \code{\link{summary.foreccomb_res}},
+#' \code{\link{plot.ForecastComb::foreccomb_res}},
+#' \code{\link{summary.ForecastComb::foreccomb_res}},
 #' \code{\link[forecast]{accuracy}}
 #'
 #' @keywords models
@@ -63,7 +63,7 @@ comb_Ridge <- function(x, custom_error = NULL) {
     }
 
     if (is.null(x$Forecasts_Test) && is.null(x$Actual_Test)) {
-        result <- foreccomb_res(method = "Ridge Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
+        result <- ForecastComb::foreccomb_res(method = "Ridge Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
                                 input_data = list(Actual_Train = x$Actual_Train, Forecasts_Train = x$Forecasts_Train), 
                                 predict = predict.comb_Ridge)
     }
@@ -72,7 +72,7 @@ comb_Ridge <- function(x, custom_error = NULL) {
         newpred_matrix <- x$Forecasts_Test
         pred <- predict(lin_model, newpred_matrix)
         if (is.null(x$Actual_Test) == TRUE) {
-            result <- foreccomb_res(method = "Ridge Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
+            result <- ForecastComb::foreccomb_res(method = "Ridge Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
                                     pred = pred, input_data = list(Actual_Train = x$Actual_Train, Forecasts_Train = x$Forecasts_Train, Forecasts_Test = x$Forecasts_Test), 
                                     predict = predict.comb_Ridge)
         } else {
@@ -82,14 +82,14 @@ comb_Ridge <- function(x, custom_error = NULL) {
                 accuracy_outsample <- cbind(accuracy_outsample, custom_error(as.numeric(newobs_vector), as.numeric(pred)))
                 colnames(accuracy_outsample)[length(accuracy_outsample)] <- "Custom Error"
             }
-            result <- foreccomb_res(method = "Ridge Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
+            result <- ForecastComb::foreccomb_res(method = "Ridge Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
                                     pred = pred, accuracy_outsample = accuracy_outsample, input_data = list(Actual_Train = x$Actual_Train, Forecasts_Train = x$Forecasts_Train, Actual_Test = x$Actual_Test,
                                                                                                             Forecasts_Test = x$Forecasts_Test), 
                                     predict = predict.comb_Ridge)
             result$lin_model <- lin_model
         }
     }
-    class(result) <- "comb_Ridge"
+    class(result) <- c("foreccomb_res", "comb_Ridge")
     return(result)
 }
 

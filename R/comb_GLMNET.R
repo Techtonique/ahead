@@ -6,11 +6,11 @@
 #' The function integrates the GLMNET Regression forecast combination implementation of the
 #' \emph{ForecastCombinations} package into ForecastComb.
 #'
-#' The results are stored in an object of class 'foreccomb_res', for which separate plot and summary functions are provided.
+#' The results are stored in an object of class 'ForecastComb::foreccomb_res', for which separate plot and summary functions are provided.
 #'
 #' @param x An object of class 'foreccomb'. Contains training set (actual values + matrix of model forecasts) and optionally a test set.
 #'
-#' @return Returns an object of class \code{foreccomb_res} with the following components:
+#' @return Returns an object of class \code{ForecastComb::foreccomb_res} with the following components:
 #' \item{Method}{Returns the best-fit forecast combination method.}
 #' \item{Models}{Returns the individual input models that were used for the forecast combinations.}
 #' \item{Weights}{Returns the combination weights obtained by applying the combination method to the training set.}
@@ -35,8 +35,8 @@
 #' @seealso
 #' \code{\link[ForecastCombinations]{Forecast_comb}},
 #' \code{\link{foreccomb}},
-#' \code{\link{plot.foreccomb_res}},
-#' \code{\link{summary.foreccomb_res}},
+#' \code{\link{plot.ForecastComb::foreccomb_res}},
+#' \code{\link{summary.ForecastComb::foreccomb_res}},
 #' \code{\link[forecast]{accuracy}}
 #'
 #' @keywords models
@@ -52,7 +52,7 @@ comb_GLMNET <- function(x, custom_error = NULL) {
     modelnames <- x$modelnames
 
     lin_model <- glmnet::cv.glmnet(x = as.matrix(prediction_matrix), y = as.numeric(observed_vector))    
-    weights <- coef(lin_model, s = "lambda.min")
+    weights <- as.numeric(drop(coef(lin_model, s = "lambda.min")))
     intercept <- weights[1]
     fitted <- drop(predict(lin_model, prediction_matrix, s = "lambda.min"))
     accuracy_insample <- forecast::accuracy(observed_vector, as.numeric(fitted))
@@ -62,7 +62,7 @@ comb_GLMNET <- function(x, custom_error = NULL) {
     }
 
     if (is.null(x$Forecasts_Test) && is.null(x$Actual_Test)) {
-        result <- foreccomb_res(method = "GLMNET Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
+        result <- ForecastComb::foreccomb_res(method = "GLMNET Regression Regression", modelnames = modelnames, weights = weights[-1], intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
                                 input_data = list(Actual_Train = x$Actual_Train, Forecasts_Train = x$Forecasts_Train), 
                                 predict = predict.comb_GLMNET)
     }
@@ -71,7 +71,7 @@ comb_GLMNET <- function(x, custom_error = NULL) {
         newpred_matrix <- x$Forecasts_Test
         pred <- drop(predict(lin_model, newpred_matrix, s = "lambda.min"))
         if (is.null(x$Actual_Test) == TRUE) {
-            result <- foreccomb_res(method = "GLMNET Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
+            result <- ForecastComb::foreccomb_res(method = "GLMNET Regression Regression", modelnames = modelnames, weights = weights[-1], intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
                                     pred = pred, input_data = list(Actual_Train = x$Actual_Train, Forecasts_Train = x$Forecasts_Train, Forecasts_Test = x$Forecasts_Test), 
                                     predict = predict.comb_GLMNET)
         } else {
@@ -81,14 +81,14 @@ comb_GLMNET <- function(x, custom_error = NULL) {
                 accuracy_outsample <- cbind(accuracy_outsample, custom_error(as.numeric(newobs_vector), as.numeric(pred)))
                 colnames(accuracy_outsample)[length(accuracy_outsample)] <- "Custom Error"
             }
-            result <- foreccomb_res(method = "GLMNET Regression Regression", modelnames = modelnames, weights = weights, intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
+            result <- ForecastComb::foreccomb_res(method = "GLMNET Regression Regression", modelnames = modelnames, weights = weights[-1], intercept = intercept, fitted = fitted, accuracy_insample = accuracy_insample,
                                     pred = pred, accuracy_outsample = accuracy_outsample, input_data = list(Actual_Train = x$Actual_Train, Forecasts_Train = x$Forecasts_Train, Actual_Test = x$Actual_Test,
                                                                                                             Forecasts_Test = x$Forecasts_Test), 
                                     predict = predict.comb_GLMNET)
             result$lin_model <- lin_model
         }
     }
-    class(result) <- "comb_GLMNET"
+    class(result) <- c("foreccomb_res", "comb_GLMNET")
     return(result)
 }
 

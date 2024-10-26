@@ -37,7 +37,7 @@ and \code{pct_calibration} are used)}
 \item{method}{For now "thetaf" (default), "arima", "ets", "tbats", "tslm", "dynrmf" (from ahead),
 "ridge2f" (from ahead), "naive", "snaive"}
 
-\item{level}{Confidence level for prediction intervals in %, default is 95}
+\item{level}{Confidence level for prediction intervals in \%, default is 95}
 
 \item{B}{Number of bootstrap replications or number of simulations
 (yes, 'B' is unfortunate)}

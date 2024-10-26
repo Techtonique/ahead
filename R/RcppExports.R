@@ -2,30 +2,30 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 forecast_innovs_loop_cpp <- function(eps, rts, eps_prev, omega, alpha, beta, df, h) {
-    .Call(`_ahead_forecast_innovs_loop_cpp`, eps, rts, eps_prev, omega, alpha, beta, df, h)
+    .Call('_ahead_forecast_innovs_loop_cpp', PACKAGE = 'ahead', eps, rts, eps_prev, omega, alpha, beta, df, h)
 }
 
 forecast_innovs_loop_cpp2 <- function(eps, rn, eps_prev, omega, alpha, beta, df, h) {
-    .Call(`_ahead_forecast_innovs_loop_cpp2`, eps, rn, eps_prev, omega, alpha, beta, df, h)
+    .Call('_ahead_forecast_innovs_loop_cpp2', PACKAGE = 'ahead', eps, rn, eps_prev, omega, alpha, beta, df, h)
 }
 
 create_lags_cpp <- function(x, k) {
-    .Call(`_ahead_create_lags_cpp`, x, k)
+    .Call('_ahead_create_lags_cpp', PACKAGE = 'ahead', x, k)
 }
 
 create_train_inputs_cpp <- function(x, k) {
-    .Call(`_ahead_create_train_inputs_cpp`, x, k)
+    .Call('_ahead_create_train_inputs_cpp', PACKAGE = 'ahead', x, k)
 }
 
 reformat_cpp <- function(x, n_k) {
-    .Call(`_ahead_reformat_cpp`, x, n_k)
+    .Call('_ahead_reformat_cpp', PACKAGE = 'ahead', x, n_k)
 }
 
 rev_matrix_cpp <- function(x) {
-    .Call(`_ahead_rev_matrix_cpp`, x)
+    .Call('_ahead_rev_matrix_cpp', PACKAGE = 'ahead', x)
 }
 
 rbind_vecmat_cpp <- function(y, x) {
-    .Call(`_ahead_rbind_vecmat_cpp`, y, x)
+    .Call('_ahead_rbind_vecmat_cpp', PACKAGE = 'ahead', y, x)
 }
 

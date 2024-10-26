@@ -21,7 +21,7 @@ armagarchf(
 
 \item{level}{confidence level for prediction intervals}
 
-\item{B}{number of simulations for `arima.sim`}
+\item{B}{number of simulations for \code{arima.sim}}
 
 \item{cl}{an integer; the number of clusters for parallel execution}
 
