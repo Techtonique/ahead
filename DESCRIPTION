@@ -13,6 +13,7 @@ RoxygenNote: 7.3.0
 Encoding: UTF-8
 Depends: R (>= 3.5.0), foreach, snow
 Suggests: 
+    caret,
     dfoptim,
     doSNOW,
     knitr,
