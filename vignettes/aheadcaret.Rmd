@@ -1,0 +1,76 @@
+---
+title: "Fit and forecast using caret+dynrmf Pt.2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Fit and forecast using caret+dynrmf Pt.2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+install.packages("caret")
+install.packages("remotes")
+install.packages("https://github.com/carlanetto/M4comp2018/releases/download/0.2.0/M4comp2018_0.2.0.tar.gz",
+                 repos=NULL)
+remotes::install_github("Techtonique/ahead")
+remotes::install_github("robjhyndman/forecast")
+
+# Load the caret package
+library(caret)
+library(ahead)
+library(M4comp2018)
+data(M4)
+
+# 1 - List of models -----
+
+# Get the model lookup data
+model_info <- caret::modelLookup()
+
+# Filter to show only regression models
+(regression_models <- subset(model_info, forReg==TRUE))
+
+print(dim(regression_models))
+
+# Display unique model tags for regression models
+regression_tags <- unique(regression_models$model)
+
+print(regression_tags)
+
+# 2 - results -----
+
+results <- list()
+
+names_results <- list()
+
+idx <- 40773
+
+pb <- utils::txtProgressBar(min = 0, max = length(regression_tags), style = 3)
+
+for (i in 1:length(regression_tags))
+{
+  fit_func_method <- function(x, y) ahead::fit_func(x, y, 
+                                             method = regression_tags[i])
+  
+  z <- try(ahead::dynrmf(M4[[idx]]$x, h=length(M4[[idx]]$xx), level=95L, 
+                     fit_func = fit_func_method,
+                     predict_func = ahead::predict_func), 
+           silent = TRUE)
+  if (!inherits(z, "try-error"))
+  {
+    results[[i]] <- z
+    names_results[[i]] <- regression_tags[i]
+  }
+  
+  utils::setTxtProgressBar(pb, i)
+}
+close(pb)
+
+names(results) <- unlist(names_results)
+
+saveRDS(results, "result.rds")
+
+print(results)
+
+print(as.data.frame(unlist(results)))
+```
+
