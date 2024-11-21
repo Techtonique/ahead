@@ -1,3 +1,7 @@
+# version 0.14.0
+
+- Add `fit_func` and `predict_func` for custom fitting and prediction functions of `ahead::dynrmf` (using `caret` Machine Learning).
+- Add forecasting combinations based on ForecastComb, adding Ridge and Elastic Net to the mix.
 
 # version 0.11.0
 

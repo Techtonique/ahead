@@ -1,0 +1,105 @@
+---
+title: "comb OLS Electricity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{comb OLS Electricity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1 - Comb OLS  
+
+```{r}
+library(ForecastComb)
+```
+
+```{r}
+data(electricity)
+
+print(head(electricity))
+
+(forecasting_methods <- colnames(electricity)[1:5])
+
+train_obs <- electricity[1:84, "Actual"]
+train_pred <- electricity[1:84, forecasting_methods]
+test_obs <- electricity[85:123, "Actual"]
+test_pred <- electricity[85:123, forecasting_methods]
+```
+
+```{r}
+data <- ForecastComb::foreccomb(train_obs, train_pred, test_obs, test_pred)
+```
+
+```{r}
+start <- proc.time()[3]
+obj <- ahead::comb_OLS(data)
+print(proc.time()[3] - start)
+
+print(class(obj))
+
+print(obj$Accuracy_Test)
+
+print(obj$Weights)
+
+# check
+print(mean(predict(obj, test_pred) - test_obs))
+```
+
+```{r fig.width=7.5, eval=FALSE}
+plot(obj)
+```
+
+# 2 - Comb Ridge
+
+```{r eval=TRUE}
+start <- proc.time()[3]
+obj <- ahead::comb_Ridge(data)
+print(proc.time()[3] - start)
+```
+
+```{r eval=TRUE}
+
+print(obj$Weights)
+
+print(class(obj))
+
+print(obj$Accuracy_Test)
+
+# check 
+print(mean(predict(obj, test_pred) - test_obs))
+```
+
+```{r fig.width=7.5, eval=FALSE}
+plot(obj)
+```
+
+# 3 - Comb GLMNET
+
+```{r eval=TRUE}
+start <- proc.time()[3]
+obj <- ahead::comb_GLMNET(data)
+print(proc.time()[3] - start)
+```
+
+```{r eval=TRUE}
+print(class(obj))
+```
+
+```{r}
+print(obj$Weights)
+```
+
+
+```{r}
+print(obj$Accuracy_Test)
+
+print(mean(predict(obj, test_pred) - test_obs))
+```
+
+```{r fig.width=7.5, eval=FALSE}
+plot(obj)
+```

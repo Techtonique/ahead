@@ -661,6 +661,7 @@ remove_zero_cols <- function(x, with_index = FALSE)
 }
 
 # Fit Ridge regression -----
+#' @export 
 ridge <- function(x, y, lambda=10^seq(-10, 10,
                                           length.out = 100))
 {
@@ -738,6 +739,32 @@ predict.ridge <- function(object, newx)
                             scale=object$xsd)%*%object$coef + object$ym))
   }
 }
+
+#' @export
+removenas <- function(y) {
+  # Check if input is a time series object
+  if (!is.ts(y)) {
+    stop("Input must be a time series object (ts).")
+  }
+
+  # Check for NA values
+  if (!anyNA(y)) {
+    return(y)
+  }
+
+  # Extract time and values
+  time <- time(y)
+  values <- as.numeric(y)
+
+  # Perform linear interpolation to replace NAs
+  interpolated_values <- approx(x = time[!is.na(values)], y = values[!is.na(values)], xout = time)$y
+
+  # Create a new time series object
+  new_ts <- ts(interpolated_values, start = start(y), frequency = frequency(y))
+
+  return(new_ts)
+}
+
 
 # Scale a univariate time series -----
 scale_ahead <- function(x, center = TRUE, scale = TRUE)

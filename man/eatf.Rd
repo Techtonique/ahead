@@ -23,7 +23,7 @@ eatf(
 
 \item{method}{forecasting method: "E" for \code{forecast::ets};
 "A"for \code{forecast::auto.arima}; "T" for \code{forecast::thetaf};
- or "EAT" for the combination of the three (default, with \code{weights})}
+or "EAT" for the combination of the three (default, with \code{weights})}
 
 \item{weights}{weights for each method, in method \code{EAT}. Must add up to 1.}
 

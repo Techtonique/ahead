@@ -64,19 +64,19 @@ library(fpp)
 
 # Forecasting and plot predictions
 
-```{r}
+```{r , eval=FALSE}
 obj <- ahead::ridge2f(fpp::insurance, h = 7, type_pi = "blockbootstrap", B = 10, 
                       block_length = 5)
 ```
 
-```{r fig.width=7.2}
+```{r fig.width=7.2, eval=FALSE}
 plot(obj, selected_series = "Quotes", type = "sims", 
      main = "Predictive simulations \n for Quotes")
 plot(obj, selected_series = "Quotes", type = "dist", 
      main = "Predictive simulation \n for Quotes")
 ```
 
-```{r fig.width=7.2}
+```{r fig.width=7.2, eval=FALSE}
 plot(obj, selected_series = "TV.advert", type = "sims", 
      main = "Predictive simulation \n for TV.advert")
 plot(obj, selected_series = "TV.advert", type = "dist", 
