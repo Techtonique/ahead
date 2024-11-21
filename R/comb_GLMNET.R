@@ -22,15 +22,22 @@
 #' \item{Input_Data}{Returns the data forwarded to the method.}
 #'
 #' @examples
-#' obs <- rnorm(100)
-#' preds <- matrix(rnorm(1000, 1), 100, 10)
-#' train_o<-obs[1:80]
-#' train_p<-preds[1:80,]
-#' test_o<-obs[81:100]
-#' test_p<-preds[81:100,]
-#'
-#' data<-ForecastComb::foreccomb(train_o, train_p, test_o, test_p)
-#' ahead::comb_GLMNET(data)
+#' 
+#' library(ForecastComb)
+#' 
+#' data(electricity)
+#' 
+#' print(head(electricity))
+#' 
+#' forecasting_methods <- colnames(electricity)[1:5]
+#' 
+#' train_obs <- electricity[1:84, "Actual"]
+#' train_pred <- electricity[1:84, forecasting_methods]
+#' test_obs <- electricity[85:123, "Actual"]
+#' test_pred <- electricity[85:123, forecasting_methods]
+#' data <- ForecastComb::foreccomb(train_obs, train_pred, test_obs, test_pred)
+#' 
+#' (obj <- ahead::comb_GLMNET(data))
 #'
 #' @seealso
 #' \code{\link[ForecastCombinations]{Forecast_comb}},

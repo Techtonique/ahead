@@ -74,18 +74,12 @@ start <- proc.time()[3]
 obj <- ahead::comb_OLS(data, custom_error=custom_error)
 print(proc.time()[3] - start)
 
-print(class(obj))
-
 print(obj$Accuracy_Test)
 
 print(obj$Weights)
 
 # check
 print(mean(predict(obj, test_pred) - test_obs))
-```
-
-```{r fig.width=7.5}
-plot(obj)
 ```
 
 # 2 - Comb Ridge
@@ -97,8 +91,6 @@ print(proc.time()[3] - start)
 ```
 
 ```{r eval=TRUE}
-print(summary(obj))
-
 print(class(obj))
 
 print(obj$Accuracy_Test)
@@ -107,7 +99,7 @@ print(obj$Accuracy_Test)
 print(mean(predict(obj, test_pred) - test_obs))
 ```
 
-```{r fig.width=7.5}
+```{r fig.width=7.5, eval=FALSE}
 plot(obj)
 ```
 
@@ -127,6 +119,6 @@ print(class(obj))
 print(mean(predict(obj, test_pred) - test_obs))
 ```
 
-```{r fig.width=7.5}
+```{r fig.width=7.5, eval=FALSE}
 plot(obj)
 ```

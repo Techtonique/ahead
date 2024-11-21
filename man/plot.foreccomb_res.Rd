@@ -21,19 +21,6 @@ Produces plots for the results of a forecast combination method. Either
 an actual vs. fitted plot (\code{which = 1}) or a barplot of the combination weights
 (\code{which = 2}).
 }
-\examples{
-obs <- rnorm(100)
-preds <- matrix(rnorm(1000, 1), 100, 10)
-train_o<-obs[1:80]
-train_p<-preds[1:80,]
-test_o<-obs[81:100]
-test_p<-preds[81:100,]
-
-data<-foreccomb(train_o, train_p, test_o, test_p)
-fit <- comb_EIG1(data)
-plot(fit)
-
-}
 \seealso{
 \code{\link[ForecastComb]{foreccomb}},
 \code{\link[ForecastComb]{summary.foreccomb_res}}

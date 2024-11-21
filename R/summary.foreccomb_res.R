@@ -10,17 +10,6 @@
 #' @param x An object of class 'foreccomb'. Contains training set (actual values + matrix of model forecasts) and optionally a test set.
 #' @param ... potential further arguments (require by generic)
 #'
-#' @examples
-#' obs <- rnorm(100)
-#' preds <- matrix(rnorm(1000, 1), 100, 10)
-#' train_o<-obs[1:80]
-#' train_p<-preds[1:80,]
-#' test_o<-obs[81:100]
-#' test_p<-preds[81:100,]
-#'
-#' data<-foreccomb(train_o, train_p, test_o, test_p)
-#' fit<-comb_BG(data)
-#' summary(fit)
 #'
 #' @seealso
 #' \code{\link[ForecastComb]{foreccomb}},
@@ -77,7 +66,7 @@ summary.foreccomb_res <- function(object, ...) {
 #' @method print foreccomb_res_summary
 #' @export
 print.foreccomb_res_summary <- function(x, ...) {
-    if (class(x) != "foreccomb_res_summary")
+    if (inherits(x, "foreccomb_res_summary"))
         stop("Data must be class 'foreccomb_res_summary'", call. = FALSE)
 
     cat("\n")

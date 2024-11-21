@@ -480,10 +480,16 @@ fitforecast <- function(y,
     out <- structure(out, class = "forecast")
   }
 
-  out$coverage <-
-    100 * mean((y_test >= out$lower) * (out$upper >= y_test))
+  out$coverage <- 100 * mean((y_test >= out$lower) * (out$upper >= y_test))
   out$interval_length <- mean(out$upper - out$lower)
   out$winkler_score <- winkler_score2(out, y_test, level = level)
+  accuracy_results <- forecast::accuracy(out, y_test)
+  out$ME <- accuracy_results[2, "ME"]
+  out$RMSE <- accuracy_results[2, "RMSE"]
+  out$MAE <- accuracy_results[2, "MAE"]
+  out$MPE <- accuracy_results[2, "MPE"]
+  out$MAPE <- accuracy_results[2, "MAPE"]
+  out$MASE <- accuracy_results[2, "MASE"]
 
   plots <-
     function(out,
