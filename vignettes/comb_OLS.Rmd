@@ -76,30 +76,3 @@ print(mean(predict(obj, test_pred) - test_obs))
 ```{r fig.width=7.5, eval=FALSE}
 plot(obj)
 ```
-
-# 3 - Comb GLMNET
-
-```{r eval=TRUE}
-start <- proc.time()[3]
-obj <- ahead::comb_GLMNET(data)
-print(proc.time()[3] - start)
-```
-
-```{r eval=TRUE}
-print(class(obj))
-```
-
-```{r}
-print(obj$Weights)
-```
-
-
-```{r}
-print(obj$Accuracy_Test)
-
-print(mean(predict(obj, test_pred) - test_obs))
-```
-
-```{r fig.width=7.5, eval=FALSE}
-plot(obj)
-```

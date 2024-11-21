@@ -103,22 +103,3 @@ print(mean(predict(obj, test_pred) - test_obs))
 plot(obj)
 ```
 
-# 3 - Comb GLMNET
-
-```{r eval=TRUE}
-start <- proc.time()[3]
-obj <- ahead::comb_GLMNET(data, custom_error=custom_error)
-print(proc.time()[3] - start)
-```
-
-```{r eval=TRUE}
-print(obj$Accuracy_Test)
-
-print(class(obj))
-
-print(mean(predict(obj, test_pred) - test_obs))
-```
-
-```{r fig.width=7.5, eval=FALSE}
-plot(obj)
-```
