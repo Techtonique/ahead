@@ -2,7 +2,7 @@
 % Please edit documentation in R/genforecast.R
 \name{genericforecast}
 \alias{genericforecast}
-\title{Generic Forecasting Function}
+\title{Generic Forecasting Function (Unified interface)}
 \usage{
 genericforecast(FUN, y, h, level = 95, ...)
 }
@@ -21,7 +21,7 @@ genericforecast(FUN, y, h, level = 95, ...)
 An object of class \code{forecast}.
 }
 \description{
-This function allows to call any function "of class \code{forecast}".
+This function allows to call any function "of class \code{forecast}" in a unified way.
 }
 \examples{
 
