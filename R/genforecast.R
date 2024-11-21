@@ -1,9 +1,9 @@
 #' 
-#' @title Generic Forecasting Function
+#' @title Generic Forecasting Function (Unified interface)
 #' 
 #' @description
 #' 
-#' This function allows to call any function "of class \code{forecast}".
+#' This function allows to call any function "of class \code{forecast}" in a unified way.
 #' 
 #' @param FUN A forecasting function.
 #' @param y A time series (\code{ts} object or vector).
