@@ -37,7 +37,10 @@
 #' test_pred <- electricity[85:123, forecasting_methods]
 #' data <- ForecastComb::foreccomb(train_obs, train_pred, test_obs, test_pred)
 #' 
+#' \dontrun{
 #' (obj <- ahead::comb_GLMNET(data))
+#' }
+#' 
 #'
 #' @seealso
 #' \code{\link[ForecastCombinations]{Forecast_comb}},

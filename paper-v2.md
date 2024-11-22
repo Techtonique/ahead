@@ -8,14 +8,14 @@ tags:
 - Forecasting
 - Machine Learning
 - Uncertainty
-date: "March 10, 2024"
+date: "November 22, 2024"
 output:
   pdf_document: default
 html_document:
   df_print: paged
 urlcolor: blue
 author: "T. Moudiki"
-affiliation: "techtonique.github.io"
+affiliation: "Techtonique, LLC"
 authors:
 - name: "T. Moudiki"
   orcid: "0000-0002-9422-5459"
@@ -31,25 +31,21 @@ affiliations:
 - name: T Moudiki
 ---
 
-```python
-!pip install rpy2
-```
-
 # Summary
 
 This paper presents two original Machine Learning models implemented in the `ahead` package for forecasting univariate and multivariate time series. `dynrmf` is an autoregressive model that can utilize any Machine Learning model for forecasting univariate time series, while `ridge2f` extends ridge regression with two regularization parameters and a hidden layer for producing nonlinear outputs.
 
 # Statement of need
 
-Forecasting time series (MTS hereafter) is important for business planning and decision support in finance (stress-testing), insurance (reserving and required capital valuation), and other industries such as *Energy* (load anticipation) and meteorology. One can obtain point forecasts from a statistical/Machine Learning (ML) model, but these point forecasts are generally of limited importance to analysts. What matters more is the model's ability to quantify the uncertainty around its predictions. 
+Forecasting time series (MTS hereafter) is important for business planning and decision support in finance (stress-testing with financial scenarios), insurance (reserving and required capital valuation), and other industries such as *Energy* (load anticipation) and meteorology. One can obtain point forecasts from a statistical/Machine Learning (ML) model, but these point forecasts are generally of limited importance to analysts. What matters more is the model's ability to quantify the uncertainty around its predictions. 
 
 There are multiple MTS forecasting models available in [\textsf{R} package](https://github.com/Techtonique/ahead) `ahead`'s version `0.11.0` (there are [\textsf{Python}](https://github.com/Techtonique/ahead_python) and [\textsf{Julia}](https://github.com/Techtonique/Ahead.jl) implementations, following \textsf{R}'s API as closely as possible). `ahead` itself is available through the [R-universe](https://techtonique.r-universe.dev/builds), hence allowing the package to be continuously integrated and distributed across all major operating systems.
 
 All of `ahead`'s models include parametric prediction intervals alongside non-parametric, simulation-based uncertainty quantification techniques. This paper describes **two** of these ML models, **not available in any other statistical software**:
 
-* \mbox{\texttt{dynrmf}}; an autoregressive dynamic model inspired by **N**eural **N**etwork **A**uto**r**egression (NNAR) ( @hyndman2013forecasting), and described in [https://otexts.com/fpp2/nnetar.html#neural-network-autoregression](https://otexts.com/fpp2/nnetar.html#neural-network-autoregression). As NNAR, \mbox{\texttt{dynrmf}} does an automatic choice of the number of autoregressive and seasonal time series lags. \mbox{\texttt{dynrmf}} is however more generic, and __can use any ML model__ (the default model is [Ridge Regression](https://en.wikipedia.org/wiki/Ridge_regression)).
+* \mbox{\texttt{dynrmf}}; an autoregressive dynamic model inspired by **N**eural **N**etwork **A**uto**r**egression (NNAR) (from @hyndman2013forecasting), and described with more details in [https://otexts.com/fpp2/nnetar.html#neural-network-autoregression](https://otexts.com/fpp2/nnetar.html#neural-network-autoregression). As NNAR, \mbox{\texttt{dynrmf}} does an automatic choice of the number of autoregressive and seasonal time series lags. \mbox{\texttt{dynrmf}} is however more generic, and __can use any ML model__ (the default model is [Ridge Regression](https://en.wikipedia.org/wiki/Ridge_regression)).
 
-*  \mbox{\texttt{ahead::ridge2f}} (@moudiki2018multiple) implements a __quasi-randomized *neural* networks__ model extending Ridge_regression to 2 regularization parameters, and capable of producing nonlinear outputs thanks to the use of a *hidden layer*. \newline Since its first publication in 2018, \mbox{\texttt{ahead::ridge2f}} has been enhanced for integrating uncertainty quantification through the (independen/block) bootstrap (@efron1986bootstrap) and copulas' simulation(@brechmann2013modeling, @nagler2023vine). Ongoing developments include conformal prediction (@vovk2005algorithmic) and Kernel Density Estimation (@silverman2018density).
+*  \mbox{\texttt{ahead::ridge2f}} (@moudiki2018multiple) implements a __quasi-randomized *neural* networks__ model extending Ridge_regression to 2 regularization parameters, and capable of producing nonlinear outputs thanks to the use of a *hidden layer*. Since its first publication in 2018, \mbox{\texttt{ahead::ridge2f}} has been enhanced for integrating uncertainty quantification through the (independen/block) bootstrap (@efron1986bootstrap) and copulas' simulation(@brechmann2013modeling, @nagler2023vine). Ongoing developments include conformal prediction (@vovk2005algorithmic) and Kernel Density Estimation (@silverman2018density).
 
 # Examples
 

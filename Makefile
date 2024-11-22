@@ -135,6 +135,9 @@ render: ## run R markdown file in /vignettes, open rendered HTML
 	Rscript -e "rmarkdown::render(paste0('./vignettes/', '$$filename', '.Rmd'))"; \
 	python3 -c "$$BROWSER_PYSCRIPT" "$$filename.html"
 
+render-paper:
+	Rscript -e "rmarkdown::render('./paper-v2.md')"
+
 setwd: ## set working directory to current directory
 	Rscript -e "setwd('.')"
 
