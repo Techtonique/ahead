@@ -46,7 +46,7 @@ test_obs <- electricity[85:123, "Actual"]
 test_pred <- electricity[85:123, forecasting_methods]
 data <- ForecastComb::foreccomb(train_obs, train_pred, test_obs, test_pred)
 
-(obj <- ahead::comb_GLMNET(data))
+# obj <- ahead::comb_GLMNET(data))
 
 }
 \seealso{
