@@ -4,7 +4,7 @@
 \alias{genericforecast}
 \title{Generic Forecasting Function (Unified interface)}
 \usage{
-genericforecast(FUN, y, h, level = 95, ...)
+genericforecast(FUN, y, h, ...)
 }
 \arguments{
 \item{FUN}{A forecasting function.}
@@ -13,9 +13,9 @@ genericforecast(FUN, y, h, level = 95, ...)
 
 \item{h}{Forecasting horizon.}
 
-\item{level}{The confidence level.}
-
 \item{...}{Additional arguments to be passed to the forecasting function.}
+
+\item{level}{The confidence level.}
 }
 \value{
 An object of class \code{forecast}.

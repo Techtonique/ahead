@@ -23,7 +23,7 @@
 #' 
 #' @export
 #' 
-genericforecast <- function(FUN, y, h, level=95, ...)
+genericforecast <- function(FUN, y, h, ...)
 {
   obj <- try(do.call(what=FUN, args=list(y = y, ...)), 
              silent = TRUE) # forecast:: e.g 
@@ -32,7 +32,7 @@ genericforecast <- function(FUN, y, h, level=95, ...)
     obj <- try(do.call(what=FUN, args=list(x = y, ...)), 
                silent = TRUE) # Holtwinters e.g
   }
-  res <- try(forecast::forecast(obj, h=h, level=level, ...), 
+  res <- try(forecast::forecast(obj, h=h, ...), 
              silent = TRUE)
   if (inherits(res, "try-error"))
   {
