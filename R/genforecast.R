@@ -17,13 +17,14 @@
 #' 
 #' y <- fdeaths 
 #' h <- 25L
-#' plot(genericforecast(FUN=forecast::thetaf, y, h))
-#' plot(genericforecast(FUN=ahead::dynrmf, y, h))
-#' plot(genericforecast(FUN=forecast::tbats, y=y, h=h, use.box.cox = TRUE, use.trend=FALSE))
+#' plot(ahead::genericforecast(FUN=forecast::thetaf, y, h))
+#' plot(ahead::genericforecast(FUN=ahead::dynrmf, y, h))
+#' plot(ahead::genericforecast(FUN=forecast::tbats, y=y, h=h, use.box.cox = TRUE, use.trend=FALSE))
+#' plot(ahead::genericforecast(FUN=forecast::ets, y, h))
 #' 
 #' @export
 #' 
-genericforecast <- function(FUN, y, h, ...)
+genericforecast <- function(FUN, y, h, level=95, ...)
 {
   obj <- try(do.call(what=FUN, args=list(y = y, ...)), 
              silent = TRUE) # forecast:: e.g 
@@ -32,12 +33,12 @@ genericforecast <- function(FUN, y, h, ...)
     obj <- try(do.call(what=FUN, args=list(x = y, ...)), 
                silent = TRUE) # Holtwinters e.g
   }
-  res <- try(forecast::forecast(obj, h=h, ...), 
+  res <- try(forecast::forecast(obj, h=h, level=level, ...), 
              silent = TRUE)
   if (inherits(res, "try-error"))
   {
     res <- do.call(what = FUN, 
-                   args = list(y=y, h=h, ...))
+                   args = list(y=y, h=h, level=level, ...))
   }
   return(res)
 }
