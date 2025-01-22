@@ -17,10 +17,9 @@
 #' 
 #' y <- fdeaths 
 #' h <- 25L
-#' plot(ahead::genericforecast(FUN=forecast::thetaf, y, h))
-#' plot(ahead::genericforecast(FUN=ahead::dynrmf, y, h))
-#' plot(ahead::genericforecast(FUN=forecast::tbats, y=y, h=h, use.box.cox = TRUE, use.trend=FALSE))
-#' plot(ahead::genericforecast(FUN=forecast::ets, y, h))
+#' plot(genericforecast(FUN=forecast::thetaf, y, h))
+#' plot(genericforecast(FUN=ahead::dynrmf, y, h))
+#' plot(genericforecast(FUN=forecast::tbats, y=y, h=h, use.box.cox = TRUE, use.trend=FALSE))
 #' 
 #' @export
 #' 
@@ -38,7 +37,7 @@ genericforecast <- function(FUN, y, h, level=95, ...)
   if (inherits(res, "try-error"))
   {
     res <- do.call(what = FUN, 
-                   args = list(y=y, h=h, level=level, ...))
+                   args = list(y=y, h=h, ...))
   }
   return(res)
 }
