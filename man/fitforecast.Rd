@@ -53,7 +53,7 @@ and \code{pct_calibration} are used)}
 
 \item{gap}{length of training set for loocv conformal (do not use)}
 
-\item{agg}{"mean" or "median" (aggregation method) for}
+\item{agg}{"mean" or "median" (aggregation method)}
 
 \item{vol}{"constant" or "garch" (type of volatility modeling for calibrated residuals)}
 

@@ -41,13 +41,13 @@ conformalize <- function(FUN, y, h, level=95,
   y_calib <- splitted_y$testing
   n_calib <- length(idx_calib)
   
-  calib_resids <- ahead::genericforecast(y_train, h=n_calib, 
+  calib_resids <- ahead::genericforecast(y=y_train, h=n_calib, 
                               level=level, FUN=FUN, 
                               ...)$mean - y_calib
   scaled_calib_resids <- base::scale(calib_resids)
   xm <- attr(scaled_calib_resids, "scaled:center")
   xsd <- attr(scaled_calib_resids, "scaled:scale")
-  obj_fcast <- ahead::genericforecast(y_calib, h=h, 
+  obj_fcast <- ahead::genericforecast(y=y_calib, h=h, 
                           level=level, FUN=FUN, 
                           ...) # train on calibration set 
 
