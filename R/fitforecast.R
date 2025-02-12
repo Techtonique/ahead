@@ -16,7 +16,7 @@
 #' @param type_calibration "splitconformal" (default conformal method), "cv1" (do not use),
 #' "loocv" (do not use)
 #' @param gap length of training set for loocv conformal (do not use)
-#' @param agg "mean" or "median" (aggregation method) for
+#' @param agg "mean" or "median" (aggregation method)
 #' @param vol "constant" or "garch" (type of volatility modeling for calibrated residuals)
 #' @param type_sim "kde", "surrogate", "bootstrap" (type of simulation for calibrated residuals)
 #' @param ... additional parameters
