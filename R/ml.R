@@ -175,6 +175,7 @@ ml_forecast <- function(y, h,
                         lags=1, 
                         fit_func = ahead::ridge,
                         predict_func = predict,
+                        fitted_obj = NULL, 
                         ...)
 {
     df <- as.data.frame(embed(rev(as.numeric(y)), lags + 1L))
@@ -183,8 +184,13 @@ ml_forecast <- function(y, h,
     fit <- try(fit_func(y ~ ., data = df, ...), silent=TRUE)
     if (inherits(fit, "try-error"))
     {
-     fit <- fit_func(x = as.matrix(df)[, -ncol_df], 
-                     y = df$y, ...)
+      if(is.null(fitted_obj))
+      {
+        fit <- fit_func(x = as.matrix(df)[, -ncol_df], 
+                        y = df$y, ...) 
+      } else {
+        
+      }
     }
     for (i in 1:h)
     {
@@ -198,4 +204,3 @@ ml_forecast <- function(y, h,
     }
     return(list(model = fit, mean = head(df$y, h)))
 }
-
