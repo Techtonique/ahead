@@ -1,0 +1,22 @@
+---
+title: "Conformalized Forecasting using Machine Leaning models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Conformalized Forecasting using Machine Leaning models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r fig.width=7.5}
+res <- ahead::mlf(USAccDeaths, h=10L, lags=15L, type_pi="surrogate", B=250L)
+plot(res)
+
+res <- ahead::mlf(USAccDeaths, fit_func = glmnet::cv.glmnet, h=15L, lags=15L, 
+type_pi="kde", B=250L) 
+plot(res)
+
+(res <- ahead::mlf(USAccDeaths, fit_func = e1071::svm, h=15L, lags=15L, 
+type_pi="kde", B=250L)) 
+plot(res)
+```
+
