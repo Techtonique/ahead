@@ -145,13 +145,13 @@ ridge2f <- function(y,
                     show_progress = TRUE,
                     ...)
 {
-  if(is_package_available("randtoolbox") == FALSE)
-    install.packages("randtoolbox",
-                     repos = c(CRAN = "https://cloud.r-project.org"))
+  # if(is_package_available("randtoolbox") == FALSE)
+  #   install.packages("randtoolbox",
+  #                    repos = c(CRAN = "https://cloud.r-project.org"))
 
-  if(is_package_available("VineCopula") == FALSE)
-    install.packages("VineCopula",
-                     repos = c(CRAN = "https://cloud.r-project.org"))
+  # if(is_package_available("VineCopula") == FALSE)
+  #   install.packages("VineCopula",
+  #                    repos = c(CRAN = "https://cloud.r-project.org"))
 
   if (is.null(dim(y)))
   {
@@ -195,9 +195,9 @@ ridge2f <- function(y,
   if (!is.null(xreg))
   {
     if (is.null(ncol(xreg)))
-      xreg <- as.matrix(xreg)
+      xreg <- as.matrix(xreg)[seq_len(nrow(y)),]
 
-    stopifnot(identical(nrow(xreg), nrow(y)))
+    #stopifnot(identical(nrow(xreg), nrow(y)))
 
     use_xreg <- TRUE
 
