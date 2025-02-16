@@ -11,6 +11,7 @@ mlf(
   lags = 15L,
   fit_func = ahead::ridge,
   predict_func = predict,
+  coeffs = NULL,
   type_pi = c("kde", "surrogate", "blockbootstrap"),
   B = 250L,
   agg = c("mean", "median"),
@@ -30,6 +31,8 @@ mlf(
 \item{fit_func}{Fitting function (Statistical/ML model). Default is Ridge regression.}
 
 \item{predict_func}{Prediction function (Statistical/ML model)}
+
+\item{coeffs}{Coefficients of the fitted model. If provided, a linear combination with the coefficients is used to compute the prediction.}
 
 \item{type_pi}{Type of prediction interval}
 

@@ -42,7 +42,6 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
   freq_x <- frequency(y)
   half_n <- ceiling(n/2)
   idx_train <- seq_len(half_n)
-  idx_calib <- setdiff(seq_len(n), idx_train)
   splitted_y <- misc::splitts(y)
   y_train <- splitted_y$training
   y_calib <- splitted_y$testing
@@ -126,8 +125,8 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
         sd_calibrated_residuals <- sd(calibrated_raw_residuals)      
     }
 
-    sims <-
-      matrix_preds + sd_calibrated_residuals * simulated_scaled_calibrated_residuals
+    sims <- matrix_preds 
+    sims <- sims + sd_calibrated_residuals * simulated_scaled_calibrated_residuals
 
     sims <- ts(sims,
                start = start_preds,
@@ -172,8 +171,6 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
     return(out)
 }
 
-
-
 ml_forecast <- function(y, h, 
                         lags=1, 
                         fit_func = ahead::ridge,
@@ -215,5 +212,5 @@ ml_forecast <- function(y, h,
           colnames(df) <- c(paste0("lag", rev(seq_len(lags))), "y")
       }
     }    
-    return(list(model = fit, mean = head(df$y, h)))
+    return(list(model = fit, mean = rev(head(df$y, h))))
 }
