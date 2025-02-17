@@ -32,7 +32,7 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
                 fit_func = ahead::ridge,
                 predict_func = predict,
                 coeffs = NULL,
-                type_pi = c("kde", "surrogate", "blockbootstrap"),
+                type_pi = c("kde", "surrogate", "bootstrap"),
                 B = 250L, agg = c("mean", "median"), 
                 seed = 123,
                 ...)
@@ -42,6 +42,7 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
   freq_x <- frequency(y)
   half_n <- ceiling(n/2)
   idx_train <- seq_len(half_n)
+  idx_calib <- setdiff(seq_len(n), idx_train)
   splitted_y <- misc::splitts(y)
   y_train <- splitted_y$training
   y_calib <- splitted_y$testing
@@ -195,7 +196,7 @@ ml_forecast <- function(y, h,
           colnames(newdata) <- paste0("lag", rev(seq_len(lags)))
           newdata_df <- data.frame(matrix(as.numeric((newdata)), ncol=lags))
           colnames(newdata_df) <- paste0("lag", rev(seq_len(lags)))
-          prediction <- as.numeric(predict(fit, newdata_df)) # /!\ not the same prediction, beware
+          prediction <- as.numeric(predict_func(fit, newdata_df)) # /!\ not the same prediction, beware
           df <- data.frame(rbind(as.matrix(cbind(newdata_df, prediction)), as.matrix(df)))
           colnames(df) <- c(paste0("lag", rev(seq_len(lags))), "y")
       }

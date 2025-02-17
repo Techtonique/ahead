@@ -12,7 +12,7 @@ mlf(
   fit_func = ahead::ridge,
   predict_func = predict,
   coeffs = NULL,
-  type_pi = c("kde", "surrogate", "blockbootstrap"),
+  type_pi = c("kde", "surrogate", "bootstrap"),
   B = 250L,
   agg = c("mean", "median"),
   seed = 123,

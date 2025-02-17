@@ -163,3 +163,63 @@ winkler_score2 <- function(obj, actual, level = 95) {
   return(mean(score))
 }
 
+coverage_score <- function(obj, actual) {
+  if (is.null(obj$lower))
+  {
+    return(mean((obj$intervals[, 1] <= actual)*(actual <= obj$intervals[, 2]))*100)
+  }
+  return(mean((obj$lower <= actual)*(actual <= obj$upper))*100)
+}
+
+winkler_score <- function(obj, actual, level = 95) {
+  alpha <- 1 - level / 100
+  lt <- try(obj$lower, silent = TRUE)
+  ut <- try(obj$upper, silent = TRUE)
+  actual <- as.numeric(actual)
+  if (is.null(lt) || is.null(ut))
+  {
+    lt <- as.numeric(obj$intervals[, 1])
+    ut <- as.numeric(obj$intervals[, 2])
+  }
+  n_points <- length(actual)
+  stopifnot((n_points == length(lt)) && (n_points == length(ut)))
+  diff_lt <- lt - actual
+  diff_bounds <- ut - lt
+  diff_ut <- actual - ut
+  score <- diff_bounds
+  score <- score + (2 / alpha) * (pmax(diff_lt, 0) + pmax(diff_ut, 0))
+  return(mean(score))
+}
+
+#' Get error metrics
+#'
+#' This function calculates various error metrics for a given prediction object.
+#'
+#' @param obj A prediction object containing mean predictions and intervals.
+#' @param actual A numeric vector of actual values.
+#' @param level The confidence level for the prediction intervals.
+#' @return A numeric vector containing the error metrics.
+#' @export
+#' @examples
+#' 
+#' obj <- list(mean = 10, lower = 8, upper = 12)
+#' actual <- 11
+#' get_error(obj, actual)
+#' 
+get_error <- function(obj, actual, level = 95)
+{
+  actual <- as.numeric(actual)
+  mean_prediction <- as.numeric(obj$mean)
+  me <- mean(mean_prediction - actual)
+  rmse <- sqrt(mean((mean_prediction - actual)**2))
+  mae <- mean(abs(mean_prediction - actual))
+  mpe <- mean(mean_prediction/actual-1)
+  mape <- mean(abs(mean_prediction/actual-1))
+  coverage <- as.numeric(coverage_score(obj, actual))
+  winkler <- winkler_score(obj, actual, level = level)
+  res <- c(me, rmse, mae, mpe, 
+           mape, coverage, winkler)
+  names(res) <- c("me", "rmse", "mae", "mpe", 
+                  "mape", "coverage", "winkler")
+  return(res)
+}
