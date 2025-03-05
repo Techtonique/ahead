@@ -18,6 +18,7 @@
 #' @param type_forecast Recursive or direct forecast
 #' @param type_pi Type of prediction interval currently "gaussian", "bootstrap",
 #' "blockbootstrap", "movingblockbootstrap", "rvinecopula" (with Gaussian and empirical margins for now)
+#' "conformal-split", "conformal-bootstrap", "conformal-block-bootstrap"
 #' @param block_length Length of block for circular or moving block bootstrap
 #' @param margins Distribution of margins: "gaussian", "empirical" for \code{type_pi == "rvinecopula"}
 #' @param seed Reproducibility seed for random stuff
@@ -131,7 +132,10 @@ ridge2f <- function(y,
                       "bootstrap",
                       "blockbootstrap",
                       "movingblockbootstrap",
-                      "rvinecopula"
+                      "rvinecopula", 
+                      "conformal-split",
+                      "conformal-bootstrap",
+                      "conformal-block-bootstrap"
                     ),
                     block_length = NULL,
                     margins = c("gaussian", "empirical"),
@@ -241,7 +245,7 @@ ridge2f <- function(y,
   type_forecast <- match.arg(type_forecast)
 
   # Fitting a regularized regression  model to multiple time series
-  if (!identical(type_pi, "splitconformal"))
+  if (grepl("conformal", type_pi) < 1) # not conformal
   {
     fit_obj <- fit_ridge2_mts(
       y,
@@ -259,28 +263,19 @@ ridge2f <- function(y,
       type_pi = type_pi,
       margins = margins
     )
-  } else { # if (type_pi == "splitconformal") # experimental
+
+  } else { # conformal  
+
     # Split the training data
     y_train_calibration <- splitts(y, split_prob=0.5)
     y_train <- y_train_calibration$training 
     y_calibration <- y_train_calibration$testing
-    h_calibration <- nrow(y_calibration)
-
-    # First fit on training data
-    fit_obj_train <- fit_ridge2_mts(
-      y_train,
-      lags = lags,
-      nb_hidden = nb_hidden,
-      nodes_sim = nodes_sim,
-      activ = activ,
-      a = a,
-      lambda_1 = lambda_1,
-      lambda_2 = lambda_2,
-      dropout = dropout,
-      centers = centers,
-      type_clustering = type_clustering,
-      seed = seed
-    )
+    if (is.null(dim(y_calibration)))
+    {
+      h_calibration <- length(y_calibration)
+    } else {
+      h_calibration <- nrow(y_calibration)
+    }    
 
     # Get predictions on calibration set
     y_pred_calibration <- ridge2f(
@@ -298,22 +293,9 @@ ridge2f <- function(y,
       type_clustering = type_clustering,
       seed = seed
     )$mean
-
-    # Calculate residuals on calibration set
-    matrix_y_calibration <- matrix(as.numeric(y_calibration), ncol = ncol(y))
-    matrix_y_pred_calibration <- matrix(as.numeric(y_pred_calibration), ncol = ncol(y))
-    abs_residuals <- abs(matrix_y_calibration - matrix_y_pred_calibration)
     
-    # Get conformal quantile for each series
-    quantile_absolute_residuals_conformal <- apply(abs_residuals, 2, function(x) {
-      quantile_scp(
-        abs_residuals = x,
-        alpha = (1 - level/100)
-      )
-    })
-
     # Final fit and forecast on full calibration set
-    preds <- ridge2f(
+    fit_obj_train <- ridge2f(
       y_calibration, 
       h = h,
       lags = lags,
@@ -327,8 +309,53 @@ ridge2f <- function(y,
       centers = centers,
       type_clustering = type_clustering,
       seed = seed
-    )$mean
+    )
 
+    preds <- fit_obj_train$mean
+
+    calibrated_residuals <- y_calibration - y_pred_calibration
+    
+    if (type_pi == "conformal-split") {
+      if (is.null(dim(calibrated_residuals))) {
+        quantile_absolute_residuals_conformal <- apply(abs(calibrated_residuals), 2, function(x) {
+          quantile(x, probs = level/100)
+          })
+       } else {
+        quantile_absolute_residuals_conformal <- quantile(abs(calibrated_residuals), probs = level/100)
+       }
+    }
+
+    if (type_pi %in% c("conformal-bootstrap", "conformal-block-bootstrap")) {
+      # Get conformal quantile for each series
+
+    } else { # type_pi == "conformal-split"
+      out <- list(
+        mean = preds,
+        lower = preds - quantile_absolute_residuals_conformal,
+        upper = preds + quantile_absolute_residuals_conformal,
+        sims = NULL,
+        x = y,
+        level = level,
+        method = "ridge2",
+        residuals = ts(calibrated_residuals, start = start_x),
+        coefficients = fit_obj_train$coef,
+        loocv = NULL,
+        weighted_loocv = NULL, 
+        loocv_per_series = NULL
+      )
+      # Handle univariate case
+      if (dimensionality == "univariate") {
+        for (i in 1:length(out)) {
+          try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"), silent = TRUE)
+          if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]])) {
+            out[[i]] <- try_delete_trend
+          }
+        }
+        return(structure(out, class = "forecast"))
+      }
+      return(structure(out, class = "mtsforecast"))
+    }
+    
     # Create output with conformal intervals (now using matrix operations)
     preds_matrix <- matrix(as.numeric(preds), ncol = ncol(y))
     lower_matrix <- sweep(preds_matrix, 2, quantile_absolute_residuals_conformal, "-")
@@ -360,7 +387,7 @@ ridge2f <- function(y,
       return(structure(out, class = "forecast"))
     }
 
-    return(structure(out, class = "mtsforecast"))
+    return(structure(out, class = c("mtsforecast", "forecast")))
   }
 
   if (identical(type_pi, "gaussian"))
@@ -427,7 +454,7 @@ ridge2f <- function(y,
       return(structure(out, class = "forecast"))
     }
 
-    return(structure(out, class = "mtsforecast"))
+    return(structure(out, class = c("mtsforecast", "forecast")))
   }
 
   if (type_pi %in% c("bootstrap", "blockbootstrap",
@@ -710,7 +737,7 @@ ridge2f <- function(y,
       return(structure(out, class = "forecast"))
     }
 
-    return(structure(out, class = "mtsforecast"))
+    return(structure(out, class = c("mtsforecast", "forecast")))
   }
 
   if (identical(type_pi, "rvinecopula"))
@@ -914,7 +941,7 @@ ridge2f <- function(y,
     }
 
 
-    return(structure(out, class = "mtsforecast"))
+    return(structure(out, class = c("mtsforecast", "forecast")))
   }
 
 }

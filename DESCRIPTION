@@ -7,11 +7,16 @@ Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
 Description: Univariate and multivariate time series forecasting with uncertainty quantification.
 License: BSD_3_clause Clear + file LICENSE
-Imports: Rcpp (>= 1.0.6), misc, devtools
-LinkingTo: Rcpp
-RoxygenNote: 7.3.2
-Encoding: UTF-8
-Depends: R (>= 3.5.0), foreach, snow, forecast, ggplot2, tseries, randtoolbox, vars
+Imports: 
+    Rcpp (>= 1.0.6),
+    misc,
+    foreach,
+    snow,
+    forecast (>= 8.0),
+    ggplot2 (>= 3.0.0),
+    tseries,
+    randtoolbox (>= 1.17)
+Depends: R (>= 3.5.0)
 Suggests: 
     caret,
     dfoptim,
@@ -19,13 +24,16 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    forecast, 
-    ForecastComb, 
+    ForecastComb,
     fpp,
     glmnet,
     e1071,
     randomForest,
+    vars,
     roxygen2
+LinkingTo: Rcpp
+RoxygenNote: 7.3.2
+Encoding: UTF-8
 Roxygen: list(markdown = TRUE)    
 VignetteBuilder: knitr
 Remotes: thierrymoudiki/misc
