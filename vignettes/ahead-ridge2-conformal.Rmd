@@ -1,0 +1,76 @@
+---
+title: "Prediction intervals for multivariate time series (simulation-based)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Prediction intervals for multivariate time series (simulation-based)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+library(ahead)
+```
+
+# Univariate 
+
+## AirPassengers
+
+```{r}
+plot(ahead::ridge2f(AirPassengers, h=20L, lags=20L, type_pi="conformal-split"))
+```
+
+```{r}
+plot(ahead::ridge2f(AirPassengers, h=20L, lags=20L, type_pi="conformal-block-bootstrap"))
+```
+
+```{r}
+plot(ahead::ridge2f(AirPassengers, h=20L, lags=20L, type_pi="conformal-bootstrap"))
+```
+
+## USAccDeaths
+
+```{r}
+plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-split"))
+```
+
+```{r}
+plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-block-bootstrap"))
+```
+
+```{r}
+plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-bootstrap"))
+```
+
+
+# Multivariate
+
+```{r}
+obj <- ahead::ridge2f(fpp::insurance, 
+                      h=10L, lags=2L, 
+                      type_pi = "conformal-split")
+
+
+plot(obj, "Quotes")
+plot(obj, "TV.advert")
+```
+
+
+```{r, fig.width=7.5}
+obj <- ahead::ridge2f(fpp::insurance, 
+                      h=10L, lags=2L, 
+                      type_pi = "conformal-block-bootstrap")
+
+
+plot(obj, "Quotes")
+plot(obj, "TV.advert")
+```
+
+```{r, fig.width=7.5}
+obj <- ahead::ridge2f(fpp::insurance, 
+                      h=10L, lags=2L, 
+                      type_pi = "conformal-bootstrap")
+
+
+plot(obj, "Quotes")
+plot(obj, "TV.advert")
+```

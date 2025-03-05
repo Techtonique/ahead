@@ -73,7 +73,7 @@ n = 100L, block_size = 5) {
   
   if (method == "bootstrap") {
     # Simple resampling with replacement
-    return(data[sample(1:n_rows, size = n, replace = TRUE), ])    
+    return(data[sample(seq_len(n_rows), size = n, replace = TRUE), ])    
   } 
   
   if (method == "block-bootstrap") {
