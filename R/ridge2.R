@@ -199,12 +199,9 @@ ridge2f <- function(y,
   if (!is.null(xreg))
   {
     if (is.null(ncol(xreg)))
-      xreg <- as.matrix(xreg)[seq_len(nrow(y)),]
-
-    #stopifnot(identical(nrow(xreg), nrow(y)))
+      xreg <- matrix(xreg, ncol=1)
 
     use_xreg <- TRUE
-
     n_xreg <- dim(xreg)[2]
     colnames_xreg <- colnames(xreg)
     if (is.null(colnames_xreg))
@@ -323,6 +320,36 @@ ridge2f <- function(y,
        } else {
         quantile_absolute_residuals_conformal <- quantile(abs(calibrated_residuals), probs = level/100)
        }
+       
+      # Create output with proper time series attributes
+      out <- list(
+        mean = ts(preds, start = start_preds, frequency = freq_x),
+        lower = ts(preds - quantile_absolute_residuals_conformal, 
+                  start = start_preds, frequency = freq_x),
+        upper = ts(preds + quantile_absolute_residuals_conformal, 
+                  start = start_preds, frequency = freq_x),
+        sims = NULL,
+        x = y,
+        level = level,
+        method = "ridge2",
+        residuals = ts(calibrated_residuals, start = start_x, frequency = freq_x),
+        coefficients = fit_obj_train$coef,
+        loocv = NULL,
+        weighted_loocv = NULL, 
+        loocv_per_series = NULL
+      )
+
+      # Handle univariate case
+      if (dimensionality == "univariate") {
+        for (i in 1:length(out)) {
+          try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"), silent = TRUE)
+          if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]])) {
+            out[[i]] <- try_delete_trend
+          }
+        }
+        return(structure(out, class = "forecast"))
+      }
+      return(structure(out, class = "mtsforecast"))
     }
 
     if (type_pi %in% c("conformal-bootstrap", "conformal-block-bootstrap")) {
@@ -401,7 +428,7 @@ ridge2f <- function(y,
         x = y,
         level = level,
         method = "ridge2",
-        residuals = ts(calibrated_residuals, start = start_x),
+        residuals = ts(calibrated_residuals, start = start_x, frequency = freq_x),
         coefficients = fit_obj_train$coef,
         loocv = NULL,
         weighted_loocv = NULL,
@@ -419,67 +446,7 @@ ridge2f <- function(y,
         return(structure(out, class = "forecast"))
       }
       return(structure(out, class = "mtsforecast"))
-    } else { # type_pi == "conformal-split"
-      out <- list(
-        mean = ts(preds, start = start_preds, frequency = freq_x),
-        lower = ts(preds - quantile_absolute_residuals_conformal, start = start_preds, frequency = freq_x),
-        upper = ts(preds + quantile_absolute_residuals_conformal, start = start_preds, frequency = freq_x),
-        sims = NULL,
-        x = y,
-        level = level,
-        method = "ridge2",
-        residuals = calibrated_residuals,
-        coefficients = fit_obj_train$coef,
-        loocv = NULL,
-        weighted_loocv = NULL, 
-        loocv_per_series = NULL
-      )
-      # Handle univariate case
-      if (dimensionality == "univariate") {
-        for (i in 1:length(out)) {
-          try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"), silent = TRUE)
-          if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]])) {
-            out[[i]] <- try_delete_trend
-          }
-        }
-        return(structure(out, class = "forecast"))
-      }
-      return(structure(out, class = "mtsforecast"))
     }
-    
-    # Create output with conformal intervals (now using matrix operations)
-    preds_matrix <- matrix(as.numeric(preds), ncol = ncol(y))
-    lower_matrix <- sweep(preds_matrix, 2, quantile_absolute_residuals_conformal, "-")
-    upper_matrix <- sweep(preds_matrix, 2, quantile_absolute_residuals_conformal, "+")
-
-    out <- list(
-      mean = preds,
-      lower = ts(lower_matrix, start = tsp(preds)[1], frequency = tsp(preds)[3]),
-      upper = ts(upper_matrix, start = tsp(preds)[1], frequency = tsp(preds)[3]),
-      sims = NULL,
-      x = y,
-      level = level,
-      method = "ridge2",
-      residuals = ts(abs_residuals, start = start_x),
-      coefficients = fit_obj_train$coef,
-      loocv = fit_obj_train$loocv,
-      weighted_loocv = fit_obj_train$weighted_loocv, 
-      loocv_per_series = fit_obj_train$loocv_per_series
-    )
-
-    # Handle univariate case
-    if (dimensionality == "univariate") {
-      for (i in 1:length(out)) {
-        try_delete_trend <- try(delete_columns(out[[i]], "trend_univariate"),
-                               silent = TRUE)
-        if (!inherits(try_delete_trend, "try-error") && !is.null(out[[i]])) {
-          out[[i]] <- try_delete_trend
-        }
-      }
-      return(structure(out, class = "forecast"))
-    }
-
-    return(structure(out, class = c("mtsforecast", "forecast")))
   }
 
   if (identical(type_pi, "gaussian"))
@@ -546,7 +513,7 @@ ridge2f <- function(y,
       return(structure(out, class = "forecast"))
     }
 
-    return(structure(out, class = c("mtsforecast", "forecast")))
+    return(structure(out, class = "mtsforecast"))
   }
 
   if (type_pi %in% c("bootstrap", "blockbootstrap",
@@ -756,7 +723,8 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       residuals = ts(fit_obj$resids,
-                     start = start_x),
+                     start = start_x, 
+                     frequency = freq_x),
       loocv = fit_obj$loocv,
       weighted_loocv = fit_obj$weighted_loocv,
       loocv_per_series = fit_obj$loocv_per_series
@@ -829,7 +797,7 @@ ridge2f <- function(y,
       return(structure(out, class = "forecast"))
     }
 
-    return(structure(out, class = c("mtsforecast", "forecast")))
+    return(structure(out, class = "mtsforecast"))
   }
 
   if (identical(type_pi, "rvinecopula"))
@@ -957,7 +925,8 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       residuals = ts(fit_obj$resids,
-                     start = start_x),
+                     start = start_x, 
+                     frequency = freq_x),
       copula = fit_obj$params_distro,
       margins = margins,
       loocv = fit_obj$loocv,
@@ -1033,7 +1002,7 @@ ridge2f <- function(y,
     }
 
 
-    return(structure(out, class = c("mtsforecast", "forecast")))
+    return(structure(out, class = "mtsforecast"))
   }
 
 }
