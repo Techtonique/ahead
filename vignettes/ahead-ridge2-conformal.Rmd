@@ -15,36 +15,36 @@ library(ahead)
 
 ## AirPassengers
 
-```{r}
+```{r, fig.width=5}
 plot(ahead::ridge2f(AirPassengers, h=20L, lags=20L, type_pi="conformal-split"))
 ```
 
-```{r}
+```{r, fig.width=5}
 plot(ahead::ridge2f(AirPassengers, h=20L, lags=20L, type_pi="conformal-block-bootstrap"))
 ```
 
-```{r}
+```{r, fig.width=5}
 plot(ahead::ridge2f(AirPassengers, h=20L, lags=20L, type_pi="conformal-bootstrap"))
 ```
 
 ## USAccDeaths
 
-```{r}
+```{r, fig.width=5}
 plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-split"))
 ```
 
-```{r}
+```{r, fig.width=5}
 plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-block-bootstrap"))
 ```
 
-```{r}
+```{r, fig.width=5}
 plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-bootstrap"))
 ```
 
 
 # Multivariate
 
-```{r}
+```{r, fig.width=5}
 obj <- ahead::ridge2f(fpp::insurance, 
                       h=10L, lags=2L, 
                       type_pi = "conformal-split")
@@ -57,7 +57,8 @@ plot(obj, "TV.advert")
 
 ```{r, fig.width=7.5}
 obj <- ahead::ridge2f(fpp::insurance, 
-                      h=10L, lags=2L, 
+                      n_hidden_features = 0L, 
+                      h=10L, lags=1L, 
                       type_pi = "conformal-block-bootstrap")
 
 
