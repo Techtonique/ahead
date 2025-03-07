@@ -638,13 +638,24 @@ predict_myridge <- function(fit_obj, newx)
 
 # Quantile split conformal prediction -----
 #'
+#' @param abs_residuals Vector of absolute residuals from calibration set
+#' @param alpha Significance level (e.g. 0.1 for 90% coverage)
+#' @return Conformal score for prediction intervals
 #' @export
 #'
-quantile_scp <- function(abs_residuals, alpha)
-{
+quantile_scp <- function(abs_residuals, alpha) {
+  if (!is.numeric(abs_residuals) || any(is.na(abs_residuals))) {
+    stop("abs_residuals must be numeric and cannot contain NAs")
+  }
+  if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1) {
+    stop("alpha must be between 0 and 1")
+  }
+  
   n_cal_points <- length(abs_residuals)
-  k <- ceiling((0.5*n_cal_points + 1)*(1 - alpha))
-  return(rank(abs_residuals)[k])
+  # Use ceiling((n+1)(1-alpha)) for valid coverage
+  k <- ceiling((n_cal_points + 1) * (1 - alpha))
+  # Return kth smallest absolute residual
+  sort(abs_residuals, partial = k)[k]
 }
 
 # Remove_zero_cols -----
