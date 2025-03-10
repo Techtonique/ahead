@@ -1,3 +1,8 @@
+# version 0.17.0
+
+- Add conformal prediction to `ridge2f` (with KDE, bootstrap, block bootstrap and sequential split conformal prediction)
+- Faster install, less imports 
+
 # version 0.14.0
 
 - Add `fit_func` and `predict_func` for custom fitting and prediction functions of `ahead::dynrmf` (using `caret` Machine Learning).

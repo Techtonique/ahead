@@ -1,0 +1,57 @@
+---
+title: "Generalized Linear Model Theta Forecast"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generalized Linear Model Theta Forecast}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# USAccDeaths
+
+```{r fig.width=7.5}
+library(forecast)
+library(ahead)
+
+plot(suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::glm.nb)))
+
+plot((ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::glm)))
+
+plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::rlm))
+
+plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=rvfl::rvfl))
+
+plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::lqs))
+```
+
+```{r fig.width=7.5}
+plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::lsfit))
+```
+
+```{r fig.width=7.5}
+plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::lm))
+```
+
+# AirPassengers
+
+```{r fig.width=5.5}
+plot(suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::glm.nb)))
+
+plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::glm))
+
+plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::rlm))
+
+plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=rvfl::rvfl))
+```
+
+```{r fig.width=5.5}
+plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::lsfit))
+```
+
+```{r fig.width=5.5}
+plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::lm))
+```
+
+```{r fig.width=5.5}
+plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::lqs))
+```

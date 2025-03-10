@@ -1,11 +1,13 @@
 ---
-title: "Prediction intervals for multivariate time series (simulation-based)"
+title: "Conformal Prediction using Ridge2"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Prediction intervals for multivariate time series (simulation-based)}
+  %\VignetteIndexEntry{Conformal Prediction using Ridge2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+**Ridge2** is a uni/multivariate nonlinear probabilistic time series model originally presented in [Multiple Time Series Forecasting Using Quasi-Randomized Functional Link Neural Networks](https://www.mdpi.com/2227-9091/6/1/22).
 
 ```{r}
 library(ahead)

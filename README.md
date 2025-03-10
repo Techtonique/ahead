@@ -3,19 +3,20 @@
 
 Univariate and multivariate time series forecasting, with uncertainty quantification.
 
-[![ahead status badge](https://techtonique.r-universe.dev/badges/ahead)](https://techtonique.r-universe.dev/ahead) [![HitCount](https://hits.dwyl.com/Techtonique/ahead.svg?style=flat-square)](http://hits.dwyl.com/Techtonique/ahead) [![Documentation](https://img.shields.io/badge/documentation-is_here-green)](https://techtonique.github.io/ahead/index.html)
+[![Documentation](https://img.shields.io/badge/documentation-is_here-green)](https://techtonique.github.io/ahead/index.html)
 
 
-### Installation for R (Python is [here](https://github.com/Techtonique/ahead_python))
+### Installation
 
-- __1st method__: from [R-universe](https://techtonique.r-universe.dev)
+- __1st method__, released version: from [Techtonique's R package's repository](https://r-packages.techtonique.net)
 
     In R console:
     
     ```R
     options(repos = c(
-        techtonique = 'https://techtonique.r-universe.dev',
-        CRAN = 'https://cloud.r-project.org'))
+                    techtonique = "https://r-packages.techtonique.net",
+                    CRAN = "https://cloud.r-project.org"
+                ))            
         
     install.packages("ahead")
     ```
