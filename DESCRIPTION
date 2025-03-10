@@ -28,6 +28,8 @@ Suggests:
     fpp,
     glmnet,
     e1071,
+    gam,
+    quantreg,
     randomForest,
     vars,
     roxygen2

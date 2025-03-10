@@ -13,45 +13,81 @@ vignette: >
 library(forecast)
 library(ahead)
 
-plot(suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::glm.nb)))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::glm.nb)))
 
-plot((ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::glm)))
+plot(obj)
 
-plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::rlm))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::glm)))
+plot(obj)
 
-plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=rvfl::rvfl))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::rlm)))
+plot(obj)
 
-plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::lqs))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=rvfl::rvfl)))
+plot(obj)
+
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::lqs)))
+plot(obj)
 ```
 
 ```{r fig.width=7.5}
-plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::lsfit))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::lsfit)))
+plot(obj)
 ```
 
 ```{r fig.width=7.5}
-plot(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::lm))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::lm)))
+plot(obj)
+```
+
+```{r fig.width=7.5}
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=gam::gam)))
+plot(obj)
+```
+
+```{r fig.width=7.5}
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=quantreg::rq)))
+plot(obj)
 ```
 
 # AirPassengers
 
 ```{r fig.width=5.5}
-plot(suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::glm.nb)))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::glm.nb)))
+plot(obj)
 
-plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::glm))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::glm)))
+plot(obj)
 
-plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::rlm))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::rlm)))
+plot(obj)
 
-plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=rvfl::rvfl))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=rvfl::rvfl)))
+plot(obj)
 ```
 
 ```{r fig.width=5.5}
-plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::lsfit))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::lsfit)))
+plot(obj)
 ```
 
 ```{r fig.width=5.5}
-plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::lm))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::lm)))
+plot(obj)
 ```
 
 ```{r fig.width=5.5}
-plot(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::lqs))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::lqs)))
+plot(obj)
 ```
+
+```{r fig.width=5.5}
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=gam::gam)))
+plot(obj)
+```
+
+```{r fig.width=5.5}
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=quantreg::rq)))
+plot(obj)
+```
+
