@@ -22,7 +22,7 @@ Compute global attention weights and context vectors for time series
 \examples{
 # For a series of length 5
 series <- c(1, 2, 3, 4, 5)
-result <- compute_attention(series)
+result <- computeattention(series)
 
 # attention_weights will be 5x5 matrix
 # context_vectors will be length 5

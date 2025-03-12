@@ -11,6 +11,7 @@ glmthetaf(
   fit_func = lsfit,
   fan = FALSE,
   x = y,
+  attention = FALSE,
   ...
 )
 }
@@ -26,6 +27,8 @@ glmthetaf(
 \item{fan}{Logical flag for fan plot}
 
 \item{x}{The time series data}
+
+\item{attention}{Logical flag for using attention mechanism}
 
 \item{...}{Additional arguments to pass to the fit_func}
 }
