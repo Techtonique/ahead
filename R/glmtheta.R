@@ -10,12 +10,76 @@
 #' @param ... Additional arguments to pass to the fit_func
 #' @return A forecast object
 #' @export
-glmthetaf <- function (y, h = ifelse(frequency(y) > 1, 2 * frequency(y), 10), 
-                       level = c(80, 95), fit_func = lsfit, fan = FALSE, x = y, 
-                       attention = FALSE, method=c("base", "adj"),
+glmthetaf <- function (y, 
+                       h = ifelse(frequency(y) > 1, 2 * frequency(y), 10), 
+                       level = 95, 
+                       fit_func = lsfit, 
+                       fan = FALSE, 
+                       x = y, 
+                       type_pi = c(
+                         "gaussian",
+                         "conformal-split"
+                       ),
+                       attention = FALSE, 
+                       method = c("base", "adj"),
                        ...) 
 {
   method <- match.arg(method) 
+  type_pi <- match.arg(type_pi)
+  if (grepl("conformal", type_pi) >= 1) # not conformal
+  {
+    stopifnot(length(level) == 1)
+    freq_x <- frequency(y)
+    start_x <- start(y)
+    start_preds <- tsp(y)[2] + 1 / freq_x
+    # Split the training data
+    y_train_calibration <- splitts(y, split_prob=0.5)
+    y_train <- y_train_calibration$training 
+    y_calibration <- y_train_calibration$testing
+    h_calibration <- length(y_calibration)
+    # Get predictions on calibration set
+    y_pred_calibration <- ahead::glmthetaf(
+      y_train,
+      h = h_calibration,
+      fit_func = fit_func, 
+      attention = attention,
+      method = method 
+    )$mean
+    # Final fit and forecast on full calibration set
+    fit_obj_train <- ahead::glmthetaf(
+      y_calibration, 
+      h = h,
+      fit_func = fit_func,
+      attention = attention,
+      method = method 
+    )
+    preds <- fit_obj_train$mean
+    calibrated_residuals <- y_calibration - y_pred_calibration
+    scaled_calibrated_residuals <- base::scale(calibrated_residuals)
+    sd_calibrated_residuals <- sd(calibrated_residuals)
+  
+    if (type_pi == "conformal-split") {
+        quantile_absolute_residuals_conformal <- quantile(abs(scaled_calibrated_residuals), 
+                                                          probs = level/100)
+      # Create output with proper time series attributes
+      out <- list(
+        mean = ts(preds, start = start_preds, frequency = freq_x),
+        lower = ts(preds - sd_calibrated_residuals*quantile_absolute_residuals_conformal, 
+                   start = start_preds, frequency = freq_x),
+        upper = ts(preds + sd_calibrated_residuals*quantile_absolute_residuals_conformal, 
+                   start = start_preds, frequency = freq_x),
+        sims = NULL,
+        x = y,
+        level = level,
+        method = "ConformalTheta",
+        residuals = ts(calibrated_residuals, 
+                       start = start(y), 
+                       frequency = freq_x)
+      )
+      return(structure(out, class = "forecast"))
+    }
+  }
+  
   if (fan) {
     level <- seq(51, 99, by = 3)
   }
@@ -117,6 +181,8 @@ glmthetaf <- function (y, h = ifelse(frequency(y) > 1, 2 * frequency(y), 10),
    
   if (method == 'base')
   {
+    context_vectors <- ahead::computeattention(x)$context_vectors
+    last_context <- tail(context_vectors, 1)
     time_coef <- try(coef(tmp2)[2], silent = TRUE)
     ctx_coef <- try(coef(tmp2)[3], silent = TRUE)
     if (inherits(time_coef, "try-error") || inherits(ctx_coef, "try-error")) {
@@ -125,7 +191,9 @@ glmthetaf <- function (y, h = ifelse(frequency(y) > 1, 2 * frequency(y), 10),
     }
     tmp2 <- time_coef/2  # Only divide time coefficient by 2 as per theta method
     ctx_effect <- ctx_coef  # Keep context coefficient as is
-    fcast$mean <- fcast$mean + tmp2 * (0:(h-1) + (1-(1-alpha)^n)/alpha)
+    # Apply modified drift to forecast
+    # Modify drift based on context
+    fcast$mean <- fcast$mean + tmp2 * ((0:(h - 1)) + (1-(1-alpha)^n)/alpha)
   } else { # method == "adj"
     context_vectors <- ahead::computeattention(x)$context_vectors
     last_context <- tail(context_vectors, 1)
