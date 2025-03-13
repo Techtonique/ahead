@@ -13,15 +13,15 @@
 glmthetaf <- function (y, 
                        h = ifelse(frequency(y) > 1, 2 * frequency(y), 10), 
                        level = 95, 
-                       fit_func = lsfit, 
+                       fit_func = stats::glm, 
                        fan = FALSE, 
                        x = y, 
                        type_pi = c(
-                         "gaussian",
-                         "conformal-split"
+                         "conformal-split",
+                         "gaussian"
                        ),
                        attention = FALSE, 
-                       method = c("base", "adj"),
+                       method = c("adj", "base"),
                        ...) 
 {
   method <- match.arg(method) 
@@ -43,7 +43,8 @@ glmthetaf <- function (y,
       h = h_calibration,
       fit_func = fit_func, 
       attention = attention,
-      method = method 
+      method = method,
+      type_pi = "gaussian"
     )$mean
     # Final fit and forecast on full calibration set
     fit_obj_train <- ahead::glmthetaf(
@@ -51,7 +52,8 @@ glmthetaf <- function (y,
       h = h,
       fit_func = fit_func,
       attention = attention,
-      method = method 
+      method = method,
+      type_pi = "gaussian" 
     )
     preds <- fit_obj_train$mean
     calibrated_residuals <- y_calibration - y_pred_calibration
@@ -142,19 +144,46 @@ glmthetaf <- function (y,
       }
     }
     tmp2 <- slope/2  # Divide by 2 as per theta method
+    fcast$mean <- fcast$mean + tmp2 * (0:(h - 1) + (1 - (1 - 
+                                                           alpha)^n)/alpha)
+    if (seasonal) {
+      fcast$mean <- fcast$mean * rep(tail(decomp$seasonal, 
+                                          m), trunc(1 + h/m))[1:h]
+      fcast$fitted <- fcast$fitted * decomp$seasonal
+    }
+    fcast$residuals <- origx - fcast$fitted
+    fcast.se <- sqrt(fcast$model$sigma2) * sqrt((0:(h - 1)) * 
+                                                  alpha^2 + 1)
+    nconf <- length(level)
+    fcast$lower <- fcast$upper <- ts(matrix(NA, nrow = h, ncol = nconf))
+    tsp(fcast$lower) <- tsp(fcast$upper) <- tsp(fcast$mean)
+    for (i in 1:nconf) {
+      zt <- -qnorm(0.5 - level[i]/200)
+      fcast$lower[, i] <- fcast$mean - zt * fcast.se
+      fcast$upper[, i] <- fcast$mean + zt * fcast.se
+    }
+    fcast$x <- origx
+    fcast$level <- level
+    fcast$method <- "Theta"
+    fcast$model <- list(alpha = alpha, drift = tmp2, sigma = fcast$model$sigma2)
+    fcast$model$call <- match.call()
+    return(fcast)
   } else { # attention is TRUE
+      
       if (method == "base")
       {
+        misc::debug_print(method)
         df <- cbind.data.frame(df, ctx = ahead::computeattention(x)$context_vectors)
-        tmp2 <- try(fit_func(y ~ ., data = df, ...), silent = FALSE)
+        tmp2 <- try(fit_func(y ~ ., data = df, ...), silent = TRUE)
         if (inherits(tmp2, "try-error")) {
           X <- cbind.data.frame(time_idx, df$ctx)
-          tmp2 <- try(fit_func(x = as.matrix(X), y = as.numeric(x), ...), silent = FALSE)
+          tmp2 <- try(fit_func(x = as.matrix(X), y = as.numeric(x), ...), silent = TRUE)
           if (inherits(tmp2, "try-error")) {
             stop("Unable to fit linear trend with attention")
           }
         }
       } else { # method == "adj": same as attention == FALSE to avoid adjusting the trend twice
+        misc::debug_print(method)
         tmp2 <- try(fit_func(y ~ t, data = df, ...), silent = TRUE)
         if (inherits(tmp2, "try-error")) {
           # For matrix interface, include intercept term for methods like glmnet
