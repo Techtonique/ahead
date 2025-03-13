@@ -20,7 +20,7 @@ glmthetaf <- function (y,
                          "conformal-split",
                          "gaussian"
                        ),
-                       attention = FALSE, 
+                       attention = TRUE, 
                        method = c("adj", "base"),
                        ...) 
 {
