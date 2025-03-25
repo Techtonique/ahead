@@ -210,7 +210,7 @@ glmthetaf <- function (y,
    
   if (method == 'base')
   {
-    context_vectors <- ahead::computeattention(x)$context_vectors
+    context_vectors <- log(ahead::computeattention(x)$context_vectors)
     last_context <- tail(context_vectors, 1)
     time_coef <- try(coef(tmp2)[2], silent = TRUE)
     ctx_coef <- try(coef(tmp2)[3], silent = TRUE)
@@ -220,9 +220,19 @@ glmthetaf <- function (y,
     }
     tmp2 <- time_coef/2  # Only divide time coefficient by 2 as per theta method
     ctx_effect <- ctx_coef  # Keep context coefficient as is
+    context_vectors <- log(ahead::computeattention(x)$context_vectors)
     # Apply modified drift to forecast
-    # Modify drift based on context
-    fcast$mean <- fcast$mean + tmp2 * ((0:(h - 1)) + (1-(1-alpha)^n)/alpha)
+    fcast$mean[1] <- fcast$mean[1] + tmp2 * ((1-(1-alpha)^n)/alpha) + ctx_effect*context_vectors
+    newx <- c(y, fcast$mean[1])
+    for (i in 2:h)
+    {
+      context_vectors <- log(ahead::computeattention(newx)$context_vectors)
+      # Modify drift based on context
+      fcast$mean[i] <- fcast$mean[i] + tmp2 * ((i - 1) + (1-(1-alpha)^n)/alpha) + ctx_effect*context_vectors
+      newx <- c(newx, fcast$mean[i])
+    }
+    
+    
   } else { # method == "adj"
     context_vectors <- ahead::computeattention(x)$context_vectors
     last_context <- tail(context_vectors, 1)
