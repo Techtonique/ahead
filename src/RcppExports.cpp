@@ -10,6 +10,29 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// compute_attention_cpp
+NumericMatrix compute_attention_cpp(NumericVector series);
+RcppExport SEXP _ahead_compute_attention_cpp(SEXP seriesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_attention_cpp(series));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_context_vectors_cpp
+NumericVector compute_context_vectors_cpp(NumericVector series, NumericMatrix attention_weights);
+RcppExport SEXP _ahead_compute_context_vectors_cpp(SEXP seriesSEXP, SEXP attention_weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type attention_weights(attention_weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_context_vectors_cpp(series, attention_weights));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_innovs_loop_cpp
 NumericVector forecast_innovs_loop_cpp(NumericVector eps, NumericVector rts, double eps_prev, double omega, double alpha, double beta, unsigned int df, unsigned int h);
 RcppExport SEXP _ahead_forecast_innovs_loop_cpp(SEXP epsSEXP, SEXP rtsSEXP, SEXP eps_prevSEXP, SEXP omegaSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP dfSEXP, SEXP hSEXP) {
@@ -107,6 +130,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_ahead_compute_attention_cpp", (DL_FUNC) &_ahead_compute_attention_cpp, 1},
+    {"_ahead_compute_context_vectors_cpp", (DL_FUNC) &_ahead_compute_context_vectors_cpp, 2},
     {"_ahead_forecast_innovs_loop_cpp", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp, 8},
     {"_ahead_forecast_innovs_loop_cpp2", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp2, 8},
     {"_ahead_create_lags_cpp", (DL_FUNC) &_ahead_create_lags_cpp, 2},

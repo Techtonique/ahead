@@ -44,23 +44,21 @@ There are multiple MTS forecasting models available in [\textsf{R} package](http
 
 ## Install `ahead` in \textsf{R}
 
-```r
-options(repos = c(
-                    techtonique = "https://r-packages.techtonique.net",
-                    CRAN = "https://cloud.r-project.org"
-                ))
-utils::install.packages("rmarkdown", repos = c(CRAN="https://cloud.r-project.org"))
-utils::install.packages("remotes", repos = c(CRAN="https://cloud.r-project.org"))
-utils::install.packages("forecast", repos = c(CRAN="https://cloud.r-project.org"))
-utils::install.packages("fpp", repos = c(CRAN="https://cloud.r-project.org"))
-utils::install.packages("ggplot2", repos = c(CRAN="https://cloud.r-project.org"))
-utils::install.packages("e1071", repos = c(CRAN="https://cloud.r-project.org"))
-utils::install.packages("randomForest", repos = c(CRAN="https://cloud.r-project.org"))
-utils::install.packages("dfoptim", repos = c(CRAN="https://cloud.r-project.org"))
+```{r cache=TRUE}
+options(repos = c(techtonique = "https://r-packages.techtonique.net",
+                    CRAN = "https://cloud.r-project.org"))
+utils::install.packages("rmarkdown")
+utils::install.packages("remotes")
+utils::install.packages("forecast")
+utils::install.packages("fpp")
+utils::install.packages("ggplot2")
+utils::install.packages("e1071")
+utils::install.packages("randomForest")
+utils::install.packages("dfoptim")
 utils::install.packages("ahead")
 ```
 
-```r
+```{r cache=TRUE}
 library(ahead)
 library(forecast)
 library(ggplot2)
@@ -76,23 +74,21 @@ In all the examples presented below, default hyperparameters are used: 5 nodes i
 
 The `fdeaths` data set below contains **monthly deaths of females from various diseases in the UK, 1974-1979**. Here's how to obtain 20-steps-ahead forecasts for `fdeaths` with `ahead::ridge2f`; including seasonality terms. The default level for the prediction interval is equal to 95%.
 
-```r
+```{r warning=FALSE, message=FALSE}
 x <- fdeaths # input dataset
 xreg <- ahead::createtrendseason(x) # add seasonality and trend
 z <- ahead::ridge2f(x, xreg = xreg, h=20L) # forecasting h-steps ahead
 ```
 
-```r
+```{r warning=FALSE, message=FALSE}
 ggplot2::autoplot(z) # plot forecast
 ```
-    
-![Prediction intervals for `ahead::ridge2f` model on mortality data](paper_files/paper_11_0.png)
-    
+        
 
 `EuStocksLogReturns` contains the daily log-returns of major European stock indices, with 1860 observations. Only the first 100 dates of the DAX index dataset are used in the example below.
 
 
-```r
+```{r warning=FALSE, message=FALSE}
 data(EuStockMarkets)
 EuStocks <- ts(EuStockMarkets[1:100, ],
                start = start(EuStockMarkets),
@@ -103,12 +99,10 @@ type_pi = "movingblockbootstrap",
                         show_progress = FALSE)
 ```
 
-```r
+```{r warning=FALSE, message=FALSE}
 ggplot2::autoplot(res) # plot forecast
 ```
-    
-![Prediction intervals for `ahead::ridge2f` model on stocks log-returns](paper_files/paper_14_0.png)
-    
+        
 
 ### Use `ahead::dynrmf` for univariate time series forecasting
 
@@ -116,7 +110,7 @@ ggplot2::autoplot(res) # plot forecast
 
 **- Forecasting with `randomForest::randomForest`**
 
-```r
+```{r warning=FALSE, message=FALSE}
 # Plotting forecasts
 # With Random Forest regressor, horizon of 20,
 # 95% prediction interval
@@ -124,16 +118,14 @@ fit_rf <- ahead::dynrmf(fdeaths, h=20, level=95, fit_func = randomForest::random
       fit_params = list(ntree = 50), predict_func = predict)
 ```
 
-```r
+```{r warning=FALSE, message=FALSE}
 ggplot2::autoplot(fit_rf)
 ```
-    
-![Prediction intervals for `ahead::dynrmf` model on mortality data](paper_files/paper_17_0.png)
-    
+        
 
 Check in-sample residuals:
 
-```r
+```{r warning=FALSE, message=FALSE}
 forecast::checkresiduals(fit_rf)
 ```
 
@@ -146,28 +138,25 @@ forecast::checkresiduals(fit_rf)
     Model df: 0.   Total lags used: 12
     
     
-![Residuals diagnostics for `ahead::dynrmf` model on mortality data](paper_files/paper_19_1.png)
     
 
 **- Forecasting with `e1071::svm`** (Support Vector Machines)
 
-```r
+```{r warning=FALSE, message=FALSE}
 # With Support Vector Machine regressor, horizon of 20,
 # 95% prediction interval
 fit_svm <- ahead::dynrmf(fdeaths, h=20, level=95, fit_func = e1071::svm,
 fit_params = list(kernel = "linear"), predict_func = predict)
 ```
 
-```r
+```{r warning=FALSE, message=FALSE}
 ggplot2::autoplot(fit_svm)
 ```
-
-![Prediction intervals for `ahead::dynrmf` model on mortality data (using Support Vector Machines regression)](paper_files/paper_22_0.png)
     
 
 Check in-sample residuals:
 
-```r
+```{r warning=FALSE, message=FALSE}
 forecast::checkresiduals(fit_svm)
 ```
 
@@ -179,13 +168,12 @@ forecast::checkresiduals(fit_svm)
     
     Model df: 0.   Total lags used: 12
     
-![Residuals diagnostics for `ahead::dynrmf` model on mortality data (using Support Vector Machines regression)](paper_files/paper_24_1.png)
     
 **- Use of an external regressor** (trend)
 
 The `AirPassengers` dataset has been widely tested as a specialized benchmark in forecasting literature because it displays trend, seasonality, and heteroskedasticity.
 
-```r
+```{r warning=FALSE, message=FALSE}
 h <- 20L # forecasting horizon
 res6 <- ahead::dynrmf(AirPassengers, 
 xreg_fit = 1:length(AirPassengers),
@@ -194,7 +182,6 @@ h=h)
 ggplot2::autoplot(res6)
 ```
     
-![Prediction intervals for `ahead::dynrmf` model on `AirPassengers`](paper_files/paper_26_0.png)
     
 
 ### `ahead::ridge2f` for MTS forecasting
@@ -202,7 +189,7 @@ ggplot2::autoplot(res6)
 The `insurance` dataset (@hyndman2013forecasting) contains monthly quotations and television advertising expenditure for a US insurance company from January 2002 to April 2005. Fast calibration of `ahead::ridge2f` relies on generalized leave-one-out cross-validation as it will be shown in the following \textsf{R} example. It's worth mentioning that **only the 2 regularization parameters are calibrated** here. Other model's hyperparameters such as the number of time series lags or the number of nodes in the hidden layer are set to their default values (respectively `1` and `5`).
 
 
-```r
+```{r warning=FALSE, message=FALSE}
 objective_function <- function(xx)
 {
     ahead::loocvridge2f(fpp::insurance,
@@ -225,7 +212,7 @@ print(proc.time()[3]-start)
 
 The `plot` method (an [S3 method](https://cran.r-project.org/doc/manuals/R-exts.html#Registering-S3-methods)) from `ahead` is used to visualize the predictive simulations and prediction intervals for the `Quotes` and `TV.advert` time series.
 
-```r
+```{r warning=FALSE, message=FALSE}
 start <- proc.time()[3]
 res <- ahead::ridge2f(fpp::insurance, h = 20L,
                       type_pi="blockbootstrap",
@@ -245,8 +232,6 @@ main = "prediction intervals")
 plot(res, "TV.advert", type = "dist",
 main = "prediction intervals")
 ```
-    
-![Probabilistic (through simulation) Multivariate forecasting using `ahead::ridge2f`](paper_files/paper_30_1.png)
-    
+        
 
 # Citations

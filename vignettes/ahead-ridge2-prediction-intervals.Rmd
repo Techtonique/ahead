@@ -42,13 +42,13 @@ knitr::opts_chunk$set(
 
 Here's how to install the R version of the package:
 
--   **1st method**: from [R-universe](https://techtonique.r-universe.dev)
+-   **1st method**: from [R-universe](https://r-packages.techtonique.net)
 
     In R console:
 
     ``` r
     options(repos = c(
-        techtonique = 'https://techtonique.r-universe.dev',
+        techtonique = 'https://r-packages.techtonique.net',
         CRAN = 'https://cloud.r-project.org'))
 
     install.packages("ahead")

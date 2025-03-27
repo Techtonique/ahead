@@ -1,0 +1,84 @@
+---
+title: "Conformal Prediction using Ridge2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Conformal Prediction using Ridge2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+**Ridge2** is a uni/multivariate nonlinear probabilistic time series model originally presented in [Multiple Time Series Forecasting Using Quasi-Randomized Functional Link Neural Networks](https://www.mdpi.com/2227-9091/6/1/22).
+
+```{r}
+library(ahead)
+```
+
+# Univariate 
+
+## AirPassengers
+
+```{r, fig.width=5}
+plot(ahead::ridge2f(AirPassengers, h=30L, lags=20L, type_pi="conformal-split"))
+```
+
+```{r, fig.width=5}
+plot(ahead::ridge2f(AirPassengers, h=30L, lags=20L, type_pi="conformal-block-bootstrap"))
+```
+
+```{r, fig.width=5}
+plot(ahead::ridge2f(AirPassengers, h=30L, lags=20L, type_pi="conformal-bootstrap"))
+```
+
+## USAccDeaths
+
+```{r, fig.width=5}
+plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-split"))
+```
+
+```{r, fig.width=5}
+plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-block-bootstrap"))
+```
+
+```{r, fig.width=5}
+plot(ahead::ridge2f(USAccDeaths, h=20L, lags=10L, type_pi="conformal-bootstrap"))
+```
+
+
+# Multivariate
+
+```{r, fig.width=5}
+obj <- ahead::ridge2f(fpp::insurance, 
+                      h=10L, lags=2L, 
+                      type_pi = "conformal-split")
+
+
+plot(obj, "Quotes")
+plot(obj, "TV.advert")
+```
+
+
+```{r, fig.width=7.5}
+obj <- ahead::ridge2f(fpp::insurance, 
+                      n_hidden_features = 0L, 
+                      h=10L, lags=1L, 
+                      type_pi = "conformal-block-bootstrap")
+
+
+plot(obj, "Quotes")
+plot(obj, "TV.advert")
+```
+
+```{r, fig.width=7.5}
+obj <- ahead::ridge2f(fpp::insurance, 
+                      h=10L, lags=2L, 
+                      type_pi = "conformal-bootstrap")
+
+
+plot(obj, "Quotes")
+plot(obj, "TV.advert")
+```
+
+```{r, fig.width=7.2}
+plot(obj, "Quotes", type = "dist")
+plot(obj, "TV.advert", type = "sims")
+```
