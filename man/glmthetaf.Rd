@@ -7,11 +7,13 @@
 glmthetaf(
   y,
   h = ifelse(frequency(y) > 1, 2 * frequency(y), 10),
-  level = c(80, 95),
-  fit_func = lsfit,
+  level = 95,
+  fit_func = stats::glm,
   fan = FALSE,
   x = y,
-  attention = FALSE,
+  type_pi = c("conformal-split", "gaussian"),
+  attention = TRUE,
+  method = c("adj", "base"),
   ...
 )
 }

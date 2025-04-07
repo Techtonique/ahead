@@ -172,7 +172,7 @@ glmthetaf <- function (y,
       
       if (method == "base")
       {
-        misc::debug_print(method)
+        #misc::debug_print(method)
         df <- cbind.data.frame(df, ctx = ahead::computeattention(x)$context_vectors)
         tmp2 <- try(fit_func(y ~ ., data = df, ...), silent = TRUE)
         if (inherits(tmp2, "try-error")) {
@@ -183,7 +183,7 @@ glmthetaf <- function (y,
           }
         }
       } else { # method == "adj": same as attention == FALSE to avoid adjusting the trend twice
-        misc::debug_print(method)
+        #misc::debug_print(method)
         tmp2 <- try(fit_func(y ~ t, data = df, ...), silent = TRUE)
         if (inherits(tmp2, "try-error")) {
           # For matrix interface, include intercept term for methods like glmnet
