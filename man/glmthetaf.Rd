@@ -13,6 +13,7 @@ glmthetaf(
   x = y,
   type_pi = c("conformal-split", "gaussian"),
   attention = TRUE,
+  scale_ctxt = 1,
   method = c("adj", "base"),
   ...
 )
@@ -31,6 +32,8 @@ glmthetaf(
 \item{x}{The time series data}
 
 \item{attention}{Logical flag for using attention mechanism}
+
+\item{scale_ctxt}{Scaling coefficient for context vector}
 
 \item{...}{Additional arguments to pass to the fit_func}
 }

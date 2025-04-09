@@ -7,6 +7,7 @@
 #' @param fan Logical flag for fan plot
 #' @param x The time series data
 #' @param attention Logical flag for using attention mechanism
+#' @param scale_ctxt Scaling coefficient for context vector 
 #' @param ... Additional arguments to pass to the fit_func
 #' @return A forecast object
 #' @export
@@ -21,11 +22,13 @@ glmthetaf <- function (y,
                          "gaussian"
                        ),
                        attention = TRUE, 
+                       scale_ctxt = 1,
                        method = c("adj", "base"),
                        ...) 
 {
   method <- match.arg(method) 
   type_pi <- match.arg(type_pi)
+  stopifnot(scale_ctxt > 0 && scale_ctxt <= 1)
   if (grepl("conformal", type_pi) >= 1) # not conformal
   {
     stopifnot(length(level) == 1)
@@ -237,7 +240,7 @@ glmthetaf <- function (y,
     context_vectors <- ahead::computeattention(x)$context_vectors
     last_context <- tail(context_vectors, 1)
     # Modify drift based on context
-    context_adjusted_drift <- tmp2 * (1 + sign(last_context) * 
+    context_adjusted_drift <- tmp2 * (1 + scale_ctxt * sign(last_context) * 
                                         abs(last_context / mean(abs(y))))
     # Apply modified drift to forecast
     fcast$mean[1] <- fcast$mean[1] + context_adjusted_drift * ((1-(1-alpha)^n)/alpha)
@@ -247,7 +250,7 @@ glmthetaf <- function (y,
       context_vectors <- ahead::computeattention(newx)$context_vectors
       last_context <- tail(context_vectors, 1)
       # Modify drift based on context
-      context_adjusted_drift <- tmp2 * (1 + sign(last_context) * 
+      context_adjusted_drift <- tmp2 * (1 + scale_ctxt * sign(last_context) * 
                                           abs(last_context / mean(abs(newx))))
       fcast$mean[i] <- fcast$mean[i] + context_adjusted_drift * ((i - 1) + (1-(1-alpha)^n)/alpha)
       newx <- c(newx, fcast$mean[i])
