@@ -2,7 +2,7 @@ Package: ahead
 Type: Package
 Title: Time Series Forecasting with uncertainty quantification
 Version: 0.18.0
-Date: 2025-03-10
+Date: 2025-04-07
 Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
 Description: Univariate and multivariate time series forecasting with uncertainty quantification.
