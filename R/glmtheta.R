@@ -20,12 +20,12 @@ glmthetaf <- function (y,
                        fan = FALSE, 
                        x = y, 
                        type_pi = c(
+                         "conformal-split",
                          "conformal-surrogate",
                          "conformal-kde",
                          "conformal-bootstrap",
                          "conformal-block-bootstrap",
                          "conformal-fitdistr",
-                         "conformal-split",
                          "gaussian"
                        ),
                        attention = TRUE, 
@@ -36,7 +36,6 @@ glmthetaf <- function (y,
 {
   type_pi <- match.arg(type_pi)
   stopifnot(scale_ctxt > 0 && scale_ctxt <= 1)
-  method <- 
   
   if (grepl("conformal", type_pi) >= 1) # not conformal
   {
@@ -44,13 +43,11 @@ glmthetaf <- function (y,
     freq_x <- frequency(y)
     start_x <- start(y)
     start_preds <- tsp(y)[2] + 1 / freq_x
-    
     # Split the training data
-    y_train_calibration <- splitts(y, split_prob=0.5)
+    y_train_calibration <- misc::splitts(y, split_prob=0.5)
     y_train <- y_train_calibration$training 
     y_calibration <- y_train_calibration$testing
     h_calibration <- length(y_calibration)
-    
     # Get predictions on calibration set
     y_pred_calibration <- ahead::glmthetaf(
       y_train,
@@ -60,7 +57,6 @@ glmthetaf <- function (y,
       type_pi = "gaussian",
       ...
     )$mean
-    
     # Final fit and forecast on full calibration set
     fit_obj_train <- ahead::glmthetaf(
       y_calibration, 
@@ -79,8 +75,9 @@ glmthetaf <- function (y,
     calibrated_residuals <- y_calibration - y_pred_calibration
     scaled_calib_resids <- base::scale(calibrated_residuals)
     sd_calibrated_residuals <- sd(calibrated_residuals)
+    method <- base::gsub("conformal-", "", type_pi)
     
-    if (base::gsub("conformal-", "", type_pi) == "fitdistr")
+    if (method == "fitdistr")
     {                            
       simulate_function <- misc::fit_param_dist(as.numeric(scaled_calib_resids), 
                                                 verbose = FALSE)
@@ -109,7 +106,7 @@ glmthetaf <- function (y,
       return(res)
     }
     
-    if (base::gsub("conformal-", "", type_pi) == "block-bootstrap")
+    if (method == "block-bootstrap")
     {
       start_preds <- start(fit_obj_train$mean)
       sims <- ts(tseries::tsbootstrap(scaled_calib_resids, nb=nsim)[seq_len(h), ],
@@ -138,10 +135,9 @@ glmthetaf <- function (y,
       return(res)
     }
     
-    if (base::gsub("conformal-", "", type_pi) %in% c("kde", "surrogate", "bootstrap"))
+    if (method %in% c("kde", "surrogate", "bootstrap"))
     {
       start_preds <- start(fit_obj_train$mean)
-      method <- base::gsub("conformal-", "", type_pi)
       sims <- ts(matrix(direct_sampling(scaled_calib_resids, 
                                         n = nsim*h, method=method), 
                         nrow = h, ncol = nsim), start = start_preds, 
@@ -169,7 +165,7 @@ glmthetaf <- function (y,
       return(res)
     }
   
-    if (type_pi == "conformal-split") {
+    if (method == "split") {
         quantile_absolute_residuals_conformal <- quantile(abs(scaled_calib_resids), 
                                                           probs = level/100)
       # Create output with proper time series attributes
@@ -182,7 +178,7 @@ glmthetaf <- function (y,
         sims = NULL,
         x = y,
         level = level,
-        method = "ConformalTheta",
+        method = fit_obj_train$method,
         residuals = ts(calibrated_residuals, 
                        start = start(y), 
                        frequency = freq_x)
@@ -314,18 +310,8 @@ glmthetaf <- function (y,
     # Modify drift based on context
     context_adjusted_drift <- tmp2 * (1 + scale_ctxt * sign(last_context) * 
                                         abs(last_context / mean(abs(y))))
-    #misc::debug_print(tmp2)
-    #misc::debug_print(context_adjusted_drift)
-    #misc::debug_print(fcast)
-    #misc::debug_print(fcast$mean)
-    # Apply modified drift to forecast
-    #misc::debug_print(fcast$mean[1])
     fcast$mean[1] <- fcast$mean[1] + context_adjusted_drift * ((1-(1-alpha)^n)/alpha)
-    #misc::debug_print(fcast$mean)
-    #misc::debug_print(fcast$mean[1])
-    #misc::debug_print(y)
     newx <- c(y, fcast$mean[1])
-    #misc::debug_print(newx)
     for (i in 2:h)
     {
       context_vectors <- ahead::computeattention(newx)$context_vectors
