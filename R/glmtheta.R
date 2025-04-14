@@ -8,63 +8,169 @@
 #' @param x The time series data
 #' @param attention Logical flag for using attention mechanism
 #' @param scale_ctxt Scaling coefficient for context vector 
+#' @param B Number of bootstrap replications or number of simulations (yes, 'B' is unfortunate)
+#' @param nsim Alias for B
 #' @param ... Additional arguments to pass to the fit_func
 #' @return A forecast object
 #' @export
 glmthetaf <- function (y, 
                        h = ifelse(frequency(y) > 1, 2 * frequency(y), 10), 
-                       level = 95, 
+                       level = 95L, 
                        fit_func = stats::glm, 
                        fan = FALSE, 
                        x = y, 
                        type_pi = c(
+                         "conformal-surrogate",
+                         "conformal-kde",
+                         "conformal-bootstrap",
+                         "conformal-block-bootstrap",
+                         "conformal-fitdistr",
                          "conformal-split",
                          "gaussian"
                        ),
                        attention = TRUE, 
                        scale_ctxt = 1,
-                       method = c("adj", "base"),
+                       B = 250L,
+                       nsim = B,
                        ...) 
 {
-  method <- match.arg(method) 
   type_pi <- match.arg(type_pi)
   stopifnot(scale_ctxt > 0 && scale_ctxt <= 1)
+  method <- 
+  
   if (grepl("conformal", type_pi) >= 1) # not conformal
   {
     stopifnot(length(level) == 1)
     freq_x <- frequency(y)
     start_x <- start(y)
     start_preds <- tsp(y)[2] + 1 / freq_x
+    
     # Split the training data
     y_train_calibration <- splitts(y, split_prob=0.5)
     y_train <- y_train_calibration$training 
     y_calibration <- y_train_calibration$testing
     h_calibration <- length(y_calibration)
+    
     # Get predictions on calibration set
     y_pred_calibration <- ahead::glmthetaf(
       y_train,
       h = h_calibration,
       fit_func = fit_func, 
       attention = attention,
-      method = method,
-      type_pi = "gaussian"
+      type_pi = "gaussian",
+      ...
     )$mean
+    
     # Final fit and forecast on full calibration set
     fit_obj_train <- ahead::glmthetaf(
       y_calibration, 
       h = h,
       fit_func = fit_func,
       attention = attention,
-      method = method,
-      type_pi = "gaussian" 
+      type_pi = "gaussian",
+      ... 
     )
+    
+    fit_obj_train$method <- paste0("Conformal (", 
+                                  base::gsub("conformal-", "", type_pi), 
+                                  ") Theta")
+
     preds <- fit_obj_train$mean
     calibrated_residuals <- y_calibration - y_pred_calibration
-    scaled_calibrated_residuals <- base::scale(calibrated_residuals)
+    scaled_calib_resids <- base::scale(calibrated_residuals)
     sd_calibrated_residuals <- sd(calibrated_residuals)
+    
+    if (base::gsub("conformal-", "", type_pi) == "fitdistr")
+    {                            
+      simulate_function <- misc::fit_param_dist(as.numeric(scaled_calib_resids), 
+                                                verbose = FALSE)
+      sims <- matrix(simulate_function(nsim*h), ncol=nsim, nrow=h)
+      preds <- as.numeric(fit_obj_train$mean) + sims*sd_calibrated_residuals
+      
+      res <- list()
+      res$level <- level 
+      res$x <- y_calibration
+      res$method <- fit_obj_train$method
+      start_preds <- start(fit_obj_train$mean)
+      res$mean <- ts(rowMeans(preds), 
+                     start = start_preds, 
+                     frequency = freq_x)
+      res$upper <- ts(apply(preds, 1, function(x)
+        stats::quantile(x, probs = 1 - (1 - level / 100) / 2)), 
+        start = start_preds, 
+        frequency = freq_x)
+      res$lower <- ts(apply(preds, 1, function(x)
+        stats::quantile(x, probs = (1 - level / 100) / 2)), 
+        start = start_preds, 
+        frequency = freq_x)
+      res$sims <- ts(preds, start = start_preds, 
+                     frequency = freq_x)
+      class(res) <- "forecast"
+      return(res)
+    }
+    
+    if (base::gsub("conformal-", "", type_pi) == "block-bootstrap")
+    {
+      start_preds <- start(fit_obj_train$mean)
+      sims <- ts(tseries::tsbootstrap(scaled_calib_resids, nb=nsim)[seq_len(h), ],
+                 start = start_preds, 
+                 frequency = freq_x) # nrow = h, ncol = nsim
+      preds <- as.numeric(fit_obj_train$mean) + sims*sd_calibrated_residuals
+      
+      res <- list()
+      res$level <- level 
+      res$x <- y_calibration
+      res$method <- fit_obj_train$method
+      res$mean <- ts(rowMeans(preds), 
+                     start = start_preds, 
+                     frequency = freq_x)
+      res$upper <- ts(apply(preds, 1, function(x)
+        stats::quantile(x, probs = 1 - (1 - level / 100) / 2)), 
+        start = start_preds, 
+        frequency = freq_x)
+      res$lower <- ts(apply(preds, 1, function(x)
+        stats::quantile(x, probs = (1 - level / 100) / 2)), 
+        start = start_preds, 
+        frequency = freq_x)
+      res$sims <- ts(preds, start = start_preds, 
+                     frequency = freq_x)
+      class(res) <- "forecast"
+      return(res)
+    }
+    
+    if (base::gsub("conformal-", "", type_pi) %in% c("kde", "surrogate", "bootstrap"))
+    {
+      start_preds <- start(fit_obj_train$mean)
+      method <- base::gsub("conformal-", "", type_pi)
+      sims <- ts(matrix(direct_sampling(scaled_calib_resids, 
+                                        n = nsim*h, method=method), 
+                        nrow = h, ncol = nsim), start = start_preds, 
+                 frequency = freq_x)    
+      preds <- as.numeric(fit_obj_train$mean) + sims*sd_calibrated_residuals
+      
+      res <- list()
+      res$level <- level 
+      res$x <- y_calibration
+      res$method <- fit_obj_train$method
+      res$mean <- ts(rowMeans(preds), 
+                     start = start_preds, 
+                     frequency = freq_x)
+      res$upper <- ts(apply(preds, 1, function(x)
+        stats::quantile(x, probs = 1 - (1 - level / 100) / 2)), 
+        start = start_preds, 
+        frequency = freq_x)
+      res$lower <- ts(apply(preds, 1, function(x)
+        stats::quantile(x, probs = (1 - level / 100) / 2)), 
+        start = start_preds, 
+        frequency = freq_x)
+      res$sims <- ts(preds, start = start_preds, 
+                     frequency = freq_x)
+      class(res) <- "forecast"
+      return(res)
+    }
   
     if (type_pi == "conformal-split") {
-        quantile_absolute_residuals_conformal <- quantile(abs(scaled_calibrated_residuals), 
+        quantile_absolute_residuals_conformal <- quantile(abs(scaled_calib_resids), 
                                                           probs = level/100)
       # Create output with proper time series attributes
       out <- list(
@@ -142,7 +248,10 @@ glmthetaf <- function (y,
       if (inherits(slope, "try-error")) {
         slope <- try(tmp2$coef[2], silent = TRUE)
         if (inherits(slope, "try-error")) {
-          stop("Unable to extract slope coefficient")
+          slope <- try(tmp2$coef[1], silent = TRUE) # case with centered response
+          if (inherits(slope, "try-error")) {
+            stop("Unable to extract slope coefficient")
+          }
         }
       }
     }
@@ -173,30 +282,19 @@ glmthetaf <- function (y,
     return(fcast)
   } else { # attention is TRUE
       
-      if (method == "base")
-      {
-        #misc::debug_print(method)
-        df <- cbind.data.frame(df, ctx = ahead::computeattention(x)$context_vectors)
-        tmp2 <- try(fit_func(y ~ ., data = df, ...), silent = TRUE)
-        if (inherits(tmp2, "try-error")) {
-          X <- cbind.data.frame(time_idx, df$ctx)
-          tmp2 <- try(fit_func(x = as.matrix(X), y = as.numeric(x), ...), silent = TRUE)
-          if (inherits(tmp2, "try-error")) {
-            stop("Unable to fit linear trend with attention")
-          }
-        }
-      } else { # method == "adj": same as attention == FALSE to avoid adjusting the trend twice
-        #misc::debug_print(method)
-        tmp2 <- try(fit_func(y ~ t, data = df, ...), silent = TRUE)
+       # method == "adj": same as attention == FALSE to avoid adjusting the trend twice
+        ##misc::debug_print(method)
+        tmp2 <- try(fit_func(y ~ t, data = df, ...), silent = FALSE)
         if (inherits(tmp2, "try-error")) {
           # For matrix interface, include intercept term for methods like glmnet
           X <- matrix(time_idx, nrow=1)
-          tmp2 <- try(fit_func(x = X, y = as.numeric(x), ...), silent = TRUE)
+          tmp2 <- try(fit_func(x = X, y = x, ...), silent = FALSE)
           if (inherits(tmp2, "try-error")) {
             stop("Unable to fit linear trend")
           }
         }
         # Extract coefficient using generic method first, then fallback
+        #misc::debug_print(tmp2)
         slope <- try(coef(tmp2)[2], silent = TRUE)
         if (inherits(slope, "try-error")) {
           slope <- try(tmp2$coefficients[2], silent = TRUE)
@@ -208,43 +306,26 @@ glmthetaf <- function (y,
           }
         }
         tmp2 <- slope/2  # Divide by 2 as per theta method
-      }
+      
     }
    
-  if (method == 'base')
-  {
-    context_vectors <- log(ahead::computeattention(x)$context_vectors)
-    last_context <- tail(context_vectors, 1)
-    time_coef <- try(coef(tmp2)[2], silent = TRUE)
-    ctx_coef <- try(coef(tmp2)[3], silent = TRUE)
-    if (inherits(time_coef, "try-error") || inherits(ctx_coef, "try-error")) {
-      time_coef <- try(tmp2$coefficients[2], silent = TRUE)
-      ctx_coef <- try(tmp2$coefficients[3], silent = TRUE)
-    }
-    tmp2 <- time_coef/2  # Only divide time coefficient by 2 as per theta method
-    ctx_effect <- ctx_coef  # Keep context coefficient as is
-    context_vectors <- log(ahead::computeattention(x)$context_vectors)
-    # Apply modified drift to forecast
-    fcast$mean[1] <- fcast$mean[1] + tmp2 * ((1-(1-alpha)^n)/alpha) + ctx_effect*context_vectors
-    newx <- c(y, fcast$mean[1])
-    for (i in 2:h)
-    {
-      context_vectors <- log(ahead::computeattention(newx)$context_vectors)
-      # Modify drift based on context
-      fcast$mean[i] <- fcast$mean[i] + tmp2 * ((i - 1) + (1-(1-alpha)^n)/alpha) + ctx_effect*context_vectors
-      newx <- c(newx, fcast$mean[i])
-    }
-    
-    
-  } else { # method == "adj"
     context_vectors <- ahead::computeattention(x)$context_vectors
     last_context <- tail(context_vectors, 1)
     # Modify drift based on context
     context_adjusted_drift <- tmp2 * (1 + scale_ctxt * sign(last_context) * 
                                         abs(last_context / mean(abs(y))))
+    #misc::debug_print(tmp2)
+    #misc::debug_print(context_adjusted_drift)
+    #misc::debug_print(fcast)
+    #misc::debug_print(fcast$mean)
     # Apply modified drift to forecast
+    #misc::debug_print(fcast$mean[1])
     fcast$mean[1] <- fcast$mean[1] + context_adjusted_drift * ((1-(1-alpha)^n)/alpha)
+    #misc::debug_print(fcast$mean)
+    #misc::debug_print(fcast$mean[1])
+    #misc::debug_print(y)
     newx <- c(y, fcast$mean[1])
+    #misc::debug_print(newx)
     for (i in 2:h)
     {
       context_vectors <- ahead::computeattention(newx)$context_vectors
@@ -255,7 +336,6 @@ glmthetaf <- function (y,
       fcast$mean[i] <- fcast$mean[i] + context_adjusted_drift * ((i - 1) + (1-(1-alpha)^n)/alpha)
       newx <- c(newx, fcast$mean[i])
     }
-  }
 
   if (seasonal) {
     fcast$mean <- fcast$mean * rep(tail(decomp$seasonal, 

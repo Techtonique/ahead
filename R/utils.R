@@ -658,6 +658,32 @@ quantile_scp <- function(abs_residuals, alpha) {
   sort(abs_residuals, partial = k)[k]
 }
 
+#' @export
+removenas <- function(y) {
+  # Check if input is a time series object
+  if (!is.ts(y)) {
+    stop("Input must be a time series object (ts).")
+  }
+
+  # Check for NA values
+  if (!anyNA(y)) {
+    return(y)
+  }
+
+  # Extract time and values
+  time <- time(y)
+  values <- as.numeric(y)
+
+  # Perform linear interpolation to replace NAs
+  interpolated_values <- approx(x = time[!is.na(values)], y = values[!is.na(values)], xout = time)$y
+
+  # Create a new time series object
+  new_ts <- ts(interpolated_values, start = start(y), frequency = frequency(y))
+
+  return(new_ts)
+}
+
+
 # Remove_zero_cols -----
 remove_zero_cols <- function(x, with_index = FALSE)
 {
@@ -672,23 +698,52 @@ remove_zero_cols <- function(x, with_index = FALSE)
 }
 
 # Fit Ridge regression -----
+#' @export
 #' @export 
 ridge <- function(x, y, lambda=10^seq(-10, 10,
                                           length.out = 100))
 {
+  misc::debug_print(x)
+  misc::debug_print(dim(x))
+  misc::debug_print(nrow(x))
+  misc::debug_print(ncol(x))
   # adapted from MASS::lm.ridge
-  x <- as.matrix(x)
+  if ((ncol(x)==1L) || (nrow(x)==1L))
+  {
+    x <- matrix(x, ncol=1L)
+  } else {
+    x <- as.matrix(x) 
+  }
+  misc::debug_print(x)
   y <- as.vector(y)
+  misc::debug_print(y)
   nlambda <- length(lambda)
+  misc::debug_print(nlambda)
 
   ym <- mean(y)
   centered_y <- y - ym
+  misc::debug_print(centered_y)
 
-  x_scaled <- base::scale(x)
-  attrs <- attributes(x_scaled)
-  X <- as.matrix(x_scaled[,])
+  # Scale x and handle zero standard deviations
+  if (is.null(dim(x)))
+  {
+   x_centers <- mean(x)
+  } else {
+    x_centers <- colMeans(x)
+  }
+  x_scales <- apply(x, 2, sd)
+  misc::debug_print(x_scales)
+  x_scales[x_scales == 0] <- 1
+  x_scales[is.na(x_scales)] <- 1
+  misc::debug_print(x_scales)
+  # Scale the centered data
+  X <- sweep(x, 2, x_centers, "-")
+  misc::debug_print(X)
+  # Scale the centered data
+  X <- sweep(X, 2, x_scales, "/")
 
   Xs <- La.svd(X)
+  misc::debug_print(Xs)
   rhs <- crossprod(Xs$u, centered_y)
   d <- Xs$d
   nb_di <- length(d)
@@ -697,8 +752,12 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
   dim(a) <- c(nb_di, nlambda)
   n <- nrow(X)
 
-  coef <- crossprod(Xs$vt, a)
+  coef <- drop(crossprod(Xs$vt, a))
+  misc::debug_print(coef)
+  if (length(lambda) > 1)
+  {
   colnames(coef) <- lambda
+  }
   centered_y_hat <- X %*% coef
 
   fitted_values <- drop(ym +  centered_y_hat)
@@ -713,8 +772,8 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
   out <- list(
       coef = drop(coef),
       ym = ym,
-      xm = attrs$`scaled:center`,
-      xsd = attrs$`scaled:scale`,
+      xm = x_centers,
+      xsd = x_scales,
       lambda = lambda,
       best_lam = lambda[which.min(GCV)],
       fitted_values = fitted_values,
@@ -750,32 +809,6 @@ predict.ridge <- function(object, newx)
                             scale=object$xsd)%*%object$coef + object$ym))
   }
 }
-
-#' @export
-removenas <- function(y) {
-  # Check if input is a time series object
-  if (!is.ts(y)) {
-    stop("Input must be a time series object (ts).")
-  }
-
-  # Check for NA values
-  if (!anyNA(y)) {
-    return(y)
-  }
-
-  # Extract time and values
-  time <- time(y)
-  values <- as.numeric(y)
-
-  # Perform linear interpolation to replace NAs
-  interpolated_values <- approx(x = time[!is.na(values)], y = values[!is.na(values)], xout = time)$y
-
-  # Create a new time series object
-  new_ts <- ts(interpolated_values, start = start(y), frequency = frequency(y))
-
-  return(new_ts)
-}
-
 
 # Scale a univariate time series -----
 scale_ahead <- function(x, center = TRUE, scale = TRUE)
