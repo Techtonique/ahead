@@ -703,10 +703,10 @@ remove_zero_cols <- function(x, with_index = FALSE)
 ridge <- function(x, y, lambda=10^seq(-10, 10,
                                           length.out = 100))
 {
-  misc::debug_print(x)
-  misc::debug_print(dim(x))
-  misc::debug_print(nrow(x))
-  misc::debug_print(ncol(x))
+  #misc::debug_print(x)
+  #misc::debug_print(dim(x))
+  #misc::debug_print(nrow(x))
+  #misc::debug_print(ncol(x))
   # adapted from MASS::lm.ridge
   if ((ncol(x)==1L) || (nrow(x)==1L))
   {
@@ -714,15 +714,15 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
   } else {
     x <- as.matrix(x) 
   }
-  misc::debug_print(x)
+  #misc::debug_print(x)
   y <- as.vector(y)
-  misc::debug_print(y)
+  #misc::debug_print(y)
   nlambda <- length(lambda)
-  misc::debug_print(nlambda)
+  #misc::debug_print(nlambda)
 
   ym <- mean(y)
   centered_y <- y - ym
-  misc::debug_print(centered_y)
+  #misc::debug_print(centered_y)
 
   # Scale x and handle zero standard deviations
   if (is.null(dim(x)))
@@ -732,18 +732,18 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
     x_centers <- colMeans(x)
   }
   x_scales <- apply(x, 2, sd)
-  misc::debug_print(x_scales)
+  #misc::debug_print(x_scales)
   x_scales[x_scales == 0] <- 1
   x_scales[is.na(x_scales)] <- 1
-  misc::debug_print(x_scales)
+  #misc::debug_print(x_scales)
   # Scale the centered data
   X <- sweep(x, 2, x_centers, "-")
-  misc::debug_print(X)
+  #misc::debug_print(X)
   # Scale the centered data
   X <- sweep(X, 2, x_scales, "/")
 
   Xs <- La.svd(X)
-  misc::debug_print(Xs)
+  #misc::debug_print(Xs)
   rhs <- crossprod(Xs$u, centered_y)
   d <- Xs$d
   nb_di <- length(d)
@@ -753,7 +753,7 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
   n <- nrow(X)
 
   coef <- drop(crossprod(Xs$vt, a))
-  misc::debug_print(coef)
+  #misc::debug_print(coef)
   if (length(lambda) > 1)
   {
   colnames(coef) <- lambda
