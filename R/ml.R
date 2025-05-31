@@ -17,7 +17,7 @@
 #'
 #' @examples
 #' 
-#' res <- ahead::mlf(USAccDeaths, h=10L, lags=15L, type_pi="surrogate", B=250L)
+#' res <- ahead::mlf(USAccDeaths, h=15L, lags=15L, type_pi="surrogate", B=250L)
 #' plot(res)
 #' 
 #' res <- ahead::mlf(USAccDeaths, fit_func = glmnet::cv.glmnet, h=15L, lags=15L, 
@@ -27,6 +27,18 @@
 #' (res <- ahead::mlf(USAccDeaths, fit_func = e1071::svm, h=15L, lags=15L, 
 #' type_pi="kde", B=250L)) 
 #' plot(res)
+#' 
+#' res <- ahead::mlf(mdeaths, h=15L, lags=15L, type_pi="surrogate", B=250L)
+#' plot(res)
+#' 
+#' res <- ahead::mlf(fdeaths, fit_func = glmnet::cv.glmnet, h=15L, lags=25L, 
+#' type_pi="kde", B=250L) 
+#' plot(res)
+#' 
+#' res <- ahead::mlf(fdeaths, fit_func = randomForest::randomForest, h=15L, lags=15L, 
+#' type_pi="kde", B=250L) 
+#' plot(res)
+#' 
 #' 
 mlf <- function(y, h = 5, level = 95, lags = 15L,
                 fit_func = ahead::ridge,
