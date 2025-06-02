@@ -19,14 +19,14 @@ mlarchf <- function(y, h=10L,
   fit_mean <- ahead::genericforecast(mean_model, 
                                            y=y, h=h)
   # conformalize mean model maybe?
-  if (!is.null(method))
+  if (!is.null(ml_method))
   {
-      fit_func <- function(x, y, method = "ranger", ...)
+      fit_func <- function(x, y, method = ml_method, ...)
     {
       df <- data.frame(y=y, as.matrix(x)) # naming of columns is mandatory for `predict`
       colnames(df) <- c("y", paste0("X", 1:ncol(x)))
       caret::train(y ~ ., data=df,
-                  method = method,
+                  method = ml_method,
                   trControl=caret::trainControl(method = "none"))
     }
 
@@ -47,7 +47,7 @@ mlarchf <- function(y, h=10L,
                           B = B) 
   z <- resids/sqrt(fitted(fit_sigma))
   fit_z <- ahead::conformalize(FUN=model_residuals, 
-  method=type_sim_conformalize,
+                               method=type_sim_conformalize,
                                nsim=B,
                                y=z, h=h)
   f <- as.numeric(fit_mean$mean) + matrix(fit_z$sims, ncol=B)*sqrt(pmax(matrix(fit_sigma$sims, ncol=B), 0))
@@ -60,7 +60,12 @@ mlarchf <- function(y, h=10L,
   out$level <- level
   out$t_test <- t.test(resids, conf.level = level/100)
   out$kpss_test <- tseries::kpss.test(resids)
-  out$method <- paste0(method, "ARCH")
+  if (!is.null(ml_method))
+  {
+    out$method <- paste0(ml_method, "ARCH")
+  } else {
+    out$method <- "ML-ARCH"
+  }  
   out$model <- list(fit_mean, fit_sigma, fit_z)
   out$mean <- ts(mean_f, 
                  start = start_preds, 
