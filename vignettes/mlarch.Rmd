@@ -22,7 +22,7 @@ where:
 - $\sigma_t$ is the conditional volatility (modeled using **machine learning**)
 - $\varepsilon_t$ are standardized residuals
 
-The **key innovation** is using machine learning methods to model the volatility component, allowing for more flexible and potentially more accurate volatility forecasts than traditional GARCH models. The function supports various machine learning methods through parameters `fit_func` and `predict_func` as in other `ahead` models, and through the `caret` package.
+The **key innovation** is using machine learning methods and conformal prediction to model the volatility component, allowing for more flexible and potentially more accurate volatility forecasts than traditional GARCH models. The function supports various machine learning methods through parameters `fit_func` and `predict_func` as in other `ahead` models, and through the `caret` package.
 
 The forecasting process involves:
 
@@ -32,6 +32,7 @@ The forecasting process involves:
 $$
 \mathbb{E}[\epsilon_t^2|F_{t-1}]
 $$
+
 (basically a supervised regression of squared residuals on their lags) is a good approximation of the latent conditional volatility
 
 - Conformalizing the standardized residuals for prediction intervals
@@ -53,7 +54,7 @@ library(glmnet)
 ```{r basic_example, fig.width=7.2}
 y <- fpp2::goog200
 
-# Default model (Ridge regression for volatility)
+# Default model for volatility (Ridge regression for volatility)
 (obj_ridge <- ahead::mlarchf(y, h=20L, B=500L))
 ```
 
@@ -127,7 +128,7 @@ You can also customize both the mean forecasting model and the model for forecas
 # Using Theta method for both mean and residuals
 (obj_svm <- ahead::mlarchf(y, fit_func = e1071::svm, 
                      predict_func = predict, h=20L, 
-                     mean_model=forecast::thetaf,
+                     mean_model=forecast::rwf,
                      model_residuals=forecast::thetaf))
 
 (obj_glmnet <- ahead::mlarchf(y, fit_func = glmnet::cv.glmnet, 
