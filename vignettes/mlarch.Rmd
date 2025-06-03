@@ -138,12 +138,11 @@ You can also customize both the mean forecasting model and the model for forecas
 ```
 
 ```{r plot_custom, fig.width=7.2}
-par(mfrow=c(1, 2))
-plot(obj_svm, main="SVM with Theta")
-plot(obj_glmnet, main="Elastic Net with Theta")
+plot(obj_svm, main="SVM with RW + Theta")
+plot(obj_glmnet, main="Elastic Net with Theta + Theta")
 ```
 
-When using non-ARIMA models for the mean forecast, it's important to check if the residuals are centered and stationary:
+When using non-ARIMA models for the mean forecast, it's important to check if the residuals of the mean forecasting model are centered and stationary:
 
 ```{r diagnostics}
 # Diagnostic tests for residuals
