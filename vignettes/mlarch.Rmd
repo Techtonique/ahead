@@ -125,12 +125,13 @@ matplot(obj_glmboost$sims, type='l', main="GBM Simulation Paths")
 You can also customize both the mean forecasting model and the model for forecasting standardized residuals:
 
 ```{r custom_models, fig.width=7}
-# Using Theta method for both mean and residuals
+# Using RW + Theta method for mean and residuals along with SVM for volatility
 (obj_svm <- ahead::mlarchf(y, fit_func = e1071::svm, 
                      predict_func = predict, h=20L, 
                      mean_model=forecast::rwf,
                      model_residuals=forecast::thetaf))
 
+# Using Theta + Theta method for mean and residuals along with GLMNET for volatility
 (obj_glmnet <- ahead::mlarchf(y, fit_func = glmnet::cv.glmnet, 
                      predict_func = predict, h=20L, 
                      mean_model=forecast::thetaf,
@@ -138,12 +139,11 @@ You can also customize both the mean forecasting model and the model for forecas
 ```
 
 ```{r plot_custom, fig.width=7.2}
-par(mfrow=c(1, 2))
-plot(obj_svm, main="SVM with Theta")
-plot(obj_glmnet, main="Elastic Net with Theta")
+plot(obj_svm, main="SVM with RW + Theta")
+plot(obj_glmnet, main="Elastic Net with Theta + Theta")
 ```
 
-When using non-ARIMA models for the mean forecast, it's important to check if the residuals are centered and stationary:
+When using non-ARIMA models for the mean forecast, it's important to check if the residuals of the mean forecasting model are centered and stationary:
 
 ```{r diagnostics}
 # Diagnostic tests for residuals
