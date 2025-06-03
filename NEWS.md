@@ -1,3 +1,7 @@
+# version 0.18.0
+
+- Add ML-ARCH model, see vignettes for more examples
+
 # version 0.17.0
 
 - Add conformal prediction to `ridge2f` (with KDE, bootstrap, block bootstrap and sequential split conformal prediction)

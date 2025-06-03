@@ -11,63 +11,63 @@ vignette: >
 
 
 ```{r fig.width=7.5}
-(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::glm.nb, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::glm.nb, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 
-(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::glm, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::glm, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 
-(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::rlm, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::rlm, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 
-(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::lqs, attention = TRUE, type_pi = "conformal-split", method="adj")))
-plot(obj)
-```
-
-```{r fig.width=7.5}
-(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::lm, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=MASS::lqs, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 ```
 
 ```{r fig.width=7.5}
-(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=gam::gam, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=stats::lm, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 ```
 
 ```{r fig.width=7.5}
-(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=quantreg::rq, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=gam::gam, attention = TRUE, type_pi = "conformal-split")))
+plot(obj)
+```
+
+```{r fig.width=7.5}
+(obj <- suppressWarnings(ahead::glmthetaf(USAccDeaths, h=25L, fit_func=quantreg::rq, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 ```
 
 # AirPassengers (method='adj')
 
 ```{r fig.width=5.5}
-(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::glm.nb, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::glm.nb, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 
-(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::glm, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::glm, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 
-(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::rlm, attention = TRUE, type_pi = "conformal-split", method="adj")))
-plot(obj)
-```
-
-```{r fig.width=5.5}
-(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::lm, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::rlm, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 ```
 
 ```{r fig.width=5.5}
-(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::lqs, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=stats::lm, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 ```
 
 ```{r fig.width=5.5}
-(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=gam::gam, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=MASS::lqs, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 ```
 
 ```{r fig.width=5.5}
-(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=quantreg::rq, attention = TRUE, type_pi = "conformal-split", method="adj")))
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=gam::gam, attention = TRUE, type_pi = "conformal-split")))
+plot(obj)
+```
+
+```{r fig.width=5.5}
+(obj <- suppressWarnings(ahead::glmthetaf(AirPassengers, h=25L, fit_func=quantreg::rq, attention = TRUE, type_pi = "conformal-split")))
 plot(obj)
 ```
