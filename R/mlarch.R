@@ -59,20 +59,20 @@ mlarchf <- function(y, h=10L,
   }
 
   resids <- residuals(fit_mean)
-  fit_sigma <- ahead::mlf(resids^2, 
+  fit_sigma <- ahead::mlf(log(resids^2), 
                           lags = 2L, 
                           fit_func=fit_func,
                           predict_func=predict_func,
                           type_pi=type_pi,
                           h=h, 
                           B = B) 
-  z <- resids/sqrt(fitted(fit_sigma))
+  z <- resids/sqrt(exp(fitted(fit_sigma)))
   fit_z <- ahead::conformalize(FUN=model_residuals, 
                                method=type_sim_conformalize,
                                nsim=B,
                                y=z, h=h)
-  f <- as.numeric(fit_mean$mean) + matrix(fit_z$sims, ncol=B)*sqrt(pmax(matrix(fit_sigma$sims, ncol=B), 0)) # think about this clipping
-  #f <- as.numeric(fit_mean$mean) + matrix(fit_z$sims, ncol=B)*sqrt(matrix(fit_sigma$sims, ncol=B))
+  #f <- as.numeric(fit_mean$mean) + matrix(fit_z$sims, ncol=B)*sqrt(pmax(matrix(fit_sigma$sims, ncol=B), 0)) # think about this clipping
+  f <- as.numeric(fit_mean$mean) + matrix(fit_z$sims, ncol=B)*sqrt(matrix(exp(fit_sigma$sims), ncol=B))
   mean_f <- rowMeans(f)
   alpha <- 1 - level/100
   lower_bound <- apply(f, 1, function(x) quantile(x, probs=alpha/2))
