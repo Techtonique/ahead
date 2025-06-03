@@ -33,6 +33,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// exact_rf_forecast
+NumericVector exact_rf_forecast(NumericMatrix embed_mat, int h, int lags, Function predict_func, List model);
+RcppExport SEXP _ahead_exact_rf_forecast(SEXP embed_matSEXP, SEXP hSEXP, SEXP lagsSEXP, SEXP predict_funcSEXP, SEXP modelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type embed_mat(embed_matSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    Rcpp::traits::input_parameter< int >::type lags(lagsSEXP);
+    Rcpp::traits::input_parameter< Function >::type predict_func(predict_funcSEXP);
+    Rcpp::traits::input_parameter< List >::type model(modelSEXP);
+    rcpp_result_gen = Rcpp::wrap(exact_rf_forecast(embed_mat, h, lags, predict_func, model));
+    return rcpp_result_gen;
+END_RCPP
+}
 // forecast_innovs_loop_cpp
 NumericVector forecast_innovs_loop_cpp(NumericVector eps, NumericVector rts, double eps_prev, double omega, double alpha, double beta, unsigned int df, unsigned int h);
 RcppExport SEXP _ahead_forecast_innovs_loop_cpp(SEXP epsSEXP, SEXP rtsSEXP, SEXP eps_prevSEXP, SEXP omegaSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP dfSEXP, SEXP hSEXP) {
@@ -132,6 +147,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_ahead_compute_attention_cpp", (DL_FUNC) &_ahead_compute_attention_cpp, 1},
     {"_ahead_compute_context_vectors_cpp", (DL_FUNC) &_ahead_compute_context_vectors_cpp, 2},
+    {"_ahead_exact_rf_forecast", (DL_FUNC) &_ahead_exact_rf_forecast, 5},
     {"_ahead_forecast_innovs_loop_cpp", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp, 8},
     {"_ahead_forecast_innovs_loop_cpp2", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp2, 8},
     {"_ahead_create_lags_cpp", (DL_FUNC) &_ahead_create_lags_cpp, 2},

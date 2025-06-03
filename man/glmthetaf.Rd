@@ -7,14 +7,16 @@
 glmthetaf(
   y,
   h = ifelse(frequency(y) > 1, 2 * frequency(y), 10),
-  level = 95,
+  level = 95L,
   fit_func = stats::glm,
   fan = FALSE,
   x = y,
-  type_pi = c("conformal-split", "gaussian"),
+  type_pi = c("conformal-split", "conformal-surrogate", "conformal-kde",
+    "conformal-bootstrap", "conformal-block-bootstrap", "conformal-fitdistr", "gaussian"),
   attention = TRUE,
   scale_ctxt = 1,
-  method = c("adj", "base"),
+  B = 250L,
+  nsim = B,
   ...
 )
 }
@@ -34,6 +36,10 @@ glmthetaf(
 \item{attention}{Logical flag for using attention mechanism}
 
 \item{scale_ctxt}{Scaling coefficient for context vector}
+
+\item{B}{Number of bootstrap replications or number of simulations (yes, 'B' is unfortunate)}
+
+\item{nsim}{Alias for B}
 
 \item{...}{Additional arguments to pass to the fit_func}
 }

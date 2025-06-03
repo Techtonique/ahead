@@ -9,6 +9,10 @@ compute_context_vectors_cpp <- function(series, attention_weights) {
     .Call(`_ahead_compute_context_vectors_cpp`, series, attention_weights)
 }
 
+exact_rf_forecast <- function(embed_mat, h, lags, predict_func, model) {
+    .Call(`_ahead_exact_rf_forecast`, embed_mat, h, lags, predict_func, model)
+}
+
 forecast_innovs_loop_cpp <- function(eps, rts, eps_prev, omega, alpha, beta, df, h) {
     .Call(`_ahead_forecast_innovs_loop_cpp`, eps, rts, eps_prev, omega, alpha, beta, df, h)
 }
