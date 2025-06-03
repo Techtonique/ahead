@@ -125,12 +125,13 @@ matplot(obj_glmboost$sims, type='l', main="GBM Simulation Paths")
 You can also customize both the mean forecasting model and the model for forecasting standardized residuals:
 
 ```{r custom_models, fig.width=7}
-# Using Theta method for both mean and residuals
+# Using RW + Theta method for mean and residuals along with SVM for volatility
 (obj_svm <- ahead::mlarchf(y, fit_func = e1071::svm, 
                      predict_func = predict, h=20L, 
                      mean_model=forecast::rwf,
                      model_residuals=forecast::thetaf))
 
+# Using Theta + Theta method for mean and residuals along with GLMNET for volatility
 (obj_glmnet <- ahead::mlarchf(y, fit_func = glmnet::cv.glmnet, 
                      predict_func = predict, h=20L, 
                      mean_model=forecast::thetaf,
