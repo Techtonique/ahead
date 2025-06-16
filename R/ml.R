@@ -12,7 +12,7 @@
 #' @param agg "mean" or "median" (aggregation method)
 #' @param ... additional parameters passed to the fitting function \code{fit_func}
 #'
-#' @return
+#' @return An object of class 'forecast'
 #' @export
 #'
 #' @examples
@@ -185,115 +185,6 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
     out$sims <- sims
     return(out)
 }
-
-ml_forecast <- function(y, h, 
-                        lags=1, 
-                        fit_func = ahead::ridge,
-                        predict_func = predict,
-                        coeffs = NULL, 
-                        ...)
-{
-    df <- as.data.frame(embed(rev(as.numeric(y)), lags + 1L))
-    ncol_df <- ncol(df)
-    colnames(df) <- c(paste0("lag", rev(seq_len(lags))), "y")    
-    if(is.null(coeffs))
-    {            
-      fit <- try(fit_func(y ~ ., data = df, ...), silent=TRUE)
-      if (inherits(fit, "try-error"))
-      {
-          fit <- fit_func(x = as.matrix(df)[, -ncol_df], 
-                          y = df$y, ...)       
-      }
-      for (i in 1:h)
-      {
-          newdata <- matrix(df[1, (ncol_df-lags + 1):ncol_df], nrow=1)
-          colnames(newdata) <- paste0("lag", rev(seq_len(lags)))
-          newdata_df <- data.frame(matrix(as.numeric((newdata)), ncol=lags))
-          colnames(newdata_df) <- paste0("lag", rev(seq_len(lags)))
-          prediction <- as.numeric(predict_func(fit, newdata_df)) # /!\ not the same prediction, beware
-          df <- data.frame(rbind(as.matrix(cbind(newdata_df, prediction)), as.matrix(df)))
-          colnames(df) <- c(paste0("lag", rev(seq_len(lags))), "y")
-      }
-    } else {
-      fit <- list(coefficients = coeffs)
-      for (i in 1:h)
-      {
-          newdata <- matrix(df[1, (ncol_df-lags + 1):ncol_df], nrow=1)
-          colnames(newdata) <- paste0("lag", rev(seq_len(lags)))
-          newdata_df <- data.frame(matrix(as.numeric((newdata)), ncol=lags))
-          colnames(newdata_df) <- paste0("lag", rev(seq_len(lags)))
-          prediction <- as.numeric(fit$coefficients %*% as.matrix(newdata_df)) # /!\ not the same prediction, beware
-          df <- data.frame(rbind(as.matrix(cbind(newdata_df, prediction)), as.matrix(df)))
-          colnames(df) <- c(paste0("lag", rev(seq_len(lags))), "y")
-      }
-    }    
-    return(list(model = fit, mean = rev(head(df$y, h))))
-}
-
-
-ml_forecast2 <- function(y, h, 
-                        lags = 1, 
-                        fit_func = ahead::ridge,
-                        predict_func = predict,
-                        coeffs = NULL, 
-                        ...) {
-  
-  # Ensure y is a numeric vector
-  y <- as.numeric(y)
-  
-  # Reverse to chronological order for embedding
-  y <- rev(y)
-  
-  # Create lagged data frame using embed
-  df <- embed(y, lags + 1L)
-  ncol_df <- ncol(df)
-  
-  # Convert to data frame only once
-  df <- as.data.frame(df)
-  colnames(df) <- c(paste0("lag", rev(seq_len(lags))), "y")
-  
-  # Fit model
-  if (is.null(coeffs)) {
-    fit <- try(fit_func(y ~ ., data = df, ...), silent = TRUE)
-    if (inherits(fit, "try-error")) {
-      fit <- fit_func(x = as.matrix(df[, -ncol_df]), y = df$y, ...)
-    }
-  } else {
-    fit <- list(coefficients = as.numeric(coeffs))
-  }
-  
-  # Preallocate storage for predictions
-  predictions <- numeric(h)
-  
-  # Start with the most recent lagged values
-  current_lags <- matrix(as.numeric(df[1, (ncol_df - lags + 1):ncol_df]), nrow = 1)
-  colnames(current_lags) <- paste0("lag", rev(seq_len(lags)))
-  
-  # Forecast loop
-  for (i in 1:h) {
-    newdata_df <- as.data.frame(current_lags)
-    
-    # Predict based on method
-    if (is.null(coeffs)) {
-      prediction <- as.numeric(predict_func(fit, newdata_df))
-    } else {
-      prediction <- as.numeric(fit$coefficients %*% cbind(1, t(current_lags)))
-    }
-    
-    predictions[i] <- prediction
-    
-    # Shift lags: handle lags == 1 correctly
-    if (lags == 1) {
-      current_lags <- matrix(prediction, nrow = 1)
-    } else {
-      current_lags <- cbind(prediction, current_lags[, 1:(lags - 1), drop = FALSE])
-    }
-    colnames(current_lags) <- paste0("lag", rev(seq_len(lags)))
-  }
-  
-  return(list(model = fit, mean = predictions))
-}
-
 
 ml_forecast3 <- function(y, h, 
                         lags=1, 

@@ -1,0 +1,45 @@
+---
+title: "Conformalized Forecasting using Machine Leaning models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Conformalized Forecasting using Machine Leaning models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r fig.width=7.5}
+
+(res2 <- ahead::mlf(AirPassengers, h=25L, lags=15L, 
+type_pi="kde", B=250L))
+
+(res3 <- ahead::mlf(fdeaths, h=25L, lags=15L, 
+type_pi="kde", B=250L))
+
+
+par(mfrow=c(1, 2))
+plot(res2)
+plot(res3)
+```
+
+
+```{r fig.width=7.5}
+fit_func <- function(x, y, ...)
+{
+  df <- data.frame(y=y, x) # naming of columns is mandatory for `predict`
+  colnames(df) <- c("y", paste0("X", seq_len(ncol(x))))
+  ranger::ranger(y ~ ., data=df, ...)
+}
+
+predict_func <- function(obj, newx)
+{
+  colnames(newx) <- paste0("X", seq_len(ncol(newx))) # mandatory, linked to df in fit_func
+  predict(object=obj, data=newx)$predictions # only accepts a named newx
+}
+
+(res2 <- ahead::mlf(AirPassengers, h=25L, lags=15L, fit_func=fit_func, predict_func=predict_func, type_pi="kde", B=250L))
+(res3 <- ahead::mlf(fdeaths, h=25L, lags=15L, fit_func=fit_func, predict_func=predict_func, type_pi="kde", B=250L))
+
+par(mfrow=c(1, 2))
+plot(res2)
+plot(res3)
+```

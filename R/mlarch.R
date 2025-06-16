@@ -60,12 +60,12 @@ mlarchf <- function(y, h=10L,
 
   resids <- residuals(fit_mean)
   fit_sigma <- ahead::mlf(log(resids^2), 
-                          lags = 2L, 
+                          lags=2L, 
                           fit_func=fit_func,
                           predict_func=predict_func,
                           type_pi=type_pi,
                           h=h, 
-                          B = B) 
+                          B=B) 
   z <- resids/sqrt(exp(fitted(fit_sigma)))
   fit_z <- ahead::conformalize(FUN=model_residuals, 
                                method=type_sim_conformalize,
