@@ -24,7 +24,6 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    ForecastComb,
     fpp,
     glmnet,
     e1071,
