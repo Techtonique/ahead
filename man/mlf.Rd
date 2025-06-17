@@ -11,6 +11,7 @@ mlf(
   lags = 15L,
   fit_func = ahead::ridge,
   predict_func = predict,
+  stack = FALSE,
   coeffs = NULL,
   type_pi = c("kde", "surrogate", "bootstrap"),
   B = 250L,
@@ -32,6 +33,8 @@ mlf(
 
 \item{predict_func}{Prediction function (Statistical/ML model)}
 
+\item{stack}{Boolean, use stacking regression or not}
+
 \item{coeffs}{Coefficients of the fitted model. If provided, a linear combination with the coefficients is used to compute the prediction.}
 
 \item{type_pi}{Type of prediction interval}
@@ -42,12 +45,17 @@ mlf(
 
 \item{...}{additional parameters passed to the fitting function \code{fit_func}}
 }
+\value{
+An object of class 'forecast'
+}
 \description{
 Conformalized Forecasting using Machine Leaning models
 }
 \examples{
 
 plot(ahead::mlf(AirPassengers, h=20L))
+
+plot(ahead::mlf(AirPassengers, h=25L, lags=20L, fit_func=glmnet::cv.glmnet, stack=TRUE)) 
 
 res <- ahead::mlf(USAccDeaths, h=15L, lags=15L, type_pi="surrogate", B=250L)
 plot(res)
