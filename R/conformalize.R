@@ -62,6 +62,7 @@ conformalize <- function(FUN, y, h, level=95,
     res <- list()
     res$level <- level 
     res$x <- y_calib
+    res$fitted <- fitted(obj_fcast)
     res$method <- paste0("conformalized ", obj_fcast$method)
     start_preds <- start(obj_fcast$mean)
     res$mean <- ts(rowMeans(preds), 
@@ -96,6 +97,7 @@ conformalize <- function(FUN, y, h, level=95,
     res <- list()
     res$level <- level 
     res$x <- y_calib
+    res$fitted <- fitted(obj_fcast)
     res$method <- paste0("conformalized ", obj_fcast$method)    
     res$mean <- ts(rowMeans(preds), 
                    start = start_preds, 
@@ -126,6 +128,7 @@ conformalize <- function(FUN, y, h, level=95,
     res <- list()
     res$level <- level 
     res$x <- y_calib
+    res$fitted <- fitted(obj_fcast)
     res$method <- paste0("conformalized ", obj_fcast$method)    
     res$mean <- ts(rowMeans(preds), 
                    start = start_preds, 
