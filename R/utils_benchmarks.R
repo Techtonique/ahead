@@ -204,9 +204,9 @@ winkler_score <- function(obj, actual, level = 95) {
 #' 
 #' obj <- list(mean = 10, lower = 8, upper = 12)
 #' actual <- 11
-#' get_error(obj, actual)
+#' geterror(obj, actual)
 #' 
-get_error <- function(obj, actual, level = 95)
+geterror <- function(obj, actual, level = 95)
 {
   actual <- as.numeric(actual)
   mean_prediction <- as.numeric(obj$mean)

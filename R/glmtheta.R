@@ -22,9 +22,9 @@ glmthetaf <- function (y,
                        type_pi = c(
                          "conformal-split",
                          "conformal-surrogate",
-                         "conformal-kde",
                          "conformal-bootstrap",
                          "conformal-block-bootstrap",
+                         "conformal-kde",                         
                          "conformal-fitdistr",
                          "gaussian"
                        ),

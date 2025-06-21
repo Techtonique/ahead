@@ -12,11 +12,13 @@ mlf(
   fit_func = ahead::ridge,
   predict_func = predict,
   stack = FALSE,
+  stacking_models = NULL,
   coeffs = NULL,
-  type_pi = c("kde", "surrogate", "bootstrap"),
+  type_pi = c("surrogate", "bootstrap", "kde"),
   B = 250L,
   agg = c("mean", "median"),
   seed = 123,
+  show_progress = TRUE,
   ...
 )
 }
@@ -35,6 +37,8 @@ mlf(
 
 \item{stack}{Boolean, use stacking regression or not}
 
+\item{stacking_models}{A list of \code{fit_func}s and \code{predict_func}s for and ensemble of stacked models (you should set \code{stack=TRUE})}
+
 \item{coeffs}{Coefficients of the fitted model. If provided, a linear combination with the coefficients is used to compute the prediction.}
 
 \item{type_pi}{Type of prediction interval}
@@ -42,6 +46,8 @@ mlf(
 \item{B}{Number of bootstrap replications or number of simulations}
 
 \item{agg}{"mean" or "median" (aggregation method)}
+
+\item{show_progress}{show progress bar for stacking, if \code{stacking_models} if not \code{NULL}}
 
 \item{...}{additional parameters passed to the fitting function \code{fit_func}}
 }

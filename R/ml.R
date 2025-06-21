@@ -7,10 +7,12 @@
 #' @param fit_func Fitting function (Statistical/ML model). Default is Ridge regression.
 #' @param predict_func Prediction function (Statistical/ML model)
 #' @param stack Boolean, use stacking regression or not
+#' @param stacking_models A list of \code{fit_func}s and \code{predict_func}s for and ensemble of stacked models (you should set \code{stack=TRUE})
 #' @param coeffs Coefficients of the fitted model. If provided, a linear combination with the coefficients is used to compute the prediction.
 #' @param type_pi Type of prediction interval
 #' @param B Number of bootstrap replications or number of simulations
 #' @param agg "mean" or "median" (aggregation method)
+#' @param show_progress show progress bar for stacking, if \code{stacking_models} if not \code{NULL}
 #' @param ... additional parameters passed to the fitting function \code{fit_func}
 #'
 #' @return An object of class 'forecast'
@@ -49,10 +51,12 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
                 fit_func = ahead::ridge,
                 predict_func = predict,
                 stack = FALSE,
+                stacking_models = NULL, 
                 coeffs = NULL,
-                type_pi = c("kde", "surrogate", "bootstrap"),
+                type_pi = c("surrogate", "bootstrap", "kde"),
                 B = 250L, agg = c("mean", "median"), 
                 seed = 123,
+                show_progress=TRUE,
                 ...)
 {
   set.seed(seed)
@@ -66,6 +70,79 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
   y_calib <- splitted_y$testing
   type_pi <- match.arg(type_pi)
   agg <- match.arg(agg)
+  stacking_results <- list()
+
+  if (!is.null(stacking_models))
+  {
+    type_pi <- match.arg(type_pi)
+    agg <- match.arg(agg)
+    n_stacking_models <- length(stacking_models)
+
+    pb <- utils::txtProgressBar(min=0, max=n_stacking_models, style=3)
+
+    j <- 1
+    for (i in seq_len(n_stacking_models))
+    {
+      res <- try(ahead::mlf(y, h=h, lags=lags, 
+      fit_func=stacking_models[[i]]$fit_func, 
+      predict_func=stacking_models[[i]]$predict_func, 
+      stack=stack, stacking_models = NULL, 
+      coeffs = NULL, type_pi = type_pi,
+      B = B, agg = agg, 
+      seed = seed), silent=TRUE)
+      if (!inherits(res, "try-error"))
+      {
+        stacking_results[[j]] <- res 
+        j <- j + 1
+      } else {
+        next 
+      }
+      utils::setTxtProgressBar(pb, i)
+    }   
+    close(pb) 
+
+    total_models <- j - 1
+    lower_bounds <- sapply(seq_len(total_models), function(i) stacking_results[[i]]$lower)
+    upper_bounds <- sapply(seq_len(total_models), function(i) stacking_results[[i]]$upper)
+    mean_forecasts <- sapply(seq_len(total_models), function(i) stacking_results[[i]]$mean)
+    misc::debug_print(lower_bounds)
+    misc::debug_print(upper_bounds)
+    misc::debug_print(mean_forecasts)
+    if (agg == "median")
+    {
+      lower_bound <- apply(lower_bounds, 1, median)
+      upper_bound <- apply(upper_bounds, 1, median)
+    } else {
+      lower_bound <- rowMeans(lower_bounds)
+      upper_bound <- rowMeans(upper_bounds)
+    }
+
+
+    tspx <- tsp(y)
+    start_preds <- tspx[2] + 1 / tspx[3]                         
+    freq_x <- frequency(y)
+    out <- list() 
+    class(out) <- "forecast"
+    out$mean <- ts(switch(
+      agg,
+      median = apply(mean_forecasts, 1, median),
+      mean = rowMeans(mean_forecasts)
+    ),
+    start = start_preds,
+    frequency = freq_x)    
+    out$lower <- ts(lower_bound,
+                    start = start_preds,
+                    frequency = freq_x)
+    out$upper <- ts(upper_bounds,
+                    start = start_preds,
+                    frequency = freq_x)
+    out$x <- y_calib
+    out$level <- level 
+    out$method <- "Stacked conformalized ML"
+    out$model <- stacking_results
+    return(out)
+  }
+
   y_pred_calibration <- ml_forecast(y = y_train, 
                             h = length(y_calib), 
                             lags=lags, 
@@ -170,7 +247,7 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
       apply(sims, 1, function(x)
         quantile(x, probs = 1 - (1 - level / 100) / 2))
 
-    out <- vector("list", 8) 
+    out <- list() 
     class(out) <- "forecast"
     out$mean <- ts(switch(
       agg,
@@ -248,6 +325,7 @@ ml_forecast <- function(y, h,
   # Convert to matrix once for faster operations
   df_matrix <- as.matrix(df)
   col_names <- colnames(df)
+
   if (!is.null(xreg))
   {
     df_xreg_matrix <- as.matrix(df_xreg)
@@ -270,7 +348,6 @@ ml_forecast <- function(y, h,
       df_matrix <- rbind(new_row, df_matrix)
     } 
   } else {
-    df_matrix2 <- cbind(df_matrix, df_xreg_matrix)
     for (i in 1:h)
     {
       # Extract newdata exactly as original      

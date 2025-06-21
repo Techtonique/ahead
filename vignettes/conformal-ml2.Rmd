@@ -1,8 +1,8 @@
 ---
-title: "Conformalized Forecasting using Machine Leaning models"
+title: "Conformalized Forecasting using Machine Leaning models 2"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Conformalized Forecasting using Machine Leaning models}
+  %\VignetteIndexEntry{Conformalized Forecasting using Machine Leaning models 2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

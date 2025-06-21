@@ -1,0 +1,38 @@
+---
+title: "Beyond GARCH 2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Beyond GARCH 2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(forecast)
+library(ahead)
+```
+
+Sequel of **Beyond GARCH** vignette, but **using Statistical models for modeling the volatility**.
+
+
+```{r basic_example, fig.width=5}
+# Default model for volatility (Ridge regression for volatility)
+(obj_ridge <- ahead::mlarchf(fpp2::goog200, h=20L, B=500L, ml=FALSE, stat_model=forecast::thetaf))
+plot(obj_ridge)
+```
+
+```{r basic_example2, fig.width=5}
+(obj_ridge <- ahead::mlarchf(fpp2::goog200, h=20L, B=500L, ml=FALSE, stat_model=forecast::meanf))
+plot(obj_ridge)
+```
+
+```{r basic_example3, fig.width=5}
+(obj_ridge <- ahead::mlarchf(fpp2::goog200, h=20L, B=500L, ml=FALSE, stat_model=forecast::auto.arima))
+plot(obj_ridge)
+```
+
+
+```{r basic_example4, fig.width=5}
+(obj_ridge <- ahead::mlarchf(fpp2::goog200, h=20L, B=500L, ml=FALSE, stat_model=forecast::ets))
+plot(obj_ridge)
+```

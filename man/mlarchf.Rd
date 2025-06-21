@@ -2,7 +2,7 @@
 % Please edit documentation in R/mlarch.R
 \name{mlarchf}
 \alias{mlarchf}
-\title{Conformalized Forecasting using Machine Learning models with ARCH effects}
+\title{Conformalized Forecasting using Machine Learning (and statistical) models with ARCH effects}
 \usage{
 mlarchf(
   y,
@@ -11,12 +11,15 @@ mlarchf(
   model_residuals = forecast::thetaf,
   fit_func = ahead::ridge,
   predict_func = predict,
-  type_pi = c("kde", "surrogate", "bootstrap"),
-  type_sim_conformalize = c("block-bootstrap", "surrogate", "kde", "bootstrap",
+  type_pi = c("surrogate", "bootstrap", "kde"),
+  type_sim_conformalize = c("surrogate", "block-bootstrap", "bootstrap", "kde",
     "fitdistr"),
   ml_method = NULL,
   level = 95,
-  B = 250L
+  B = 250L,
+  ml = TRUE,
+  stat_model = NULL,
+  ...
 )
 }
 \arguments{
@@ -36,17 +39,24 @@ mlarchf(
 
 \item{type_sim_conformalize}{Type of simulation for conformalization of standardized residuals ("block-bootstrap", "surrogate", "kde", "bootstrap", or "fitdistr")}
 
-\item{ml_method}{Machine learning method to use (if NULL, uses default methods)}
+\item{ml_method}{caret package Machine learning method to use, if \code{fit_func} and \code{predict_func} aren't provided.
+If NULL, uses \code{fit_func} and \code{predict_func}.}
 
 \item{level}{Confidence level for prediction intervals}
 
 \item{B}{Number of bootstrap replications or simulations}
+
+\item{ml}{If \code{TRUE}, \code{fit_func} and \code{predict_func} are used, otherwise a statistical model in \code{stat_model}}
+
+\item{stat_model}{A statistical model, e.g \code{forecast::thetaf} or \code{forecast::auto.arima}}
+
+\item{...}{Additional parameters to be passed to \code{stat_model}}
 }
 \value{
 A forecast object containing predictions and prediction intervals
 }
 \description{
-Conformalized Forecasting using Machine Learning models with ARCH effects
+Conformalized Forecasting using Machine Learning (and statistical) models with ARCH effects
 }
 \examples{
 # Example usage will be added
