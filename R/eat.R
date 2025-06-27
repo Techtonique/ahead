@@ -62,7 +62,9 @@
 #'weights = c(0.5, 0, 0.5)))
 #'
 #'print(ahead::eatf(WWWusage, method = "EAT"))
-#'
+#'print(ahead::eatf(WWWusage, method = "EA"))
+#'print(ahead::eatf(WWWusage, method = "AT"))
+#'print(ahead::eatf(WWWusage, method = "ET"))
 #'
 #'obj <- ahead::eatf(WWWusage, method = "EAT",
 #'weights = c(0, 0.5, 0.5), h=10,
@@ -159,11 +161,12 @@ eatf <- function(y, h = 5,
 
         out$model <- list(method=method, weights=weights, type_pi=type_pi)
 
-        out$mean <- try(ts(drop(crossprod(weights, fcasts)),
+
+        out$mean <- try(ts(drop(colSums(fcasts*weights)),
                            start = start_preds,
                            frequency = freq_y), silent = TRUE)
         if (inherits(out$mean, "try-error")) {
-          out$mean <- try(ts(drop(tcrossprod(weights, fcasts)),
+          out$mean <- try(ts(drop(colSums(fcasts*weights)),
                            start = start_preds,
                            frequency = freq_y), silent = TRUE)
         }      
@@ -202,7 +205,7 @@ eatf <- function(y, h = 5,
 
         out$model <- list(method=method, weights=weights, type_pi=type_pi)
 
-        out$mean <- ts(drop(crossprod(weights, fcasts)),
+        out$mean <- ts(drop(colSums(fcasts*weights)),
                            start = start_preds,
                            frequency = freq_y)
         out$residuals <- ts(drop(crossprod(weights, resids)),
@@ -236,7 +239,7 @@ eatf <- function(y, h = 5,
 
         out$model <- list(method=method, weights=weights, type_pi=type_pi)
 
-        out$mean <- ts(drop(crossprod(weights, fcasts)),
+        out$mean <- ts(drop(colSums(fcasts*weights)),
                            start = start_preds,
                            frequency = freq_y)
         out$residuals <- ts(drop(crossprod(weights, resids)),
@@ -269,7 +272,7 @@ eatf <- function(y, h = 5,
 
         out$model <- list(method=method, weights=weights, type_pi=type_pi)
 
-        out$mean <- ts(drop(crossprod(weights, fcasts)),
+        out$mean <- ts(drop(colSums(fcasts*weights)),
                            start = start_preds,
                            frequency = freq_y)
         out$residuals <- ts(drop(crossprod(weights, resids)),
@@ -309,13 +312,7 @@ eatf <- function(y, h = 5,
       }
 
       out$mean <-  drop(out$mean + resid_fcast$mean)
-      #print("out$mean")
-      #print(out$mean)
-      #print("\n")
-      out$lower <- drop(out$mean + resid_fcast$lower)
-      #print("out$lower")
-      #print(out$lower)
-      #print("\n")
+      out$lower <- drop(out$mean + resid_fcast$lower)      
       out$upper <- drop(out$mean + resid_fcast$upper)
 
     out$level <- level

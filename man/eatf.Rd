@@ -8,7 +8,7 @@ eatf(
   y,
   h = 5,
   level = 95,
-  method = c("EAT", "E", "A", "T"),
+  method = c("EAT", "E", "A", "T", "EA", "ET", "AT"),
   weights = rep(1/3, 3),
   type_pi = c("gaussian", "E", "A", "T"),
   ...
@@ -23,7 +23,8 @@ eatf(
 
 \item{method}{forecasting method: "E" for \code{forecast::ets};
 "A"for \code{forecast::auto.arima}; "T" for \code{forecast::thetaf};
-or "EAT" for the combination of the three (default, with \code{weights})}
+or "EAT" for the combination of the three (default, with \code{weights})
+"EA", "ET", "AT"}
 
 \item{weights}{weights for each method, in method \code{EAT}. Must add up to 1.}
 
