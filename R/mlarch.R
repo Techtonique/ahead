@@ -20,7 +20,12 @@
 #' @export
 #'
 #' @examples
-#' # Example usage will be added
+#' 
+#' y <- fpp2::goog200
+#' 
+#' # Default model for volatility (Ridge regression for volatility)
+#' (obj_ridge <- ahead::mlarchf(y, h=20L, B=500L))
+#' plot(obj_ridge)
 mlarchf <- function(y, h=10L,
                     mean_model=forecast::auto.arima,
                     model_residuals=forecast::thetaf,

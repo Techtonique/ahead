@@ -62,9 +62,9 @@
 #'weights = c(0.5, 0, 0.5)))
 #'
 #'print(ahead::eatf(WWWusage, method = "EAT"))
-#'print(ahead::eatf(WWWusage, method = "EA"))
-#'print(ahead::eatf(WWWusage, method = "AT"))
-#'print(ahead::eatf(WWWusage, method = "ET"))
+#'print(ahead::eatf(WWWusage, method = "E"))
+#'print(ahead::eatf(WWWusage, method = "A"))
+#'print(ahead::eatf(WWWusage, method = "T"))
 #'
 #'obj <- ahead::eatf(WWWusage, method = "EAT",
 #'weights = c(0, 0.5, 0.5), h=10,
@@ -170,11 +170,11 @@ eatf <- function(y, h = 5,
                            start = start_preds,
                            frequency = freq_y), silent = TRUE)
         }      
-        out$residuals <- ts(drop(crossprod(weights, resids)),
+        out$residuals <- ts(drop(colSums(resids*weights)),
                                 start = start(y),
                                 frequency = frequency(y))
         if (inherits(out$residuals, "try-error")) {
-          out$residuals <- ts(drop(tcrossprod(weights, resids)),
+          out$residuals <- ts(drop(tcolSums(resids*weights)),
                                 start = start(y),
                                 frequency = frequency(y))
         }                        
@@ -208,7 +208,7 @@ eatf <- function(y, h = 5,
         out$mean <- ts(drop(colSums(fcasts*weights)),
                            start = start_preds,
                            frequency = freq_y)
-        out$residuals <- ts(drop(crossprod(weights, resids)),
+        out$residuals <- ts(drop(colSums(resids*weights)),
                                 start = start(y),
                                 frequency = frequency(y))
         out$method <- paste0("AT(", type_pi, ")")
@@ -242,7 +242,7 @@ eatf <- function(y, h = 5,
         out$mean <- ts(drop(colSums(fcasts*weights)),
                            start = start_preds,
                            frequency = freq_y)
-        out$residuals <- ts(drop(crossprod(weights, resids)),
+        out$residuals <- ts(drop(colSums(resids*weights)),
                                 start = start(y),
                                 frequency = frequency(y))
         out$method <- paste0("ET(", type_pi, ")")
@@ -275,7 +275,7 @@ eatf <- function(y, h = 5,
         out$mean <- ts(drop(colSums(fcasts*weights)),
                            start = start_preds,
                            frequency = freq_y)
-        out$residuals <- ts(drop(crossprod(weights, resids)),
+        out$residuals <- ts(drop(colSums(resids*weights)),
                                 start = start(y),
                                 frequency = frequency(y))
         out$method <- paste0("EA(", type_pi, ")")
