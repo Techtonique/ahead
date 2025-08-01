@@ -1,3 +1,7 @@
+# version 0.22.0
+
+- add explicit clustering to volatility forecasting in `mlarch`
+
 # version 0.18.0
 
 - Add ML-ARCH model, see vignettes for more examples
