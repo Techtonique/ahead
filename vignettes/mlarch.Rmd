@@ -102,14 +102,23 @@ y <- window(fpp2::goog200, start=100)
 
 # Gradient Boosting via caret
 (obj_glmboost <- ahead::mlarchf(y, ml_method="glmboost", h=20L))
+
+# Gradient Boosting via caret and using clustering explicitly
+(obj_glmboost2 <- ahead::mlarchf(y, ml_method="glmboost", n_clusters=2, h=20L))
+(obj_glmboost3 <- ahead::mlarchf(y, ml_method="glmboost", n_clusters=3, h=20L))
 ```
 
 Visualizing the forecasts:
 
-```{r plot_caret, fig.width=7.2}
+```{r plot_caret, fig.width=7}
 par(mfrow=c(1, 2))
 plot(obj_rf, main="Random Forest (caret)")
 plot(obj_glmboost, main="Gradient Boosting (caret)")
+
+
+par(mfrow=c(1, 2))
+plot(obj_glmboost2, main="Gradient Boosting (caret) \n 2 clusters")
+plot(obj_glmboost3, main="Gradient Boosting (caret) \n 3 clusters")
 ```
 
 Looking at the simulation paths:

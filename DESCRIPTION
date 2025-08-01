@@ -19,6 +19,7 @@ Imports:
 Depends: R (>= 3.5.0)
 Suggests: 
     caret,
+    cclust,
     dfoptim,
     doSNOW,
     knitr,
