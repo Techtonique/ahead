@@ -9,7 +9,7 @@
 #' @param type_pi Type of prediction interval ("kde", "surrogate", or "bootstrap") for volatility modeling
 #' @param type_sim_conformalize Type of simulation for conformalization of standardized residuals ("block-bootstrap", "surrogate", "kde", "bootstrap", or "fitdistr")
 #' @param ml_method caret package Machine learning method to use, if \code{fit_func} and \code{predict_func} aren't provided. 
-#' If NULL, uses \code{fit_func} and \code{predict_func}.
+#' If NULL, uses \code{fit_func} and \code{predict_func}. See \code{unique(caret::modelLookup()$model)}.
 #' @param level Confidence level for prediction intervals
 #' @param B Number of bootstrap replications or simulations
 #' @param ml If \code{TRUE}, \code{fit_func} and \code{predict_func} are used, otherwise a statistical model in \code{stat_model}
@@ -64,10 +64,8 @@ mlarchf <- function(y, h=10L,
     if (!is.null(ml_method)) {
       
       fit_func <- function(x, y, method = ml_method, ...) {
-        
         df <- data.frame(y = y, as.matrix(x)) 
         colnames(df) <- c("y", paste0("X", 1:ncol(x)))
-        
         if (n_clusters > 0) {
           scaler_x <- misc::scale_matrix(as.matrix(x))
           # Cluster only on the scaled features (no zero column needed)
@@ -84,7 +82,6 @@ mlarchf <- function(y, h=10L,
         obj <- caret::train(y ~ ., data = df,
                             method = ml_method,
                             trControl = caret::trainControl(method = "none"))
-        
         if (n_clusters > 0) {
           obj$scaler_x <- scaler_x
           obj$clustering_obj <- clustering_obj
@@ -95,7 +92,6 @@ mlarchf <- function(y, h=10L,
       predict_func <- function(obj, newx) {
         newx <- as.matrix(newx)
         colnames(newx) <- paste0("X", 1:ncol(newx))
-
         if (n_clusters > 0) {
           # Scale new data using original scaling parameters
           newx_scaled <- misc::scale_matrix(as.matrix(newx), 
