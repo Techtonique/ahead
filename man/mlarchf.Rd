@@ -11,6 +11,7 @@ mlarchf(
   model_residuals = forecast::thetaf,
   fit_func = ahead::ridge,
   predict_func = predict,
+  lags_vol = 10L,
   type_pi = c("surrogate", "bootstrap", "kde"),
   type_sim_conformalize = c("surrogate", "block-bootstrap", "bootstrap", "kde",
     "fitdistr"),
@@ -19,6 +20,9 @@ mlarchf(
   B = 250L,
   ml = TRUE,
   stat_model = NULL,
+  n_clusters = 0,
+  clustering_dist = "euclidean",
+  clustering_method = "kmeans",
   ...
 )
 }
@@ -35,12 +39,14 @@ mlarchf(
 
 \item{predict_func}{Prediction function for the variance model (default: \code{predict})}
 
+\item{lags_vol}{Number of lags for squared residuals regression}
+
 \item{type_pi}{Type of prediction interval ("kde", "surrogate", or "bootstrap") for volatility modeling}
 
 \item{type_sim_conformalize}{Type of simulation for conformalization of standardized residuals ("block-bootstrap", "surrogate", "kde", "bootstrap", or "fitdistr")}
 
 \item{ml_method}{caret package Machine learning method to use, if \code{fit_func} and \code{predict_func} aren't provided.
-If NULL, uses \code{fit_func} and \code{predict_func}.}
+If NULL, uses \code{fit_func} and \code{predict_func}. See \code{unique(caret::modelLookup()$model)}.}
 
 \item{level}{Confidence level for prediction intervals}
 
@@ -49,6 +55,12 @@ If NULL, uses \code{fit_func} and \code{predict_func}.}
 \item{ml}{If \code{TRUE}, \code{fit_func} and \code{predict_func} are used, otherwise a statistical model in \code{stat_model}}
 
 \item{stat_model}{A statistical model, e.g \code{forecast::thetaf} or \code{forecast::auto.arima}}
+
+\item{n_clusters}{Number of clusters for residuals (default is 0) for \code{ml == TRUE} and \code{ml_method} not \code{NULL}}
+
+\item{clustering_dist}{Only if \code{n_clusters > 0}. If "euclidean", then mean square error, if "manhattan ", the mean absolute error is used.}
+
+\item{clustering_method}{Only if \code{n_clusters > 0}. If "kmeans", then we have the kmeans clustering method, if "hardcl" we have the On-line Update (Hard Competitive learning) method, and if "neuralgas", we have the Neural Gas (Soft Competitive learning) method. Abbreviations of the method names are accepted.}
 
 \item{...}{Additional parameters to be passed to \code{stat_model}}
 }
@@ -59,5 +71,10 @@ A forecast object containing predictions and prediction intervals
 Conformalized Forecasting using Machine Learning (and statistical) models with ARCH effects
 }
 \examples{
-# Example usage will be added
+
+y <- fpp2::goog200
+
+# Default model for volatility (Ridge regression for volatility)
+(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L))
+plot(obj_ridge)
 }

@@ -6,6 +6,7 @@
 #' @param model_residuals Function to model the residuals (default: \code{forecast::thetaf})
 #' @param fit_func Fitting function for the variance model (default: \code{ahead::ridge})
 #' @param predict_func Prediction function for the variance model (default: \code{predict})
+#' @param lags_vol Number of lags for squared residuals regression
 #' @param type_pi Type of prediction interval ("kde", "surrogate", or "bootstrap") for volatility modeling
 #' @param type_sim_conformalize Type of simulation for conformalization of standardized residuals ("block-bootstrap", "surrogate", "kde", "bootstrap", or "fitdistr")
 #' @param ml_method caret package Machine learning method to use, if \code{fit_func} and \code{predict_func} aren't provided. 
@@ -34,6 +35,7 @@ mlarchf <- function(y, h=10L,
                     model_residuals=forecast::thetaf,
                     fit_func=ahead::ridge,
                     predict_func=predict,
+                    lags_vol=10L,
                     type_pi = c("surrogate", "bootstrap", "kde"),
                     type_sim_conformalize = c("surrogate", "block-bootstrap", "bootstrap", "kde", "fitdistr"),
                     ml_method=NULL,
@@ -110,7 +112,7 @@ mlarchf <- function(y, h=10L,
     }
 
     fit_sigma <- ahead::mlf(log(resids^2), 
-                            lags=2L, 
+                            lags=lags_vol, 
                             fit_func=fit_func,
                             predict_func=predict_func,
                             type_pi=type_pi,
