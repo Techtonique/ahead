@@ -105,9 +105,9 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
     lower_bounds <- sapply(seq_len(total_models), function(i) stacking_results[[i]]$lower)
     upper_bounds <- sapply(seq_len(total_models), function(i) stacking_results[[i]]$upper)
     mean_forecasts <- sapply(seq_len(total_models), function(i) stacking_results[[i]]$mean)
-    misc::debug_print(lower_bounds)
-    misc::debug_print(upper_bounds)
-    misc::debug_print(mean_forecasts)
+    #misc::debug_print(lower_bounds)
+    #misc::debug_print(upper_bounds)
+    #misc::debug_print(mean_forecasts)
     if (agg == "median")
     {
       lower_bound <- apply(lower_bounds, 1, median)

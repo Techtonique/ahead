@@ -8,7 +8,7 @@ mlarchf(
   y,
   h = 10L,
   mean_model = forecast::auto.arima,
-  model_residuals = forecast::thetaf,
+  model_residuals = forecast::meanf,
   fit_func = ahead::ridge,
   predict_func = predict,
   lags_vol = 10L,

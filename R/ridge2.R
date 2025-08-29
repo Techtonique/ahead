@@ -260,9 +260,7 @@ ridge2f <- function(y,
       type_pi = type_pi,
       margins = margins
     )
-
   } else { # conformal  
-
     # Split the training data
     y_train_calibration <- splitts(y, split_prob=0.5)
     y_train <- y_train_calibration$training 
@@ -273,7 +271,6 @@ ridge2f <- function(y,
     } else {
       h_calibration <- nrow(y_calibration)
     }    
-
     # Get predictions on calibration set
     y_pred_calibration <- ahead::ridge2f(
       y_train,
@@ -332,6 +329,7 @@ ridge2f <- function(y,
         x = y,
         level = level,
         method = "ridge2",
+        fitted = ts(fit_obj_train$fitted, start = start_x, frequency = freq_x),
         residuals = ts(calibrated_residuals, start = start_x, frequency = freq_x),
         coefficients = fit_obj_train$coef,
         loocv = NULL,
@@ -476,8 +474,12 @@ ridge2f <- function(y,
       x = y,
       level = level,
       method = "ridge2",
+      fitted = ts(fit_obj$fitted_values,
+                     start = start_x, 
+                     frequency = freq_x),
       residuals = ts(fit_obj$resids,
-                     start = start_x),
+                     start = start_x, 
+                     frequency = freq_x),
       coefficients = fit_obj$coef,
       loocv = fit_obj$loocv,
       weighted_loocv = fit_obj$weighted_loocv,
@@ -722,6 +724,9 @@ ridge2f <- function(y,
       x = y,
       level = level,
       method = "ridge2",
+      fitted = ts(fit_obj$fitted_values,
+                     start = start_x, 
+                     frequency = freq_x),
       residuals = ts(fit_obj$resids,
                      start = start_x, 
                      frequency = freq_x),
@@ -924,6 +929,9 @@ ridge2f <- function(y,
       x = y,
       level = level,
       method = "ridge2",
+      fitted = ts(fit_obj$fitted_values,
+                     start = start_x, 
+                     frequency = freq_x),
       residuals = ts(fit_obj$resids,
                      start = start_x, 
                      frequency = freq_x),
@@ -1109,6 +1117,11 @@ fit_ridge2_mts <- function(x,
   fitted_values <-
     rev_matrix_cpp(lsfit + matrix(rep(ym, each = nrow(lsfit)),
                   ncol = ncol(lsfit)))
+  if (length(series_names) > 1)
+  {
+    fitted_values <- fitted_values[, seq_along(series_names)]
+    colnames(fitted_values) <- series_names
+  } 
   resids <- rev_matrix_cpp(observed_values) - fitted_values
   colnames(resids) <- series_names
 
@@ -1126,8 +1139,6 @@ fit_ridge2_mts <- function(x,
                            silent = TRUE)
     }
   }
-
-
 
   smoother_matrix <- scaled_regressors %*% tcrossprod(inv,
   scaled_regressors)
@@ -1159,6 +1170,7 @@ fit_ridge2_mts <- function(x,
       xm = xm,
       scales = xsd,
       coef = lscoef,
+      fitted_values = fitted_values,
       resids = resids,
       params_distro = params_distro,
       loocv = loocv,

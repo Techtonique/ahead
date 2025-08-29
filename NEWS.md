@@ -1,3 +1,7 @@
+# version 0.24.0
+
+- add fitted values in `ridge2f`
+
 # version 0.22.0
 
 - add explicit clustering to volatility forecasting in `mlarch`
