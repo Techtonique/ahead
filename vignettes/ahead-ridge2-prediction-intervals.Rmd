@@ -184,7 +184,7 @@ plot(res5, "TV.advert")
 
 ## 2 - 3 With external regressors and K-Means clustering
 
-```{r "bootstrap-xreg-clustering", fig.width=7.2}
+```{r "bootstrap-xreg-clustering", fig.width=7.2, eval=FALSE}
 (res6 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
                         centers = centers, 
                         type_pi = "bootstrap", B = B, h = h))

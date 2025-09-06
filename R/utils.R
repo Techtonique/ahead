@@ -380,18 +380,14 @@ get_clusters <- function(x,
                          ...)
 {
   stopifnot(!missing(x)) # use rlang::abort
-
   stopifnot(!missing(centers)) # use rlang::abort
-
   # /!\ important
   x_scaled <- scale(x = x,
                     scale = TRUE,
                     center = TRUE)[,]
-
   type_clustering <- match.arg(type_clustering)
 
   set.seed(seed)
-
   df_clusters <- switch(
     type_clustering,
     kmeans = data.frame(stats::kmeans(x_scaled,
@@ -403,26 +399,27 @@ get_clusters <- function(x,
   )
 
   df_clusters[[1]] <- as.factor(df_clusters[[1]])
-
   matrix_clusters <- stats::model.matrix( ~ -1 + ., df_clusters)
-
   rownames(matrix_clusters) <- NULL
-
   colnames(matrix_clusters) <- NULL
-
-  matrix_clusters <- matrix_clusters[, ]
+  matrix_clusters <- matrix_clusters[, -ncol(matrix_clusters)]
 
   if (!is.null(start) && !is.null(frequency))
   {
-    cluster_ts <- ts(matrix_clusters,
+    cluster_ts <- ts(as.matrix(matrix_clusters),
                      start = start, frequency = frequency)
-
-    colnames(cluster_ts) <-
-      paste0("xreg_cluster", 1:ncol(cluster_ts))
-
+    if(!is.null(ncol(cluster_ts)))
+    {
+      colnames(cluster_ts) <-
+        paste0("xreg_cluster", 1:ncol(cluster_ts))
+    }
     return(cluster_ts)
   } else {
-    colnames(matrix_clusters) <- paste0("xreg_cluster", 1:ncol(matrix_clusters))
+    if(!is.null(ncol(matrix_clusters)))
+    {
+     colnames(matrix_clusters) <- paste0("xreg_cluster",
+                                        1:ncol(matrix_clusters))
+    }
     return(matrix_clusters)
   }
 }
@@ -650,7 +647,7 @@ quantile_scp <- function(abs_residuals, alpha) {
   if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1) {
     stop("alpha must be between 0 and 1")
   }
-  
+
   n_cal_points <- length(abs_residuals)
   # Use ceiling((n+1)(1-alpha)) for valid coverage
   k <- ceiling((n_cal_points + 1) * (1 - alpha))
@@ -699,7 +696,7 @@ remove_zero_cols <- function(x, with_index = FALSE)
 
 # Fit Ridge regression -----
 #' @export
-#' @export 
+#' @export
 ridge <- function(x, y, lambda=10^seq(-10, 10,
                                           length.out = 100))
 {
@@ -712,7 +709,7 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
   {
     x <- matrix(x, ncol=1L)
   } else {
-    x <- as.matrix(x) 
+    x <- as.matrix(x)
   }
   #misc::debug_print(x)
   y <- as.vector(y)

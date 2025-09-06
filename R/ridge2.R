@@ -132,7 +132,7 @@ ridge2f <- function(y,
                       "bootstrap",
                       "blockbootstrap",
                       "movingblockbootstrap",
-                      "rvinecopula", 
+                      "rvinecopula",
                       "conformal-split",
                       "conformal-bootstrap",
                       "conformal-block-bootstrap"
@@ -228,6 +228,8 @@ ridge2f <- function(y,
     colnames_clustering <- colnames(matrix_clusters)
     colnames_y_clustering <- colnames(y)
     y <- cbind(y, matrix_clusters)
+    if (is.null(colnames_clustering))
+      colnames_clustering <- "xreg_cluster"
     colnames(y) <- c(colnames_y_clustering, colnames_clustering)
   }
 
@@ -260,17 +262,17 @@ ridge2f <- function(y,
       type_pi = type_pi,
       margins = margins
     )
-  } else { # conformal  
+  } else { # conformal
     # Split the training data
     y_train_calibration <- splitts(y, split_prob=0.5)
-    y_train <- y_train_calibration$training 
+    y_train <- y_train_calibration$training
     y_calibration <- y_train_calibration$testing
     if (is.null(dim(y_calibration)))
     {
       h_calibration <- length(y_calibration)
     } else {
       h_calibration <- nrow(y_calibration)
-    }    
+    }
     # Get predictions on calibration set
     y_pred_calibration <- ahead::ridge2f(
       y_train,
@@ -287,10 +289,10 @@ ridge2f <- function(y,
       type_clustering = type_clustering,
       seed = seed
     )$mean
-    
+
     # Final fit and forecast on full calibration set
     fit_obj_train <- ahead::ridge2f(
-      y_calibration, 
+      y_calibration,
       h = h,
       lags = lags,
       nb_hidden = nb_hidden,
@@ -308,7 +310,7 @@ ridge2f <- function(y,
     preds <- fit_obj_train$mean
 
     calibrated_residuals <- y_calibration - y_pred_calibration
-    
+
     if (type_pi == "conformal-split") {
       if (is.null(dim(calibrated_residuals))) {
         quantile_absolute_residuals_conformal <- apply(abs(calibrated_residuals), 2, function(x) {
@@ -317,13 +319,13 @@ ridge2f <- function(y,
        } else {
         quantile_absolute_residuals_conformal <- quantile(abs(calibrated_residuals), probs = level/100)
        }
-       
+
       # Create output with proper time series attributes
       out <- list(
         mean = ts(preds, start = start_preds, frequency = freq_x),
-        lower = ts(preds - quantile_absolute_residuals_conformal, 
+        lower = ts(preds - quantile_absolute_residuals_conformal,
                   start = start_preds, frequency = freq_x),
-        upper = ts(preds + quantile_absolute_residuals_conformal, 
+        upper = ts(preds + quantile_absolute_residuals_conformal,
                   start = start_preds, frequency = freq_x),
         sims = NULL,
         x = y,
@@ -333,7 +335,7 @@ ridge2f <- function(y,
         residuals = ts(calibrated_residuals, start = start_x, frequency = freq_x),
         coefficients = fit_obj_train$coef,
         loocv = NULL,
-        weighted_loocv = NULL, 
+        weighted_loocv = NULL,
         loocv_per_series = NULL
       )
 
@@ -353,15 +355,15 @@ ridge2f <- function(y,
     if (type_pi %in% c("conformal-bootstrap", "conformal-block-bootstrap")) {
       # Get conformal quantile for each series
       method <- gsub("conformal-", "", type_pi)
-      
+
       # Simulate residuals using rmultivariate
       simulated_residuals <- lapply(1:B, function(i) {
         if (method == "block-bootstrap") {
           # Set default block length if not provided
           if (is.null(block_length)) {
             freq_y <- frequency(y)
-            block_length <- ifelse(freq_y > 1, 
-                                 2 * freq_y, 
+            block_length <- ifelse(freq_y > 1,
+                                 2 * freq_y,
                                  min(8, floor(nrow(calibrated_residuals) / 2)))
           }
           # Check horizon length
@@ -380,14 +382,14 @@ ridge2f <- function(y,
         } else {
           # Bootstrap case also needs h residuals
           rmultivariate(
-            data = calibrated_residuals, 
+            data = calibrated_residuals,
             method = method,
             n = h,
             block_size = block_length
           )
         }
       })
-    
+
       # Create simulations while preserving column names
       sims <- lapply(1:B, function(i) {
         sim <- preds + simulated_residuals[[i]]
@@ -397,14 +399,14 @@ ridge2f <- function(y,
         }
         sim
       })
-      
+
       # Convert list of simulations to array for calculations
       sims_array <- array(
-        unlist(sims), 
+        unlist(sims),
         dim = c(nrow(preds), ncol(preds), B),
         dimnames = list(NULL, colnames(preds), NULL)
       )
-      
+
       # Create output list with proper time series structure
       out <- list(
         mean = ts(
@@ -475,10 +477,10 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       fitted = ts(fit_obj$fitted_values,
-                     start = start_x, 
+                     start = start_x,
                      frequency = freq_x),
       residuals = ts(fit_obj$resids,
-                     start = start_x, 
+                     start = start_x,
                      frequency = freq_x),
       coefficients = fit_obj$coef,
       loocv = fit_obj$loocv,
@@ -651,7 +653,7 @@ ridge2f <- function(y,
     {
       if (!is.null(centers)) # with clustering
       {
-        n_series_with_xreg_clusters <- n_series + n_xreg + centers
+        n_series_with_xreg_clusters <- n_series + n_xreg + centers - 1
         preds_mean <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
         preds_upper <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
         preds_lower <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
@@ -670,7 +672,7 @@ ridge2f <- function(y,
     } else { # without external regressors
       if (!is.null(centers))  # with clustering
       {
-        n_series_with_clusters <- n_series + centers
+        n_series_with_clusters <- n_series + centers - 1
         preds_mean <- matrix(0, ncol = n_series_with_clusters, nrow = h)
         preds_upper <- matrix(0, ncol = n_series_with_clusters, nrow = h)
         preds_lower <- matrix(0, ncol = n_series_with_clusters, nrow = h)
@@ -725,10 +727,10 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       fitted = ts(fit_obj$fitted_values,
-                     start = start_x, 
+                     start = start_x,
                      frequency = freq_x),
       residuals = ts(fit_obj$resids,
-                     start = start_x, 
+                     start = start_x,
                      frequency = freq_x),
       loocv = fit_obj$loocv,
       weighted_loocv = fit_obj$weighted_loocv,
@@ -856,7 +858,7 @@ ridge2f <- function(y,
     {
       if (!is.null(centers)) # with clustering
       {
-        n_series_with_xreg_clusters <- n_series + n_xreg + centers
+        n_series_with_xreg_clusters <- n_series + n_xreg + centers - 1
         preds_mean <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
         preds_upper <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
         preds_lower <- matrix(0, ncol = n_series_with_xreg_clusters, nrow = h)
@@ -875,7 +877,7 @@ ridge2f <- function(y,
     } else { # without external regressors
       if (!is.null(centers))  # with clustering
       {
-        n_series_with_clusters <- n_series + centers
+        n_series_with_clusters <- n_series + centers - 1
         preds_mean <- matrix(0, ncol = n_series_with_clusters, nrow = h)
         preds_upper <- matrix(0, ncol = n_series_with_clusters, nrow = h)
         preds_lower <- matrix(0, ncol = n_series_with_clusters, nrow = h)
@@ -930,10 +932,10 @@ ridge2f <- function(y,
       level = level,
       method = "ridge2",
       fitted = ts(fit_obj$fitted_values,
-                     start = start_x, 
+                     start = start_x,
                      frequency = freq_x),
       residuals = ts(fit_obj$resids,
-                     start = start_x, 
+                     start = start_x,
                      frequency = freq_x),
       copula = fit_obj$params_distro,
       margins = margins,
@@ -1121,7 +1123,7 @@ fit_ridge2_mts <- function(x,
   {
     fitted_values <- fitted_values[, seq_along(series_names)]
     colnames(fitted_values) <- series_names
-  } 
+  }
   resids <- rev_matrix_cpp(observed_values) - fitted_values
   colnames(resids) <- series_names
 

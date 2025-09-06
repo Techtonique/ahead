@@ -12,6 +12,7 @@
 #' @param nsim Number of simulations.
 #' @param block_size Block size for block-bootstrap.
 #' @param seed Seed for reproducibility.
+#' @param B Alias for \code{nsim}
 #' @param ... Additional arguments to be passed to the forecasting function.
 #' 
 #' @return An object of class \code{forecast}.
@@ -29,6 +30,7 @@ conformalize <- function(FUN, y, h, level=95,
                          nsim = 100L, 
                          block_size = 5,
                          seed = 123L, 
+                         B = NULL,
                          ...)
 {
   method <- match.arg(method)
@@ -41,6 +43,8 @@ conformalize <- function(FUN, y, h, level=95,
   y_train <- splitted_y$training
   y_calib <- splitted_y$testing
   n_calib <- length(idx_calib)
+  if (!is.null(B))
+    B <- nsim 
   
   calib_resids <- ahead::genericforecast(y=y_train, h=n_calib, 
                               level=level, FUN=FUN, 
