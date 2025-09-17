@@ -13,6 +13,7 @@ conformalize(
   nsim = 100L,
   block_size = 5,
   seed = 123L,
+  B = NULL,
   ...
 )
 }
@@ -32,6 +33,8 @@ conformalize(
 \item{block_size}{Block size for block-bootstrap.}
 
 \item{seed}{Seed for reproducibility.}
+
+\item{B}{Alias for \code{nsim}}
 
 \item{...}{Additional arguments to be passed to the forecasting function.}
 }

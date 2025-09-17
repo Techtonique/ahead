@@ -10,14 +10,111 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// compute_attention_cpp
-NumericMatrix compute_attention_cpp(NumericVector series);
-RcppExport SEXP _ahead_compute_attention_cpp(SEXP seriesSEXP) {
+// cosine_attention_cpp
+NumericMatrix cosine_attention_cpp(NumericVector series, int window_size);
+RcppExport SEXP _ahead_cosine_attention_cpp(SEXP seriesSEXP, SEXP window_sizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_attention_cpp(series));
+    Rcpp::traits::input_parameter< int >::type window_size(window_sizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(cosine_attention_cpp(series, window_size));
+    return rcpp_result_gen;
+END_RCPP
+}
+// exponential_attention_cpp
+NumericMatrix exponential_attention_cpp(NumericVector series, double decay_factor);
+RcppExport SEXP _ahead_exponential_attention_cpp(SEXP seriesSEXP, SEXP decay_factorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    Rcpp::traits::input_parameter< double >::type decay_factor(decay_factorSEXP);
+    rcpp_result_gen = Rcpp::wrap(exponential_attention_cpp(series, decay_factor));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dot_product_attention_cpp
+NumericMatrix dot_product_attention_cpp(NumericVector series);
+RcppExport SEXP _ahead_dot_product_attention_cpp(SEXP seriesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    rcpp_result_gen = Rcpp::wrap(dot_product_attention_cpp(series));
+    return rcpp_result_gen;
+END_RCPP
+}
+// scaled_dot_product_attention_cpp
+NumericMatrix scaled_dot_product_attention_cpp(NumericVector series, double temperature);
+RcppExport SEXP _ahead_scaled_dot_product_attention_cpp(SEXP seriesSEXP, SEXP temperatureSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    Rcpp::traits::input_parameter< double >::type temperature(temperatureSEXP);
+    rcpp_result_gen = Rcpp::wrap(scaled_dot_product_attention_cpp(series, temperature));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gaussian_attention_cpp
+NumericMatrix gaussian_attention_cpp(NumericVector series, double sigma);
+RcppExport SEXP _ahead_gaussian_attention_cpp(SEXP seriesSEXP, SEXP sigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(gaussian_attention_cpp(series, sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// linear_attention_cpp
+NumericMatrix linear_attention_cpp(NumericVector series);
+RcppExport SEXP _ahead_linear_attention_cpp(SEXP seriesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    rcpp_result_gen = Rcpp::wrap(linear_attention_cpp(series));
+    return rcpp_result_gen;
+END_RCPP
+}
+// value_based_attention_cpp
+NumericMatrix value_based_attention_cpp(NumericVector series, double sensitivity);
+RcppExport SEXP _ahead_value_based_attention_cpp(SEXP seriesSEXP, SEXP sensitivitySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    Rcpp::traits::input_parameter< double >::type sensitivity(sensitivitySEXP);
+    rcpp_result_gen = Rcpp::wrap(value_based_attention_cpp(series, sensitivity));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hybrid_attention_cpp
+NumericMatrix hybrid_attention_cpp(NumericVector series, double time_decay, double value_sensitivity);
+RcppExport SEXP _ahead_hybrid_attention_cpp(SEXP seriesSEXP, SEXP time_decaySEXP, SEXP value_sensitivitySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    Rcpp::traits::input_parameter< double >::type time_decay(time_decaySEXP);
+    Rcpp::traits::input_parameter< double >::type value_sensitivity(value_sensitivitySEXP);
+    rcpp_result_gen = Rcpp::wrap(hybrid_attention_cpp(series, time_decay, value_sensitivity));
+    return rcpp_result_gen;
+END_RCPP
+}
+// parametric_attention_cpp
+NumericMatrix parametric_attention_cpp(NumericVector series, double alpha, double beta);
+RcppExport SEXP _ahead_parametric_attention_cpp(SEXP seriesSEXP, SEXP alphaSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(parametric_attention_cpp(series, alpha, beta));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -30,6 +127,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type attention_weights(attention_weightsSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_context_vectors_cpp(series, attention_weights));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compare_attention_mechanisms
+List compare_attention_mechanisms(NumericVector series, int window_size, double decay_factor, double temperature, double sigma, double sensitivity);
+RcppExport SEXP _ahead_compare_attention_mechanisms(SEXP seriesSEXP, SEXP window_sizeSEXP, SEXP decay_factorSEXP, SEXP temperatureSEXP, SEXP sigmaSEXP, SEXP sensitivitySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type series(seriesSEXP);
+    Rcpp::traits::input_parameter< int >::type window_size(window_sizeSEXP);
+    Rcpp::traits::input_parameter< double >::type decay_factor(decay_factorSEXP);
+    Rcpp::traits::input_parameter< double >::type temperature(temperatureSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type sensitivity(sensitivitySEXP);
+    rcpp_result_gen = Rcpp::wrap(compare_attention_mechanisms(series, window_size, decay_factor, temperature, sigma, sensitivity));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -145,8 +258,17 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ahead_compute_attention_cpp", (DL_FUNC) &_ahead_compute_attention_cpp, 1},
+    {"_ahead_cosine_attention_cpp", (DL_FUNC) &_ahead_cosine_attention_cpp, 2},
+    {"_ahead_exponential_attention_cpp", (DL_FUNC) &_ahead_exponential_attention_cpp, 2},
+    {"_ahead_dot_product_attention_cpp", (DL_FUNC) &_ahead_dot_product_attention_cpp, 1},
+    {"_ahead_scaled_dot_product_attention_cpp", (DL_FUNC) &_ahead_scaled_dot_product_attention_cpp, 2},
+    {"_ahead_gaussian_attention_cpp", (DL_FUNC) &_ahead_gaussian_attention_cpp, 2},
+    {"_ahead_linear_attention_cpp", (DL_FUNC) &_ahead_linear_attention_cpp, 1},
+    {"_ahead_value_based_attention_cpp", (DL_FUNC) &_ahead_value_based_attention_cpp, 2},
+    {"_ahead_hybrid_attention_cpp", (DL_FUNC) &_ahead_hybrid_attention_cpp, 3},
+    {"_ahead_parametric_attention_cpp", (DL_FUNC) &_ahead_parametric_attention_cpp, 3},
     {"_ahead_compute_context_vectors_cpp", (DL_FUNC) &_ahead_compute_context_vectors_cpp, 2},
+    {"_ahead_compare_attention_mechanisms", (DL_FUNC) &_ahead_compare_attention_mechanisms, 6},
     {"_ahead_exact_rf_forecast", (DL_FUNC) &_ahead_exact_rf_forecast, 5},
     {"_ahead_forecast_innovs_loop_cpp", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp, 8},
     {"_ahead_forecast_innovs_loop_cpp2", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp2, 8},

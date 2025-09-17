@@ -4,10 +4,38 @@
 \alias{computeattention}
 \title{Compute global attention weights and context vectors for time series}
 \usage{
-computeattention(series)
+computeattention(
+  series,
+  attention_type = "cosine",
+  window_size = 3,
+  decay_factor = 5,
+  temperature = 1,
+  sigma = 1,
+  sensitivity = 1,
+  alpha = 0.5,
+  beta = 0.5
+)
 }
 \arguments{
 \item{series}{Numeric vector containing the time series of length n}
+
+\item{attention_type}{String specifying the type of attention mechanism to use.
+Options are: "cosine", "exponential", "dot_product", "scaled_dot_product",
+"gaussian", "linear", "value_based", "hybrid", "parametric". Default is "cosine".}
+
+\item{window_size}{Integer parameter for window size (applicable for "cosine" attention).}
+
+\item{decay_factor}{Double for decay factor (applicable for "exponential" attention).}
+
+\item{temperature}{Double for temperature (applicable for "scaled_dot_product" attention).}
+
+\item{sigma}{Double for sigma (applicable for "gaussian" attention).}
+
+\item{sensitivity}{Double for sensitivity (applicable for "value_based" or "hybrid" attention).}
+
+\item{alpha}{Double for alpha (applicable for "parametric" attention).}
+
+\item{beta}{Double for beta (applicable for "parametric" attention).}
 }
 \value{
 List containing:
@@ -20,12 +48,13 @@ of all values up to time i, using the attention weights.}
 Compute global attention weights and context vectors for time series
 }
 \examples{
-# For a series of length 5
+# For a series of length 5 using "cosine" attention
 series <- c(1, 2, 3, 4, 5)
-result <- computeattention(series)
+result <- computeattention(series, attention_type = "cosine", window_size = 3)
 
 # attention_weights will be 5x5 matrix
 # context_vectors will be length 5
 dim(result$attention_weights)  # [1] 5 5
 length(result$context_vectors) # [1] 5
+
 }
