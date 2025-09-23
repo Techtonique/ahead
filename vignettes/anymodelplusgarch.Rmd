@@ -1,0 +1,20 @@
+---
+title: "Any model + GARCH(1, 1)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Any model + GARCH(1, 1)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+plot(ahead::agnosticgarchf(fpp2::goog200, 
+                           FUN=forecast::auto.arima, h=20))
+plot(ahead::agnosticgarchf(fpp2::goog200, 
+                           FUN=forecast::thetaf, h=20))
+plot(ahead::agnosticgarchf(fpp2::goog200, 
+                           FUN=ahead::ridge2f, h=20))
+plot(ahead::agnosticgarchf(fpp2::goog200, 
+                           FUN=ahead::loessf, h=20))
+```
+

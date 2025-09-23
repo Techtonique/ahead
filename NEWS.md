@@ -1,3 +1,8 @@
+# version 0.25.0
+
+- Implement ANY MODEL+GARCH(1, 1) forecasting for stocks (stochastic volatility models) 
+- `armagarchf` doesn't use the bootstrap by default anymore
+
 # version 0.24.0
 
 - add fitted values in `ridge2f`
