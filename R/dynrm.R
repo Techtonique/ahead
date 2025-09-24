@@ -334,13 +334,20 @@ dynrm_fit <- function(y,
   # print(X_j)
   # cat("\n")
 
-  fit <- do.call(what = fit_func,
+  fit <- try(do.call(what = fit_func,
                  args = c(list(x = X_j,
-                               y = y[j]), fit_params))
+                               y = y[j]), fit_params)), 
+             silent=TRUE)
+  if (inherits(fit, "try-error"))
+  {
+    set.seed(123)
+    random_feature <- rnorm(nrow(X_j))
+    fit <- do.call(what = fit_func,
+                   args = c(list(x = cbind(X_j, random_feature),
+                                 y = y[j]), fit_params))
+  }
 
-   # cat("fit", "\n")
-   # print(fit)
-   # cat("\n")
+   #misc::debug_print(fit)
 
   # Return results
   out <- list()
@@ -377,7 +384,14 @@ dynrm_fit <- function(y,
      {
        fits <- try(drop(predict_func(fit, X_j)),
                    silent = TRUE)
+       if (inherits(fits, "try-error") || is.null(fits))
+       {
+         set.seed(123)
+         random_feature <- rnorm(nrow(X_j))
+         fits <- try(drop(predict_func(fit, cbind(X_j, random_feature))),
+                     silent = FALSE)
        }
+     }
    }
 
    # cat("fits", "\n")

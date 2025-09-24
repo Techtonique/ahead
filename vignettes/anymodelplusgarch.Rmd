@@ -7,14 +7,33 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r}
-plot(ahead::agnosticgarchf(fpp2::goog200, 
+```{r, fig.width=7}
+(res <- ahead::agnosticgarchf(fpp2::goog200,
                            FUN=forecast::auto.arima, h=20))
-plot(ahead::agnosticgarchf(fpp2::goog200, 
+ggplot2::autoplot(res)
+(res <- ahead::agnosticgarchf(fpp2::goog200,
                            FUN=forecast::thetaf, h=20))
-plot(ahead::agnosticgarchf(fpp2::goog200, 
+ggplot2::autoplot(res)
+(res <- ahead::agnosticgarchf(fpp2::goog200,
                            FUN=ahead::ridge2f, h=20))
-plot(ahead::agnosticgarchf(fpp2::goog200, 
+ggplot2::autoplot(res)
+(res <- ahead::agnosticgarchf(fpp2::goog200,
                            FUN=ahead::loessf, h=20))
+ggplot2::autoplot(res)
 ```
 
+```{r, fig.width=7}
+res <- ahead::agnosticgarchf(fpp2::goog200, FUN=ahead::dynrmf, h=20, 
+                             fit_func=e1071::svm)
+ggplot2::autoplot(res)
+res <- ahead::agnosticgarchf(fpp2::goog200, FUN=ahead::dynrmf, h=20, 
+                             fit_func=randomForest::randomForest)
+ggplot2::autoplot(res)
+```
+
+```{r, fig.width=7}
+res <- ahead::agnosticgarchf(fpp2::goog200, FUN=ahead::eatf, h=20)
+ggplot2::autoplot(res)
+res <- ahead::agnosticgarchf(fpp2::goog200, FUN=ahead::glmthetaf, h=20)
+ggplot2::autoplot(res)
+```
