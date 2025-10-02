@@ -1,7 +1,7 @@
 Package: ahead
 Type: Package
 Title: Time Series Forecasting with uncertainty quantification
-Version: 0.26.2
+Version: 0.26.3
 Date: 2025-10-02
 Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>

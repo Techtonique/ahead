@@ -78,7 +78,7 @@ fitforecast <- function(y,
     idx_train <- seq_len(length(y) - h)
     y_train <- ts(y[idx_train], start=start(y), 
                   frequency = frequency(y))
-    y_test <- ts(y[-idx_train], start=start(y), 
+    y_test <- ts(y[-idx_train], end=end(y), 
                   frequency = frequency(y))
     h_test <- h
   }
