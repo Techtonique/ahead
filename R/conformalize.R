@@ -26,7 +26,8 @@
 #' 
 conformalize <- function(FUN, y, h, level=95,
                          method = c("block-bootstrap", "surrogate", 
-                                    "kde", "bootstrap", "fitdistr"),
+                                    "kde", "bootstrap", "fitdistr", 
+                                    "meboot"),
                          nsim = 100L, 
                          block_size = 5,
                          seed = 123L, 
@@ -127,6 +128,38 @@ conformalize <- function(FUN, y, h, level=95,
     n = nsim*h, method=method), 
     nrow = h, ncol = nsim), start = start_preds, 
              frequency = freq_x)    
+    preds <- as.numeric(obj_fcast$mean) + sims*xsd
+    
+    res <- list()
+    res$level <- level 
+    res$x <- y_calib
+    res$fitted <- fitted(obj_fcast)
+    res$method <- paste0("conformalized ", obj_fcast$method)    
+    res$mean <- ts(rowMeans(preds), 
+                   start = start_preds, 
+                   frequency = freq_x)
+    res$upper <- ts(apply(preds, 1, function(x)
+      stats::quantile(x, probs = 1 - (1 - level / 100) / 2)), 
+      start = start_preds, 
+      frequency = freq_x)
+    res$lower <- ts(apply(preds, 1, function(x)
+      stats::quantile(x, probs = (1 - level / 100) / 2)), 
+      start = start_preds, 
+      frequency = freq_x)
+    res$sims <- ts(preds, start = start_preds, 
+                   frequency = freq_x)
+    class(res) <- "forecast"
+    return(res)
+  }
+  
+  if (method == "meboot")
+  {
+    start_preds <- start(obj_fcast$mean)
+    boots <- ahead::meboot(scaled_calib_resids, 
+                           reps = nsim)
+    sims <- ts(boots$ensemble[seq_len(h), ], 
+               start = start_preds, 
+               frequency = freq_x)    
     preds <- as.numeric(obj_fcast$mean) + sims*xsd
     
     res <- list()

@@ -45,6 +45,22 @@ compare_attention_mechanisms <- function(series, window_size = 3L, decay_factor 
     .Call(`_ahead_compare_attention_mechanisms`, series, window_size, decay_factor, temperature, sigma, sensitivity)
 }
 
+meboot_approx <- function(p, n, z, desintxb) {
+    .Call(`_ahead_meboot_approx`, p, n, z, desintxb)
+}
+
+meboot_part_rcpp <- function(x, reps, z, xmin, xmax, desintxb, reachbnd) {
+    .Call(`_ahead_meboot_part_rcpp`, x, reps, z, xmin, xmax, desintxb, reachbnd)
+}
+
+expand_sd_rcpp <- function(x, ensemble, fiv = 1.0, elbow = 0.95, force_clt = FALSE) {
+    .Call(`_ahead_expand_sd_rcpp`, x, ensemble, fiv, elbow, force_clt)
+}
+
+expand_sd_rcpp_fast <- function(x, ensemble, fiv = 1.0, elbow = 0.95) {
+    .Call(`_ahead_expand_sd_rcpp_fast`, x, ensemble, fiv, elbow)
+}
+
 exact_rf_forecast <- function(embed_mat, h, lags, predict_func, model) {
     .Call(`_ahead_exact_rf_forecast`, embed_mat, h, lags, predict_func, model)
 }

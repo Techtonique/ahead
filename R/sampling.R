@@ -1,4 +1,55 @@
 
+#' Simulate using surrogate data
+#'
+#' @export
+#'
+rsurrogate <- function(x,
+                       n = length(x),
+                       p = 1,
+                       seed = 123) {
+  if (n > length(x))
+  {
+    stop("For surrogates, must have number of predictions < number of training observations")
+  }
+  if (p <= 1)
+  {
+    set.seed(seed)
+    res <- tseries::surrogate(x, ns = p,
+                              fft = TRUE)
+    return(res[seq_len(n), ])
+  } else {
+    res <- sapply(1:p,
+                  function(i) {
+                    set.seed(seed + i - 1)
+                    tseries::surrogate(x, ns = p,
+                                       fft = TRUE)
+                  })
+    return(res[seq_len(n), ])
+  }
+}
+
+# fitdistr ------
+
+#' Simulate from parametric distribution
+#'
+#' @export
+#'
+rfitdistr <- function(x, n=length(x), p=1)
+{
+  mean_x <- mean(x)
+  sd_x <- sd(x)
+  scaled_x <- (x - mean_x)/sd_x
+  simulate_function <- misc::fit_param_dist(as.numeric(scaled_x), 
+                                            verbose = FALSE)
+  res <- simulate_function(n*p)
+  if (p <= 1)
+  {
+    return(res)
+  } else {
+    return(matrix(res, nrow = n, ncol = p))
+  }
+}
+
 #' Direct sampling
 #' 
 #' @param data A numeric vector or matrix.

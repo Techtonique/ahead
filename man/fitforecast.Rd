@@ -10,7 +10,7 @@ fitforecast(
   pct_train = 0.9,
   pct_calibration = 0.5,
   method = c("thetaf", "arima", "ets", "te", "tbats", "tslm", "dynrmf", "ridge2f",
-    "naive", "snaive"),
+    "naive", "snaive", "arimagarch"),
   level = 95,
   B = 1000L,
   seed = 17223L,
@@ -20,7 +20,7 @@ fitforecast(
   gap = 3L,
   agg = c("mean", "median"),
   vol = c("constant", "garch"),
-  type_sim = c("kde", "surrogate", "bootstrap"),
+  type_sim = c("kde", "surrogate", "bootstrap", "meboot", "gan"),
   ...
 )
 }

@@ -146,6 +146,66 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// meboot_approx
+NumericVector meboot_approx(NumericVector p, int n, NumericVector z, NumericVector desintxb);
+RcppExport SEXP _ahead_meboot_approx(SEXP pSEXP, SEXP nSEXP, SEXP zSEXP, SEXP desintxbSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type z(zSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type desintxb(desintxbSEXP);
+    rcpp_result_gen = Rcpp::wrap(meboot_approx(p, n, z, desintxb));
+    return rcpp_result_gen;
+END_RCPP
+}
+// meboot_part_rcpp
+NumericMatrix meboot_part_rcpp(NumericVector x, int reps, NumericVector z, double xmin, double xmax, NumericVector desintxb, bool reachbnd);
+RcppExport SEXP _ahead_meboot_part_rcpp(SEXP xSEXP, SEXP repsSEXP, SEXP zSEXP, SEXP xminSEXP, SEXP xmaxSEXP, SEXP desintxbSEXP, SEXP reachbndSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type reps(repsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type z(zSEXP);
+    Rcpp::traits::input_parameter< double >::type xmin(xminSEXP);
+    Rcpp::traits::input_parameter< double >::type xmax(xmaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type desintxb(desintxbSEXP);
+    Rcpp::traits::input_parameter< bool >::type reachbnd(reachbndSEXP);
+    rcpp_result_gen = Rcpp::wrap(meboot_part_rcpp(x, reps, z, xmin, xmax, desintxb, reachbnd));
+    return rcpp_result_gen;
+END_RCPP
+}
+// expand_sd_rcpp
+NumericMatrix expand_sd_rcpp(NumericVector x, NumericMatrix ensemble, double fiv, double elbow, bool force_clt);
+RcppExport SEXP _ahead_expand_sd_rcpp(SEXP xSEXP, SEXP ensembleSEXP, SEXP fivSEXP, SEXP elbowSEXP, SEXP force_cltSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type ensemble(ensembleSEXP);
+    Rcpp::traits::input_parameter< double >::type fiv(fivSEXP);
+    Rcpp::traits::input_parameter< double >::type elbow(elbowSEXP);
+    Rcpp::traits::input_parameter< bool >::type force_clt(force_cltSEXP);
+    rcpp_result_gen = Rcpp::wrap(expand_sd_rcpp(x, ensemble, fiv, elbow, force_clt));
+    return rcpp_result_gen;
+END_RCPP
+}
+// expand_sd_rcpp_fast
+NumericMatrix expand_sd_rcpp_fast(NumericVector x, NumericMatrix ensemble, double fiv, double elbow);
+RcppExport SEXP _ahead_expand_sd_rcpp_fast(SEXP xSEXP, SEXP ensembleSEXP, SEXP fivSEXP, SEXP elbowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type ensemble(ensembleSEXP);
+    Rcpp::traits::input_parameter< double >::type fiv(fivSEXP);
+    Rcpp::traits::input_parameter< double >::type elbow(elbowSEXP);
+    rcpp_result_gen = Rcpp::wrap(expand_sd_rcpp_fast(x, ensemble, fiv, elbow));
+    return rcpp_result_gen;
+END_RCPP
+}
 // exact_rf_forecast
 NumericVector exact_rf_forecast(NumericMatrix embed_mat, int h, int lags, Function predict_func, List model);
 RcppExport SEXP _ahead_exact_rf_forecast(SEXP embed_matSEXP, SEXP hSEXP, SEXP lagsSEXP, SEXP predict_funcSEXP, SEXP modelSEXP) {
@@ -269,6 +329,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ahead_parametric_attention_cpp", (DL_FUNC) &_ahead_parametric_attention_cpp, 3},
     {"_ahead_compute_context_vectors_cpp", (DL_FUNC) &_ahead_compute_context_vectors_cpp, 2},
     {"_ahead_compare_attention_mechanisms", (DL_FUNC) &_ahead_compare_attention_mechanisms, 6},
+    {"_ahead_meboot_approx", (DL_FUNC) &_ahead_meboot_approx, 4},
+    {"_ahead_meboot_part_rcpp", (DL_FUNC) &_ahead_meboot_part_rcpp, 7},
+    {"_ahead_expand_sd_rcpp", (DL_FUNC) &_ahead_expand_sd_rcpp, 5},
+    {"_ahead_expand_sd_rcpp_fast", (DL_FUNC) &_ahead_expand_sd_rcpp_fast, 4},
     {"_ahead_exact_rf_forecast", (DL_FUNC) &_ahead_exact_rf_forecast, 5},
     {"_ahead_forecast_innovs_loop_cpp", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp, 8},
     {"_ahead_forecast_innovs_loop_cpp2", (DL_FUNC) &_ahead_forecast_innovs_loop_cpp2, 8},

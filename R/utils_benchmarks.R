@@ -7,6 +7,23 @@ debug_print <- function(x) {
 }
 
 # simulate Gaussian density -----
+#' Simulate Gaussian Kernel Density
+#'
+#' Generates samples from a Gaussian kernel density estimate of a numeric vector.
+#'
+#' @param x Numeric vector to estimate density from.
+#' @param n Integer. Number of samples per replicate (default: length of x).
+#' @param p Integer. Number of replicates (default: 1).
+#' @param seed Integer. Random seed for reproducibility (default: 123).
+#' @param method Character. Sampling method: "antithetic" or "traditional".
+#'
+#' @return A vector or matrix of samples from the estimated density.
+#'
+#' @examples
+#' x <- rnorm(10)
+#' rgaussiandens(x, n = 10, p = 3)
+#'
+#' @export
 rgaussiandens <- function(x,
                           n = length(x),
                           p = 1,
