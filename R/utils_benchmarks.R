@@ -158,8 +158,8 @@ winkler_score2 <- function(obj, actual, level = 95) {
   diff_lt <- lt - actual
   diff_bounds <- ut - lt
   diff_ut <- actual - ut
-  score <-
-    diff_bounds + (2 / alpha) * (pmax(diff_lt, 0) + pmax(diff_ut, 0))
+  score <- as.numeric(diff_bounds) 
+  score <- score + (2 / alpha) * (pmax(diff_lt, 0) + pmax(diff_ut, 0))
   return(mean(score))
 }
 

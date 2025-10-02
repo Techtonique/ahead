@@ -67,7 +67,7 @@ fitforecast <- function(y,
   vol <- match.arg(vol)
   type_sim <- match.arg(type_sim)
   type_calibration <- match.arg(type_calibration)
-
+  
   if (is.null(h))
   {
     splitted_y_obj <- splitts(y, split_prob = pct_train)
@@ -75,13 +75,17 @@ fitforecast <- function(y,
     y_test <- splitted_y_obj$testing
     h_test <- length(y_test)
   } else {
-    y_train <- y
+    idx_train <- seq_len(length(y) - h)
+    y_train <- ts(y[idx_train], start=start(y), 
+                  frequency = frequency(y))
+    y_test <- ts(y[-idx_train], start=start(y), 
+                  frequency = frequency(y))
     h_test <- h
   }
-
+  
   tspx <- tsp(y_train)
   start_preds <- tspx[2] + 1 / tspx[3]
-
+  
   if (conformalize == TRUE)
   {
     splitted_y_train_obj <- splitts(y_train,
@@ -90,12 +94,12 @@ fitforecast <- function(y,
     y_val_calibration <- splitted_y_train_obj$testing
     h_calibration <- length(y_val_calibration)
   }
-
+  
   if (method %in% c("arima", "ets",
                     "tbats", "tslm"))
   {
     method <- match.arg(method)
-
+    
     fcast_method <- switch(
       method,
       arima = forecast::auto.arima,
@@ -104,12 +108,13 @@ fitforecast <- function(y,
       tslm = function (y)
         tslm(y ~ trend + season)
     )
-
+    
     fcast_func <- function(y)
     {
-      return(do.call(what = fcast_method, args = list(y = y)))
+      return(do.call(what = fcast_method, 
+                     args = list(y = y)))
     }
-
+    
     if (conformalize == TRUE &&
         type_calibration == "splitconformal")
     {
@@ -125,15 +130,14 @@ fitforecast <- function(y,
                                 h = h_test,
                                 level = level)
     }
-
+    
   }
-
+  
   if (method %in% c("dynrmf", "ridge2f",
                     "naive", "snaive",
                     "thetaf", "te"))
   {
     method <- match.arg(method)
-
     fcast_func <- switch(
       method,
       dynrmf = ahead::dynrmf,
@@ -142,9 +146,9 @@ fitforecast <- function(y,
       snaive = forecast::snaive,
       thetaf = forecast::thetaf,
       te = function (y, h, level, ...) {ahead::eatf(y, h, level, method = "EAT",
-                                    weights = c(0.5, 0, 0.5), ...)}
+                                                    weights = c(0.5, 0, 0.5), ...)}
     )
-
+    
     if (conformalize == TRUE &&
         type_calibration == "splitconformal")
     {
@@ -169,22 +173,22 @@ fitforecast <- function(y,
                      ))
     }
   }
-
+  
   out <- obj
   out$test <-
     stats::Box.test(out$residuals, lag = 1, type = "Ljung-Box") # examining the null hypothesis of independence in a given time series
-
+  
   if (conformalize == TRUE)
   {
     stopifnot(!is.null(B) && B > 1)
-
+    
     if (type_calibration == "splitconformal")
     {
       y_pred_calibration <- obj_calibration$mean
       calibrated_raw_residuals <-
         as.numeric(y_val_calibration) - as.numeric(y_pred_calibration)
     }
-
+    
     if (type_calibration == "cv1")
     {
       n_train_calibration <- length(y_train_calibration)
@@ -214,7 +218,7 @@ fitforecast <- function(y,
       }
       close(pb)
     }
-
+    
     if (type_calibration == "loocv")
     {
       n_train_calibration <- length(y_train_calibration)
@@ -240,9 +244,9 @@ fitforecast <- function(y,
         utils::setTxtProgressBar(pb, i)
       }
       close(pb)
-
+      
     }
-
+    
     if (type_calibration == "loocv")
     {
       y_pred_calibration <- switch(
@@ -255,10 +259,10 @@ fitforecast <- function(y,
                       n = h_calibration,
                       seed = seed)
     }
-
+    
     matrix_preds_calibration <- replicate(B, y_pred_calibration)
     matrix_preds <- replicate(B, obj$mean)
-
+    
     if (type_sim == "kde") {
       if (vol == "constant")
       {
@@ -310,7 +314,7 @@ fitforecast <- function(y,
           )
       }
     }
-
+    
     if (type_sim == "surrogate") {
       if (vol == "constant")
       {
@@ -320,9 +324,9 @@ fitforecast <- function(y,
         set.seed(seed)
         simulated_scaled_calibrated_residuals <-
           tseries::surrogate(scaled_calibrated_residuals,
-                                   ns =
-                                     B)[seq_along(h_test), ]
-
+                             ns =
+                               B)[seq_along(h_test), ]
+        
         sd_calibrated_residuals <- sd(calibrated_raw_residuals)
       } else {
         stopifnot(vol == "garch")
@@ -344,8 +348,8 @@ fitforecast <- function(y,
         set.seed(seed)
         simulated_scaled_calibrated_residuals <-
           tseries::surrogate(scaled_calibrated_residuals,
-                                   ns =
-                                     B)[seq_along(h_test), ]
+                             ns =
+                               B)[seq_along(h_test), ]
         sd_calibrated_residuals <-
           matrix(0, nrow = h_test, ncol = B)
         sd_calibrated_residuals[1,] <-
@@ -359,7 +363,7 @@ fitforecast <- function(y,
           )
       }
     }
-
+    
     if (type_sim == "bootstrap") {
       freq_calibrated_raw_residuals <- frequency(calibrated_raw_residuals)
       if (length(calibrated_raw_residuals) <= 2 * freq_calibrated_raw_residuals)
@@ -377,7 +381,7 @@ fitforecast <- function(y,
           max(3L, block_size),
           length(calibrated_raw_residuals) - 1L
         ))
-
+      
       if (vol == "constant")
       {
         scaled_calibrated_residuals <- base::scale(calibrated_raw_residuals,
@@ -434,10 +438,10 @@ fitforecast <- function(y,
           )
       }
     }
-
+    
     sims <-
       matrix_preds + sd_calibrated_residuals * simulated_scaled_calibrated_residuals
-
+    
     sims <- ts(sims,
                start = start_preds,
                frequency = frequency(y_test))
@@ -479,18 +483,18 @@ fitforecast <- function(y,
       stats::Box.test(out$residuals, type = "Ljung-Box") # examining the null hypothesis of independence in a given time series
     out <- structure(out, class = "forecast")
   }
-
-  out$coverage <- 100 * mean((y_test >= out$lower) * (out$upper >= y_test))
-  out$interval_length <- mean(out$upper - out$lower)
-  out$winkler_score <- winkler_score2(out, y_test, level = level)
-  accuracy_results <- forecast::accuracy(out, y_test)
+  
+  out$coverage <- suppressWarnings(100 * mean((y_test >= out$lower) * (out$upper >= y_test)))
+  out$interval_length <- suppressWarnings(mean(out$upper - out$lower))
+  out$winkler_score <- suppressWarnings(winkler_score2(out, y_test, level = level))
+  accuracy_results <- suppressWarnings(forecast::accuracy(out, as.numeric(y_test)))
   out$ME <- accuracy_results[2, "ME"]
   out$RMSE <- accuracy_results[2, "RMSE"]
   out$MAE <- accuracy_results[2, "MAE"]
   out$MPE <- accuracy_results[2, "MPE"]
   out$MAPE <- accuracy_results[2, "MAPE"]
   out$MASE <- accuracy_results[2, "MASE"]
-
+  
   plots <-
     function(out,
              type = c("forecast", "simulations", "residuals"))
@@ -501,7 +505,7 @@ fitforecast <- function(y,
       } else {
         type <- match.arg(type)
       }
-
+      
       if (type == "forecast")
       {
         plot(out, lwd = 2)
@@ -510,7 +514,7 @@ fitforecast <- function(y,
               lwd = 2,
               lty = 2)
       }
-
+      
       if (type == "simulations")
       {
         matplot(
@@ -527,18 +531,18 @@ fitforecast <- function(y,
                  y = out$sims,
                  lwd = 2)
       }
-
+      
       if (type == "residuals")
       {
         forecast::checkresiduals(out)
       }
     }
-
+  
   if (graph == TRUE)
   {
     out$plot <- function (type)
       plots(out, type)
   }
-
+  
   return(out)
 }
