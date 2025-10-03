@@ -1,8 +1,8 @@
 Package: ahead
 Type: Package
 Title: Time Series Forecasting with uncertainty quantification
-Version: 0.27.0
-Date: 2025-10-02
+Version: 0.27.1
+Date: 2025-10-03
 Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
 Description: Univariate and multivariate time series forecasting with uncertainty quantification.
@@ -16,7 +16,7 @@ Imports:
     ggplot2 (>= 3.0.0),
     tseries,
     randtoolbox (>= 1.17)
-Depends: R (>= 3.5.0), simulatetimeseries
+Depends: R (>= 3.5.0)
 Suggests: 
     caret,
     cclust,
@@ -42,5 +42,4 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)    
 VignetteBuilder: knitr
 Remotes: thierrymoudiki/misc, 
-         thierrymoudiki/ForecastComb,
-         thierrymoudiki/simulatetimeseries
+         thierrymoudiki/ForecastComb
