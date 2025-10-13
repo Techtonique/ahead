@@ -1,0 +1,45 @@
+---
+title: "Stacking ridge2f"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Stacking ridge2f}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+y <- AirPassengers
+y_train_test <- misc::splitts(y)
+y_train <- y_train_test$training
+y_test <- y_train_test$test
+h_test <- length(y_test)
+
+fcast_ets <- forecast::forecast(forecast::ets(y_train), h=h_test)$mean
+fcast_arima <- forecast::forecast(forecast::auto.arima(y_train), h=h_test)$mean
+fcast_theta <- forecast::thetaf(y=y_train, h=h_test)$mean
+
+par(mfrow=c(1, 2))
+
+plot(ahead::ridge2f(y_test, lags=10L, 
+                    xreg = cbind(fcast_ets, 
+                                 fcast_arima, 
+                                 fcast_theta), 
+                    h=40L,
+                    B=250L,
+                    type_pi="blockbootstrap"
+                    ))
+
+z_test <- cbind(y_test, 
+                fcast_ets, 
+                fcast_arima, 
+                fcast_theta)
+colnames(z_test) <- c("true", "ets", "arima", "theta")
+
+fcast_z_test <- ahead::ridge2f(z_test, 
+               lags=7L, 
+               h=40L,
+               B=250L,
+              type_pi="blockbootstrap")
+plot(fcast_z_test, "true")
+```
+
