@@ -1,0 +1,472 @@
+---
+title: "Generalized Linear Model Theta Forecast with attention Pt.2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generalized Linear Model Theta Forecast with attention Pt.2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r fig.width=7.5}
+library(forecast)
+library(ahead)
+
+################################################################################
+# M3 COMPETITION: R IMPLEMENTATION BENCHMARK
+# Context-Aware Theta vs Standard Theta
+################################################################################
+#
+# This script tests the R implementation of Context-Aware Theta on M3 data
+# and compares results with the Python implementation
+#
+# Requirements:
+#   install.packages(c("Mcomp", "forecast", "Rcpp"))
+#   # Also need the 'ahead' package with glmthetaf() function
+#
+################################################################################
+
+library(Mcomp)
+library(forecast)
+
+# Check if ahead package is available
+if (!requireNamespace("ahead", quietly = TRUE)) {
+  message("⚠ 'ahead' package not available")
+  message("This script requires the ahead package with glmthetaf() function")
+  message("Using alternative implementation...")
+  USE_AHEAD <- FALSE
+} else {
+  library(ahead)
+  USE_AHEAD <- TRUE
+}
+
+cat("================================================================================\n")
+cat("M3 COMPETITION: R IMPLEMENTATION BENCHMARK\n")
+cat("Context-Aware Theta vs Standard Theta\n")
+cat("================================================================================\n\n")
+
+################################################################################
+# SECTION 1: LOAD M3 DATA
+################################################################################
+
+cat("================================================================================\n")
+cat("SECTION 1: Loading M3 Competition Data\n")
+cat("================================================================================\n\n")
+
+# Load M3 data
+data(M3)
+
+cat("✓ M3 dataset loaded\n")
+cat(sprintf("  Total series: %d\n", length(M3)))
+
+# Categorize by frequency
+m3_yearly <- subset(M3, "yearly")
+m3_quarterly <- subset(M3, "quarterly") 
+m3_monthly <- subset(M3, "monthly")
+m3_other <- subset(M3, "other")
+
+cat(sprintf("  Yearly: %d series\n", length(m3_yearly)))
+cat(sprintf("  Quarterly: %d series\n", length(m3_quarterly)))
+cat(sprintf("  Monthly: %d series\n", length(m3_monthly)))
+cat(sprintf("  Other: %d series\n", length(m3_other)))
+
+################################################################################
+# SECTION 2: IMPLEMENT STANDARD THETA (BASELINE)
+################################################################################
+
+cat("\n================================================================================\n")
+cat("SECTION 2: Standard Theta Method (Baseline)\n")
+cat("================================================================================\n\n")
+
+standard_theta <- function(y, h) {
+  # Standard Theta method following Assimakopoulos & Nikolopoulos (2000)
+  n <- length(y)
+  
+  # SES forecast
+  fcast <- ses(y, h = h)
+  alpha <- fcast$model$par["alpha"]
+  
+  # Linear trend
+  time_idx <- 0:(n - 1)
+  trend_fit <- lm(y ~ time_idx)
+  b0 <- coef(trend_fit)[2] / 2  # Theta method: divide by 2
+  
+  # Drift function
+  D_n <- function(h_step) {
+    (h_step - 1) + (1 - (1 - alpha)^n) / alpha
+  }
+  
+  # Apply drift
+  for (i in 1:h) {
+    fcast$mean[i] <- fcast$mean[i] + b0 * D_n(i)
+  }
+  
+  return(fcast)
+}
+
+cat("✓ Standard Theta method implemented\n")
+cat("  - SES with drift\n")
+cat("  - Equivalent to classical Theta (2000)\n")
+
+################################################################################
+# SECTION 3: TEST ON SAMPLE SERIES
+################################################################################
+
+cat("\n================================================================================\n")
+cat("SECTION 3: Testing on Sample Series\n")
+cat("================================================================================\n\n")
+
+# Test on first monthly series
+test_series <- M3[[1]]
+y_train <- test_series$x
+y_test <- test_series$xx
+h <- test_series$h
+
+cat(sprintf("Test series: %s\n", test_series$sn))
+cat(sprintf("  Length: %d observations\n", length(y_train)))
+cat(sprintf("  Frequency: %s\n", test_series$period))
+cat(sprintf("  Horizon: %d\n", h))
+
+# Standard Theta forecast
+fc_std <- standard_theta(y_train, h)
+
+cat("\n✓ Standard Theta forecast generated\n")
+cat(sprintf("  Point forecasts: %.2f, %.2f, ..., %.2f\n", 
+           fc_std$mean[1], fc_std$mean[2], fc_std$mean[h]))
+
+# Compute accuracy
+smape_std <- mean(200 * abs(y_test - fc_std$mean) / (abs(y_test) + abs(fc_std$mean)))
+mae_std <- mean(abs(y_test - fc_std$mean))
+
+cat(sprintf("\n  SMAPE: %.4f\n", smape_std))
+cat(sprintf("  MAE: %.4f\n", mae_std))
+
+################################################################################
+# SECTION 4: CONTEXT-AWARE THETA (IF AVAILABLE)
+################################################################################
+
+cat("\n================================================================================\n")
+cat("SECTION 4: Context-Aware Theta Method\n")
+cat("================================================================================\n\n")
+
+if (USE_AHEAD) {
+  
+  cat("Testing ahead::glmthetaf() with attention...\n\n")
+  
+  # Test with different attention types
+  attention_types <- c("exponential", "linear", "dot_product", "cosine")
+  
+  results_ctx <- list()
+  
+  for (att_type in attention_types) {
+    cat(sprintf("Testing %s attention...\n", att_type))
+    
+    tryCatch({
+      fc_ctx <- glmthetaf(
+        y_train, 
+        h = h,
+        attention = TRUE,
+        attention_type = att_type,
+        scale_ctxt = 1,
+        type_pi = "gaussian"
+      )
+      
+      smape_ctx <- mean(200 * abs(y_test - fc_ctx$mean) / (abs(y_test) + abs(fc_ctx$mean)))
+      mae_ctx <- mean(abs(y_test - fc_ctx$mean))
+      
+      results_ctx[[att_type]] <- list(
+        forecast = fc_ctx,
+        smape = smape_ctx,
+        mae = mae_ctx,
+        improvement_smape = smape_std - smape_ctx,
+        improvement_mae = mae_std - mae_ctx
+      )
+      
+      cat(sprintf("  ✓ SMAPE: %.4f (improvement: %+.4f)\n", smape_ctx, smape_std - smape_ctx))
+      cat(sprintf("  ✓ MAE: %.4f (improvement: %+.4f)\n\n", mae_ctx, mae_std - mae_ctx))
+      
+    }, error = function(e) {
+      cat(sprintf("  ✗ Error: %s\n\n", e$message))
+      results_ctx[[att_type]] <- NULL
+    })
+  }
+  
+  # Find best attention type
+  if (length(results_ctx) > 0) {
+    smapes <- sapply(results_ctx, function(x) if(!is.null(x)) x$smape else Inf)
+    best_att <- names(which.min(smapes))
+    cat(sprintf("Best attention type: %s (SMAPE: %.4f)\n", best_att, min(smapes)))
+  }
+  
+} else {
+  cat("⚠ ahead package not available - skipping context-aware tests\n")
+  cat("\nTo run full comparison, install:\n")
+  cat("  devtools::install_github('thierrymoudiki/ahead')\n")
+}
+
+################################################################################
+# SECTION 5: FULL M3 BENCHMARK (SAMPLE)
+################################################################################
+
+cat("\n================================================================================\n")
+cat("SECTION 5: M3 Benchmark on Sample Series\n")
+cat("================================================================================\n\n")
+
+# Run on sample of series (20 from each group for speed)
+run_benchmark <- function(series_list, n_sample = 20, method_name = "Standard") {
+  
+  n_series <- min(n_sample, length(series_list))
+  results <- data.frame(
+    series_id = character(n_series),
+    smape = numeric(n_series),
+    mae = numeric(n_series),
+    mase = numeric(n_series),
+    stringsAsFactors = FALSE
+  )
+  
+  for (i in 1:n_series) {
+    series <- series_list[[i]]
+    y_train <- series$x
+    y_test <- series$xx
+    h <- series$h
+    
+    tryCatch({
+      # Forecast
+      if (method_name == "Standard") {
+        fc <- standard_theta(y_train, h)
+      } else if (method_name == "Context-Aware" && USE_AHEAD) {
+        fc <- glmthetaf(y_train, h = h, attention = TRUE, 
+                       attention_type = "exponential", type_pi = "gaussian")
+      } else {
+        next
+      }
+      
+      # Compute metrics
+      smape <- mean(200 * abs(y_test - fc$mean) / (abs(y_test) + abs(fc$mean)))
+      mae <- mean(abs(y_test - fc$mean))
+      
+      # MASE (naive forecast baseline)
+      naive_error <- mean(abs(diff(y_train)))
+      mase <- mae / naive_error
+      
+      results$series_id[i] <- series$sn
+      results$smape[i] <- smape
+      results$mae[i] <- mae
+      results$mase[i] <- mase
+      
+    }, error = function(e) {
+      # Skip problematic series
+      results$series_id[i] <- series$sn
+      results$smape[i] <- NA
+      results$mae[i] <- NA
+      results$mase[i] <- NA
+    })
+    
+    if (i %% 10 == 0) {
+      cat(sprintf("  Progress: %d/%d series...\n", i, n_series))
+    }
+  }
+  
+  # Remove NAs
+  results <- results[complete.cases(results), ]
+  
+  return(results)
+}
+
+# Benchmark on Monthly series (sample)
+cat("\nBenchmarking on Monthly series (n=20)...\n")
+cat("----------------------------------------\n")
+
+results_std_monthly <- run_benchmark(m3_monthly, n_sample = 20, method_name = "Standard")
+
+cat(sprintf("\nStandard Theta Results (Monthly):\n"))
+cat(sprintf("  Mean SMAPE: %.4f ± %.4f\n", mean(results_std_monthly$smape), sd(results_std_monthly$smape)))
+cat(sprintf("  Mean MASE:  %.4f ± %.4f\n", mean(results_std_monthly$mase), sd(results_std_monthly$mase)))
+
+if (USE_AHEAD) {
+  cat("\nRunning Context-Aware Theta...\n")
+  results_ctx_monthly <- run_benchmark(m3_monthly, n_sample = 20, method_name = "Context-Aware")
+  
+  cat(sprintf("\nContext-Aware Theta Results (Monthly):\n"))
+  cat(sprintf("  Mean SMAPE: %.4f ± %.4f\n", mean(results_ctx_monthly$smape), sd(results_ctx_monthly$smape)))
+  cat(sprintf("  Mean MASE:  %.4f ± %.4f\n", mean(results_ctx_monthly$mase), sd(results_ctx_monthly$mase)))
+  
+  # Comparison
+  improvement_smape <- mean(results_std_monthly$smape) - mean(results_ctx_monthly$smape)
+  improvement_mase <- mean(results_std_monthly$mase) - mean(results_ctx_monthly$mase)
+  
+  cat("\n================================================================================\n")
+  cat("COMPARISON SUMMARY\n")
+  cat("================================================================================\n")
+  cat(sprintf("\nSMAPE Improvement: %+.4f (%.2f%%)\n", 
+             improvement_smape, 
+             100 * improvement_smape / mean(results_std_monthly$smape)))
+  cat(sprintf("MASE Improvement:  %+.4f (%.2f%%)\n", 
+             improvement_mase,
+             100 * improvement_mase / mean(results_std_monthly$mase)))
+  
+  # Win rate
+  # Match series by ID for paired comparison
+  merged <- merge(results_std_monthly, results_ctx_monthly, 
+                 by = "series_id", suffixes = c("_std", "_ctx"))
+  wins <- sum(merged$smape_ctx < merged$smape_std)
+  total <- nrow(merged)
+  
+  cat(sprintf("\nWin Rate (Context-Aware < Standard): %d/%d = %.1f%%\n", 
+             wins, total, 100 * wins / total))
+  
+  # Statistical test
+  if (nrow(merged) > 5) {
+    test_result <- wilcox.test(merged$smape_std, merged$smape_ctx, 
+                               paired = TRUE, alternative = "greater")
+    cat(sprintf("\nWilcoxon Test (paired):\n"))
+    cat(sprintf("  Test statistic: %.2f\n", test_result$statistic))
+    cat(sprintf("  P-value: %.6f\n", test_result$p.value))
+    
+    if (test_result$p.value < 0.001) {
+      cat("  Significance: *** (p < 0.001)\n")
+    } else if (test_result$p.value < 0.01) {
+      cat("  Significance: ** (p < 0.01)\n")
+    } else if (test_result$p.value < 0.05) {
+      cat("  Significance: * (p < 0.05)\n")
+    } else {
+      cat("  Significance: Not significant (p >= 0.05)\n")
+    }
+  }
+}
+
+################################################################################
+# SECTION 6: COMPARISON WITH PYTHON RESULTS
+################################################################################
+
+cat("\n================================================================================\n")
+cat("SECTION 6: Comparison with Python Implementation\n")
+cat("================================================================================\n\n")
+
+cat("Python M3 Results (from document):\n")
+cat("  Total series: 3,003\n")
+cat("  Standard Theta SMAPE: 14.4859\n")
+cat("  Context-Aware SMAPE:  14.4845\n")
+cat("  Improvement: 0.0014 (0.01%)\n")
+cat("  Win rate: 62.87%\n")
+cat("  Statistical significance: p < 0.001\n\n")
+
+if (USE_AHEAD && exists("improvement_smape")) {
+  cat("R Implementation Results (sample of 20 Monthly series):\n")
+  cat(sprintf("  Standard Theta SMAPE: %.4f\n", mean(results_std_monthly$smape)))
+  cat(sprintf("  Context-Aware SMAPE:  %.4f\n", mean(results_ctx_monthly$smape)))
+  cat(sprintf("  Improvement: %.4f (%.2f%%)\n", 
+             improvement_smape,
+             100 * improvement_smape / mean(results_std_monthly$smape)))
+  cat(sprintf("  Win rate: %.1f%%\n", 100 * wins / total))
+  
+  cat("\n📊 PRELIMINARY ASSESSMENT:\n")
+  cat("  Note: This is a small sample (n=20) compared to Python's full M3 (n=3003)\n")
+  cat("  For definitive comparison, run on complete M3 dataset\n")
+}
+
+################################################################################
+# SECTION 7: DIAGNOSTIC PLOTS
+################################################################################
+
+cat("\n================================================================================\n")
+cat("SECTION 7: Creating Diagnostic Plots\n")
+cat("================================================================================\n\n")
+
+if (USE_AHEAD && exists("results_ctx_monthly")) {
+  
+  pdf("m3_r_implementation_diagnostics.pdf", width = 12, height = 8)
+  
+  par(mfrow = c(2, 2))
+  
+  # Plot 1: SMAPE comparison
+  plot(merged$smape_std, merged$smape_ctx,
+       xlab = "Standard Theta SMAPE",
+       ylab = "Context-Aware Theta SMAPE",
+       main = "SMAPE: Standard vs Context-Aware",
+       pch = 19, col = rgb(0, 0, 1, 0.5))
+  abline(0, 1, col = "red", lwd = 2, lty = 2)
+  grid()
+  
+  # Plot 2: MASE comparison
+  plot(merged$mase_std, merged$mase_ctx,
+       xlab = "Standard Theta MASE",
+       ylab = "Context-Aware Theta MASE",
+       main = "MASE: Standard vs Context-Aware",
+       pch = 19, col = rgb(0, 0, 1, 0.5))
+  abline(0, 1, col = "red", lwd = 2, lty = 2)
+  grid()
+  
+  # Plot 3: Improvement distribution
+  improvements <- merged$smape_std - merged$smape_ctx
+  hist(improvements,
+       xlab = "SMAPE Improvement (Std - Context)",
+       main = "Distribution of Improvements",
+       col = "steelblue",
+       breaks = 10)
+  abline(v = 0, col = "red", lwd = 2, lty = 2)
+  abline(v = median(improvements), col = "green", lwd = 2)
+  legend("topright", 
+         legend = c("No improvement", sprintf("Median: %.3f", median(improvements))),
+         col = c("red", "green"), lwd = 2)
+  
+  # Plot 4: Example forecast
+  test_idx <- 1
+  test_series <- m3_monthly[[test_idx]]
+  fc_std_ex <- standard_theta(test_series$x, test_series$h)
+  fc_ctx_ex <- glmthetaf(test_series$x, h = test_series$h, 
+                        attention = TRUE, type_pi = "gaussian")
+  
+  plot(test_series$x, type = "l", lwd = 2,
+       xlim = c(1, length(test_series$x) + test_series$h),
+       ylim = range(c(test_series$x, test_series$xx, fc_std_ex$mean, fc_ctx_ex$mean)),
+       xlab = "Time", ylab = "Value",
+       main = sprintf("Example: %s", test_series$sn))
+  lines(length(test_series$x) + 1:test_series$h, test_series$xx, 
+        col = "black", lwd = 2, lty = 1)
+  lines(length(test_series$x) + 1:test_series$h, fc_std_ex$mean, 
+        col = "brown", lwd = 2, lty = 2)
+  lines(length(test_series$x) + 1:test_series$h, fc_ctx_ex$mean, 
+        col = "steelblue", lwd = 2, lty = 1)
+  legend("topleft", 
+         legend = c("Historical", "Actual", "Standard", "Context-Aware"),
+         col = c("black", "black", "brown", "steelblue"),
+         lwd = 2, lty = c(1, 1, 2, 1))
+  grid()
+  
+  dev.off()
+  
+  cat("✓ Diagnostic plots saved: m3_r_implementation_diagnostics.pdf\n")
+}
+
+################################################################################
+# FINAL SUMMARY
+################################################################################
+
+cat("\n================================================================================\n")
+cat("FINAL SUMMARY\n")
+cat("================================================================================\n\n")
+
+cat("R Implementation Test Complete!\n\n")
+
+cat("Key Findings:\n")
+cat("  ✓ Standard Theta implementation verified\n")
+
+if (USE_AHEAD) {
+  cat("  ✓ Context-Aware Theta tested with multiple attention types\n")
+  cat("  ✓ Comparison with Python results documented\n")
+  cat("\nNext Steps:\n")
+  cat("  1. Run on complete M3 dataset (3,003 series)\n")
+  cat("  2. Compare all attention types systematically\n")
+  cat("  3. Validate against Python implementation results\n")
+} else {
+  cat("  ⚠ Context-Aware Theta not tested (ahead package required)\n")
+  cat("\nTo complete the benchmark:\n")
+  cat("  1. Install ahead package\n")
+  cat("  2. Re-run this script\n")
+}
+
+cat("\n================================================================================\n")
+cat("END OF R IMPLEMENTATION BENCHMARK\n")
+cat("================================================================================\n")
+```

@@ -30,7 +30,11 @@
 #'
 #' @export
 computeattention <- function(series,
-                             attention_type = "cosine",
+                             attention_type = c("dot_product", "scaled_dot_product", 
+                                                "cosine", "exponential", 
+                                                "gaussian", "linear",
+                                                "value_based", "hybrid", 
+                                                "parametric"),
                              window_size = 3,
                              decay_factor = 5.0,
                              temperature = 1.0,
@@ -43,6 +47,7 @@ computeattention <- function(series,
   if (!is.numeric(series)) stop("series must be numeric")
 
   # Check if the attention_type is valid
+  attention_type <- match.arg(attention_type)
   valid_attention_types <- c("cosine", "exponential", "dot_product",
                              "scaled_dot_product", "gaussian", "linear",
                              "value_based", "hybrid", "parametric")

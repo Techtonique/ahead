@@ -1,0 +1,27 @@
+---
+title: "Synthetic simulation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Synthetic simulation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+# Generate synthetic data
+data <- AirPassengers
+result <- generate_synthetic_ts(data, length_out = 144, 
+                                n_sim = 5, seed = 123)
+
+# Plot different visualizations
+plot(result, type = "series", which_sim = 1)           # Series comparison
+plot(result, type = "residuals")                       # Residual diagnostics
+plot(result, type = "acf", which_sim = 1)              # ACF comparison
+plot(result, type = "density", which_sim = 1)          # Density comparison
+plot(result, type = "qq", which_sim = 1)               # Q-Q plot
+
+# Get comprehensive summary with hypothesis tests
+summary_result <- summary(result)
+print(summary_result)
+```
+

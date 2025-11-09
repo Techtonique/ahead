@@ -29,12 +29,18 @@ glmthetaf <- function (y,
                          "gaussian"
                        ),
                        attention = TRUE, 
+                       attention_type = c("dot_product", "scaled_dot_product", 
+                                          "cosine", "exponential", 
+                                          "gaussian", "linear",
+                                          "value_based", "hybrid", 
+                                          "parametric"),
                        scale_ctxt = 1,
                        B = 250L,
                        nsim = B,
                        ...) 
 {
   type_pi <- match.arg(type_pi)
+  attention_type <- match.arg(attention_type)
   stopifnot(scale_ctxt > 0 && scale_ctxt <= 1)
   
   if (grepl("conformal", type_pi) >= 1) # not conformal
@@ -305,7 +311,8 @@ glmthetaf <- function (y,
       
     }
    
-    context_vectors <- ahead::computeattention(x)$context_vectors
+    context_vectors <- ahead::computeattention(x, 
+                                               attention_type=attention_type, ...)$context_vectors
     last_context <- tail(context_vectors, 1)
     # Modify drift based on context
     context_adjusted_drift <- tmp2 * (1 + scale_ctxt * sign(last_context) * 
@@ -314,7 +321,8 @@ glmthetaf <- function (y,
     newx <- c(y, fcast$mean[1])
     for (i in 2:h)
     {
-      context_vectors <- ahead::computeattention(newx)$context_vectors
+      context_vectors <- ahead::computeattention(newx, 
+                                                 attention_type=attention_type, ...)$context_vectors
       last_context <- tail(context_vectors, 1)
       # Modify drift based on context
       context_adjusted_drift <- tmp2 * (1 + scale_ctxt * sign(last_context) * 
