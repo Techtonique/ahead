@@ -12,12 +12,18 @@ estimate_theta_slope <- function(fit_func,
   df <- data.frame(y = y, t = time_idx, 
                    z = random_covariate)
   # Fit model (try formula interface, then x/y)
-  tmp2 <- try(fit_func(y ~ ., data = df, ...), silent = TRUE)
+  tmp2 <- try(fit_func(y ~ ., data = df, ...), silent = FALSE)
   if (inherits(tmp2, "try-error")) {
     tmp2 <- try(fit_func(x = cbind(time_idx, random_covariate), 
-                         y = y, ...), silent = TRUE)
+                         y = y, ...), silent = FALSE)
     if (inherits(tmp2, "try-error"))
-      stop("Unable to fit linear trend")
+    {
+      tmp2 <- try(fit_func(cbind(time_idx, random_covariate), 
+                           y, ...), silent = FALSE)
+      if (inherits(tmp2, "try-error")) {
+        stop("unable to fit the model, check the 'estimate_theta_slope' function's code")
+      }
+    }
   }
   # Adaptive step
   h_eps <- pmax(eps_factor * abs(time_idx), zero)
@@ -28,12 +34,12 @@ estimate_theta_slope <- function(fit_func,
   df_plus  <- data.frame(t = t_plus, z = random_covariate)
   df_minus <- data.frame(t = t_minus, z = random_covariate)
   # Robust predictions
-  fx_plus <- try(as.numeric(predict_func(tmp2, df_plus)), silent = TRUE)
+  fx_plus <- try(as.numeric(predict_func(tmp2, df_plus)), silent = FALSE)
   if (inherits(fx_plus, "try-error"))
     fx_plus <- as.numeric(predict_func(tmp2, as.matrix(df_plus)))
-  fx_minus <- try(as.numeric(predict_func(tmp2, df_minus)), silent = TRUE)
+  fx_minus <- try(as.numeric(predict_func(tmp2, df_minus)), silent = FALSE)
   if (inherits(fx_minus, "try-error"))
     fx_minus <- as.numeric(predict_func(tmp2, as.matrix(df_minus)))
   slope <- (fx_plus - fx_minus) / double_h
-  return(slope)
+  return(median(slope))
 }

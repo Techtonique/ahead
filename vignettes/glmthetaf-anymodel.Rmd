@@ -1,0 +1,65 @@
+---
+title: "Generalized Linear Model Theta Forecast"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generalized Linear Model Theta Forecast}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+```{r fig.width=7.5}
+library(ahead)
+
+y <- USAccDeaths
+
+(obj1 <- ahead::glmthetaf(y, h=15L, fit_func=gam::gam, attention=TRUE))
+
+(obj2 <- ahead::glmthetaf(y, h=15L, fit_func=randomForest::randomForest, attention=TRUE))
+
+(obj3 <- ahead::glmthetaf(y, h=15L, fit_func=e1071::svm, attention=TRUE))
+
+(obj4 <- ahead::glmthetaf(y, h=15L, fit_func=gam::gam, attention=FALSE))
+
+(obj5 <- ahead::glmthetaf(y, h=15L, fit_func=randomForest::randomForest, attention=FALSE))
+
+(obj6 <- ahead::glmthetaf(y, h=15L, fit_func=e1071::svm, attention=FALSE))
+
+
+
+plot(obj1)
+plot(obj2)
+plot(obj3)
+plot(obj4)
+plot(obj5)
+plot(obj6)
+```
+
+
+```{r fig.width=7.5}
+library(ahead)
+
+y <- AirPassengers
+
+(obj1 <- ahead::glmthetaf(y, h=15L, fit_func=gam::gam, attention=TRUE))
+
+(obj2 <- ahead::glmthetaf(y, h=15L, fit_func=randomForest::randomForest, attention=TRUE))
+
+(obj3 <- ahead::glmthetaf(y, h=15L, fit_func=e1071::svm, attention=TRUE))
+
+(obj4 <- ahead::glmthetaf(y, h=15L, fit_func=gam::gam, attention=FALSE))
+
+(obj5 <- ahead::glmthetaf(y, h=15L, fit_func=randomForest::randomForest, attention=FALSE))
+
+(obj6 <- ahead::glmthetaf(y, h=15L, fit_func=e1071::svm, attention=FALSE))
+
+
+
+plot(obj1)
+plot(obj2)
+plot(obj3)
+plot(obj4)
+plot(obj5)
+plot(obj6)
+```

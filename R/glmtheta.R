@@ -241,13 +241,18 @@ glmthetaf <- function (
       X <- matrix(time_idx, ncol = 1)
       tmp2 <- try(fit_func(x = X, y = as.numeric(x), ...), silent = TRUE)
       if (inherits(tmp2, "try-error"))
-        stop("Unable to fit linear trend")
+      {
+        tmp2 <- try(fit_func(X, as.numeric(x), ...), silent = TRUE)
+        if (inherits(tmp2, "try-error")) {
+          stop("Unable to fit linear trend")
+        }
+      }
     }
     slope <- try(coef(tmp2)[2], silent = TRUE)
-    if (inherits(slope, "try-error"))
+    if (inherits(slope, "try-error") | is.null(slope))
     {
       slope <- try(tmp2$coefficients[2], silent = TRUE)
-      if (inherits(slope, "try-error"))
+      if (inherits(slope, "try-error") | is.null(slope))
       {
         slope <- estimate_theta_slope(fit_func = fit_func,
                                       predict_func = predict_func,
@@ -255,6 +260,9 @@ glmthetaf <- function (
       }
     }
     tmp2 <- slope / 2
+    #misc::debug_print(slope)
+    #misc::debug_print(tmp2)
+    #misc::debug_print(fcast)
     fcast$mean <- fcast$mean + tmp2 * (0:(h - 1) + (1 - (1 - alpha)^n) / alpha)
   } else {
     tmp2 <- try(fit_func(y ~ t, data = df, ...), silent = TRUE)
@@ -262,13 +270,19 @@ glmthetaf <- function (
       X <- matrix(time_idx, ncol = 1)
       tmp2 <- try(fit_func(x = X, y = x, ...), silent = TRUE)
       if (inherits(tmp2, "try-error"))
-        stop("Unable to fit linear trend")
+      {
+        tmp2 <- try(fit_func(X, x, ...), silent = TRUE)
+        if (inherits(tmp2, "try-error"))
+        {
+          stop("Unable to fit linear trend")
+        }
+      }
     }
     slope <- try(coef(tmp2)[2], silent = TRUE)
-    if (inherits(slope, "try-error"))
+    if (inherits(slope, "try-error") | is.null(slope))
     {
       slope <- try(tmp2$coefficients[2], silent = TRUE)
-      if (inherits(slope, "try-error"))
+      if (inherits(slope, "try-error") | is.null(slope))
       {
         slope <- estimate_theta_slope(fit_func = fit_func,
                                       predict_func = predict_func,
