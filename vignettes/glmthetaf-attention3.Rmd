@@ -84,80 +84,87 @@ for (attention_type in attention_types)
 }
 
 print(results)
+
+results1 <- results
 ```
 
-
-```{r fig.width=7.5}
+```{r fig.width=7.5, eval=FALSE}
 library(forecast)
 library(ahead)
-library(MASS)
-library(misc)
 
-attention_types <- c(
-  "dot_product", "scaled_dot_product", 
+attention_types <- c("dot_product", "scaled_dot_product", 
   "cosine", "exponential", 
   "gaussian", "linear",
   "value_based", "hybrid", 
-  "parametric"
-)
+  "parametric")
 
-fit_funcs <- list(
-  MASS::glm.nb,
-  stats::glm,
-  MASS::rlm,
-  MASS::lqs
-)
+results <- data.frame(matrix(0, ncol=length(attention_types), nrow=8))
 
-# 8 rows: 4 with attention, 4 without
-results <- matrix(0, nrow = 8, ncol = length(attention_types))
 colnames(results) <- attention_types
-rownames(results) <- c(
-  paste0("att_", c("glm.nb", "glm", "rlm", "lqs")),
-  paste0("noatt_", c("glm.nb", "glm", "rlm", "lqs"))
-)
-results <- as.data.frame(results)
 
-rmse <- function(obj, y_test) {
-  sqrt(mean((obj$mean - y_test)^2))
+rmse <- function(obj, y_test)
+{
+  sqrt(mean((obj$mean - y_test)**2))
 }
 
 y <- AirPassengers
+
 y_split <- misc::splitts(y, split_prob = 0.9)
+
 y_train <- y_split$training
-y_test  <- y_split$testing
+
+y_test <- y_split$testing
+
 h <- length(y_test)
 
-for (attention_type in attention_types) {
-  misc::debug_print(attention_type)
+for (attention_type in attention_types)
+{
+   misc::debug_print(attention_type)
+  
+   (obj <- suppressWarnings(ahead::glmthetaf(y_train, h=h, fit_func=MASS::glm.nb, attention = TRUE, attention_type = attention_type, attention_method = "historical")))
+  print(obj)
+  results[1, attention_type] <- rmse(obj, y_test)
+  plot(obj)
+  
+  (obj <- suppressWarnings(ahead::glmthetaf(y_train, h=h, fit_func=stats::glm, attention = TRUE, attention_type = attention_type, attention_method = "historical")))
+  results[2, attention_type] <- rmse(obj, y_test)
+  print(obj)
+  plot(obj)
+  
+  (obj <- suppressWarnings(ahead::glmthetaf(y_train, h=h, fit_func=MASS::rlm, attention = TRUE, attention_type = attention_type, attention_method = "historical")))
+  results[3, attention_type] <- rmse(obj, y_test)
+  print(obj)
+  plot(obj)
+  
+  (obj <- suppressWarnings(ahead::glmthetaf(y_train, h=h, fit_func=MASS::lqs, attention = TRUE, attention_type = attention_type, attention_method = "historical")))
+  results[4, attention_type] <- rmse(obj, y_test)
+  print(obj)
+  plot(obj) 
+  
+  
+  (obj <- suppressWarnings(ahead::glmthetaf(y_train, h=h, fit_func=MASS::glm.nb, attention = FALSE, attention_type = attention_type, attention_method = "historical")))
+  print(obj)
+  results[5, attention_type] <- rmse(obj, y_test)
+  plot(obj)
+  
+  (obj <- suppressWarnings(ahead::glmthetaf(y_train, h=h, fit_func=stats::glm, attention = FALSE, attention_type = attention_type, attention_method = "historical")))
+  results[6, attention_type] <- rmse(obj, y_test)
+  print(obj)
+  plot(obj)
+  
+  (obj <- suppressWarnings(ahead::glmthetaf(y_train, h=h, fit_func=MASS::rlm, attention = FALSE, attention_type = attention_type, attention_method = "historical")))
+  results[7, attention_type] <- rmse(obj, y_test)
+  print(obj)
+  plot(obj)
+  
+  (obj <- suppressWarnings(ahead::glmthetaf(y_train, h=h, fit_func=MASS::lqs, attention = FALSE, attention_type = attention_type, attention_method = "historical")))
+  results[8, attention_type] <- rmse(obj, y_test)
+  print(obj)
+  plot(obj) 
 
-  for (i in seq_along(fit_funcs)) {
-    fit_func <- fit_funcs[[i]]
-
-    # With attention
-    obj <- suppressWarnings(
-      ahead::glmthetaf(
-        y_train, h = h, fit_func = fit_func,
-        attention = TRUE, attention_type = attention_type
-      )
-    )
-    misc::debug_print(paste("With attention -", deparse(substitute(fit_func))))
-    print(obj)
-    results[i, attention_type] <- rmse(obj, y_test)
-    plot(obj)
-
-    # Without attention
-    obj <- suppressWarnings(
-      ahead::glmthetaf(
-        y_train, h = h, fit_func = fit_func,
-        attention = FALSE, attention_type = attention_type
-      )
-    )
-    misc::debug_print(paste("No attention -", deparse(substitute(fit_func))))
-    print(obj)
-    results[i + 4, attention_type] <- rmse(obj, y_test)
-    plot(obj)
-  }
 }
 
+print(results1)
 print(results)
+```
 
