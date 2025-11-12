@@ -43,5 +43,11 @@ plot(ahead::ctxthetaf(AirPassengers, theta = 1, fit_func = lm),
 plot(ahead::ctxthetaf(AirPassengers, theta = 1, 
               fit_func = randomForest::randomForest),
      main = "Random Forest, theta = 1")
+
+plot(ahead::ctxthetaf(USAccDeaths, theta = 0.15, 
+                      type_pi="kde"))
+
+plot(ahead::ctxthetaf(USAccDeaths, theta = 0.75, 
+                      type_pi="surrogate"))
 ```
 

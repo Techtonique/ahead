@@ -21,11 +21,14 @@
 #' @param predict_func Prediction function (default: predict)
 #' @param x Deprecated, use y instead
 #' @param ... Additional arguments passed to fit_func
-#' @param type_pi 
-#' @param nsim 
-#' @param block_size 
-#' @param seed 
-#' @param B 
+#' @param type_pi Default is "gaussian", otherwise, uses sequential 
+#' split conformal prediction as in Moudiki, T. (2025)
+#' @param nsim Number of simulations when \code{type_pi} is not 
+#' "gaussian"
+#' @param block_size Size of block when \code{type_pi} is 
+#' "block-bootstrap"
+#' @param seed Reproducibility seed
+#' @param B Alias for \code{nsim}
 #'
 #' @return An object of class `forecast`
 #' @author T. Moudiki (based on RJH)
@@ -34,6 +37,9 @@
 #'
 #' Hyndman, R.J., and Billah, B. (2003) Unmasking the Theta method.
 #' \emph{International J. Forecasting}, \bold{19}, 287-290.
+#' 
+#' Moudiki, T. (2025). Conformal Predictive Simulations for Univariate Time Series. 
+#' \emph{Proceedings of Machine Learning Research}, \bold{266}, 1-2.
 #'
 #' @keywords ts
 #' @examples
