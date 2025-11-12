@@ -26,11 +26,10 @@ glmthetaf <- function (
     predict_func = predict, 
     fan = FALSE,
     x = y,
-    type_pi = c(
+    type_pi = c("gaussian",
       "conformal-split", "conformal-surrogate",
       "conformal-bootstrap", "conformal-block-bootstrap",
-      "conformal-kde", "conformal-fitdistr", "gaussian"
-    ),
+      "conformal-kde", "conformal-fitdistr"),
     attention = TRUE,
     attention_type = c(
       "dot_product", "scaled_dot_product", "cosine", "exponential",
@@ -363,7 +362,7 @@ glmthetaf <- function (
   
   fcast$x <- origx
   fcast$level <- level
-  fcast$method <- paste0("Theta", if(attention) paste0(" with ", attention_method, " attention") else "")
+  fcast$method <- paste0("ML+Theta", if(attention) paste0(" with ", attention_method, " attention") else "")
   fcast$model <- list(alpha = alpha, drift = tmp2, sigma = fcast$model$sigma2,
                       attention_method = if(attention) attention_method else NULL)
   fcast$model$call <- match.call()

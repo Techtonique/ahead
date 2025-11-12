@@ -1,0 +1,47 @@
+---
+title: "Context-aware Theta"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Context-aware Theta}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, fig.width=6.5}
+library(ahead)
+
+# Compare different theta values
+
+# theta = 0 (no drift, pure SES)
+plot(ahead::ctxthetaf(AirPassengers, theta = 0), 
+     main = "theta = 0 (No Drift)")
+
+# theta = 0.5 (classical theta behavior)
+plot(ahead::ctxthetaf(AirPassengers, theta = 0.5), 
+     main = "theta = 0.5 (Classical)")
+
+# theta = 1 (full drift)
+plot(ahead::ctxthetaf(AirPassengers, theta = 1), 
+     main = "theta = 1 (Full Drift)")
+
+# theta = 1.5 (amplified drift)
+plot(ahead::ctxthetaf(AirPassengers, theta = 1.5), 
+     main = "theta = 1.5 (Amplified)")
+
+# Compare linear vs non-linear with different theta
+
+plot(ahead::ctxthetaf(AirPassengers, theta = 0.5, fit_func = lm),
+     main = "Linear Model, theta = 0.5")
+
+plot(ahead::ctxthetaf(AirPassengers, theta = 0.5, 
+              fit_func = randomForest::randomForest),
+     main = "Random Forest, theta = 0.5")
+
+plot(ahead::ctxthetaf(AirPassengers, theta = 1, fit_func = lm),
+     main = "Linear Model, theta = 1")
+
+plot(ahead::ctxthetaf(AirPassengers, theta = 1, 
+              fit_func = randomForest::randomForest),
+     main = "Random Forest, theta = 1")
+```
+
