@@ -2,19 +2,26 @@
 % Please edit documentation in R/glmtheta.R
 \name{glmthetaf}
 \alias{glmthetaf}
-\title{Generalized Linear Model Theta Forecast}
+\title{Generalized Linear Model Theta Forecast and not only}
 \usage{
 glmthetaf(
   y,
   h = ifelse(frequency(y) > 1, 2 * frequency(y), 10),
   level = 95L,
   fit_func = stats::glm,
+  predict_func = predict,
   fan = FALSE,
   x = y,
-  type_pi = c("conformal-split", "conformal-surrogate", "conformal-bootstrap",
-    "conformal-block-bootstrap", "conformal-kde", "conformal-fitdistr", "gaussian"),
+  type_pi = c("gaussian", "conformal-split", "conformal-surrogate",
+    "conformal-bootstrap", "conformal-block-bootstrap", "conformal-kde",
+    "conformal-fitdistr"),
   attention = TRUE,
+  attention_type = c("dot_product", "scaled_dot_product", "cosine", "exponential",
+    "gaussian", "linear", "value_based", "hybrid", "parametric"),
+  attention_method = c("heuristic", "historical"),
   scale_ctxt = 1,
+  historical_lookback = 50L,
+  max_adjustment = 0.5,
   B = 250L,
   nsim = B,
   ...
@@ -27,7 +34,9 @@ glmthetaf(
 
 \item{level}{The confidence level for the forecast intervals}
 
-\item{fit_func}{The function to use for fitting the GLM}
+\item{fit_func}{The function to use for fitting the GLM (and other models)}
+
+\item{predict_func}{The function to use for predict the other models (not GLMs)}
 
 \item{fan}{Logical flag for fan plot}
 
@@ -35,9 +44,17 @@ glmthetaf(
 
 \item{attention}{Logical flag for using attention mechanism}
 
+\item{attention_type}{The type of attention mechanism to use}
+
+\item{attention_method}{The method for computing attention-based adjustments: "heuristic" (original) or "historical" (new evidence-based)}
+
 \item{scale_ctxt}{Scaling coefficient for context vector}
 
-\item{B}{Number of bootstrap replications or number of simulations (yes, 'B' is unfortunate)}
+\item{historical_lookback}{Number of periods to consider for historical matching}
+
+\item{max_adjustment}{Maximum allowed adjustment percentage (0-1)}
+
+\item{B}{Number of bootstrap replications or number of simulations (alias: nsim)}
 
 \item{nsim}{Alias for B}
 

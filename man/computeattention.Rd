@@ -6,7 +6,8 @@
 \usage{
 computeattention(
   series,
-  attention_type = "cosine",
+  attention_type = c("dot_product", "scaled_dot_product", "cosine", "exponential",
+    "gaussian", "linear", "value_based", "hybrid", "parametric"),
   window_size = 3,
   decay_factor = 5,
   temperature = 1,
