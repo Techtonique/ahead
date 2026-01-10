@@ -753,7 +753,8 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
   #misc::debug_print(coef)
   if (length(lambda) > 1)
   {
-  colnames(coef) <- lambda
+    try(colnames(coef) <- lambda, 
+        silent = TRUE) 
   }
   centered_y_hat <- X %*% coef
 

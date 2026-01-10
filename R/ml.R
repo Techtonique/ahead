@@ -280,7 +280,52 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
     return(out)
 }
 
+
+#' Forecasting using Machine Leaning models
+#'
+#' @param y A numeric vector or time series of class \code{ts}
+#' @param h Forecasting horizon
+#' @param level Confidence level for prediction intervals
+#' @param lags Number of lags of the input time series considered in the regression
+#' @param fit_func Fitting function (Statistical/ML model). Default is Ridge regression.
+#' @param predict_func Prediction function (Statistical/ML model)
+#' @param coeffs Coefficients of the fitted model. If provided, a linear combination with the coefficients is used to compute the prediction.
+#' @param ... additional parameters passed to the fitting function \code{fit_func}
+#'
+#' @return An object of class 'forecast'
+#' @export
+#'
+#' @examples
+#' 
+#' plot(ahead::ml_forecast(AirPassengers, h=20L))
+#'
+#' plot(ahead::ml_forecast(AirPassengers, h=25L, lags=20L, fit_func=glmnet::cv.glmnet, stack=TRUE)) 
+#'
+#' res <- ahead::ml_forecast(USAccDeaths, h=15L, lags=15L, type_pi="surrogate", B=250L)
+#' plot(res)
+#' 
+#' res <- ahead::ml_forecast(USAccDeaths, fit_func = glmnet::cv.glmnet, h=15L, lags=15L, 
+#' type_pi="kde", B=250L) 
+#' plot(res)
+#' 
+#' (res <- ahead::ml_forecast(USAccDeaths, fit_func = e1071::svm, h=15L, lags=15L, 
+#' type_pi="kde", B=250L)) 
+#' plot(res)
+#' 
+#' res <- ahead::ml_forecast(mdeaths, h=15L, lags=15L, type_pi="surrogate", B=250L)
+#' plot(res)
+#' 
+#' res <- ahead::ml_forecast(fdeaths, fit_func = glmnet::cv.glmnet, h=15L, lags=25L, 
+#' type_pi="kde", B=250L) 
+#' plot(res)
+#' 
+#' res <- ahead::ml_forecast(fdeaths, fit_func = randomForest::randomForest, h=15L, lags=15L, 
+#' type_pi="kde", B=250L) 
+#' plot(res)
+#' 
+#' 
 ml_forecast <- function(y, h, 
+                        level=95,                        
                         lags=1, 
                         fit_func = ahead::ridge,
                         predict_func = predict,
@@ -313,9 +358,12 @@ ml_forecast <- function(y, h,
   } else {
     fit <- try(fit_func(y ~ ., data = df, ...), silent=TRUE)
     if (inherits(fit, "try-error"))
-    {      
+    {
+      misc::debug_print(fit)
       idx_y <- which(colnames(df) == "y")
-      fit <- fit_func(x = as.matrix(df)[, -idx_y], 
+      misc::debug_print(df)
+      misc::debug_print(dim(df))
+      fit <- fit_func(x = as.matrix(as.matrix(df)[, -idx_y]), 
                       y = df$y, ...)             
     }
   }
@@ -347,7 +395,6 @@ ml_forecast <- function(y, h,
       new_row <- c(as.numeric(newdata_df), prediction)
       df_matrix <- rbind(new_row, df_matrix)
     } 
-  } else {
     for (i in 1:h)
     {
       # Extract newdata exactly as original      
