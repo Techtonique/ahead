@@ -29,22 +29,6 @@
 #'   \item \code{residuals}: Model residuals
 #' }
 #'
-#' @examples
-#' \donttest{
-#' # Generate sample data
-#' set.seed(123)
-#' n <- 200
-#' y <- rnorm(n)  # Simple example with normal data
-#' 
-#' # Generate forecasts
-#' forecasts <- garch11f(y, h = 20, level = c(80, 95))
-#' print(forecasts)
-#' plot(forecasts)
-#' 
-#' # Use bootstrap method
-#' forecasts_boot <- garch11f(y, h = 20, bootstrap = TRUE, npaths = 500)
-#' plot(forecasts_boot, main = "Bootstrap GARCH Forecasts")
-#' }
 #'
 #' @seealso \code{\link{garch11Fit}} for model fitting, \code{\link{plot.garch11forecast}} 
 #'   for plotting forecasts

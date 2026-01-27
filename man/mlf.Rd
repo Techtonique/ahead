@@ -57,33 +57,3 @@ An object of class 'forecast'
 \description{
 Conformalized Forecasting using Machine Leaning models
 }
-\examples{
-
-plot(ahead::mlf(AirPassengers, h=20L))
-
-plot(ahead::mlf(AirPassengers, h=25L, lags=20L, fit_func=glmnet::cv.glmnet, stack=TRUE)) 
-
-res <- ahead::mlf(USAccDeaths, h=15L, lags=15L, type_pi="surrogate", B=250L)
-plot(res)
-
-res <- ahead::mlf(USAccDeaths, fit_func = glmnet::cv.glmnet, h=15L, lags=15L, 
-type_pi="kde", B=250L) 
-plot(res)
-
-(res <- ahead::mlf(USAccDeaths, fit_func = e1071::svm, h=15L, lags=15L, 
-type_pi="kde", B=250L)) 
-plot(res)
-
-res <- ahead::mlf(mdeaths, h=15L, lags=15L, type_pi="surrogate", B=250L)
-plot(res)
-
-res <- ahead::mlf(fdeaths, fit_func = glmnet::cv.glmnet, h=15L, lags=25L, 
-type_pi="kde", B=250L) 
-plot(res)
-
-res <- ahead::mlf(fdeaths, fit_func = randomForest::randomForest, h=15L, lags=15L, 
-type_pi="kde", B=250L) 
-plot(res)
-
-
-}
