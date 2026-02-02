@@ -32,18 +32,6 @@
 #'   typically a list including \code{mean} and prediction intervals.
 #'
 #' @details
-#' The function works as follows:
-#' 1. Split the time series into training and testing sets according to
-#'    \code{split_fraction}.
-#' 2. Compute attention-based context vectors from the training data using
-#'    the specified attention mechanism.
-#' 3. Recursively generate forecasts for the testing horizon, updating the
-#'    context vectors at each step by:
-#'    - Appending the new forecast to the series
-#'    - Recomputing attention on the extended series
-#'    - Using the updated context vector as external regressor
-#' 4. Return the final ridge2f model fitted on the testing data.
-#'
 #' This approach allows the model to leverage temporal dependencies captured
 #' by attention mechanisms, potentially improving forecast accuracy by
 #' incorporating weighted historical information.
@@ -59,7 +47,6 @@
 #' @export
 contextridge2f <- function(y,
                            h = 5L,
-                           split_fraction = 0.8,
                            attention_type = "exponential",
                            window_size = 3,
                            decay_factor = 5.0,
