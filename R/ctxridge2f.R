@@ -70,28 +70,49 @@ contextridge2f <- function(y,
                            beta = 0.5,
                            ...)
 {
-  ctx_result <- ahead::computeattention(
-    series = y,
-    attention_type = attention_type,
-    window_size = window_size,
-    decay_factor = decay_factor,
-    temperature = temperature,
-    sigma = sigma,
-    sensitivity = sensitivity,
-    alpha = alpha,
-    beta = beta
-  )
-  
-  res<- ahead::ridge2f(
-    y = y,
-    h = h,
-    xreg = ctx_result$context_vectors,
-    ...
-  )
-  
-  res$attention_weights <- ctx_result$attention_weights
+  if (is.null(dim(y)))
+  {
+    ctx_result <- ahead::computeattention(
+      series = y,
+      attention_type = attention_type,
+      window_size = window_size,
+      decay_factor = decay_factor,
+      temperature = temperature,
+      sigma = sigma,
+      sensitivity = sensitivity,
+      alpha = alpha,
+      beta = beta
+    ) 
     
-  res$context_vectors <- ctx_result$context_vectors
+    res<- ahead::ridge2f(
+      y = y,
+      h = h,
+      xreg = ctx_result$context_vectors,
+      ...
+    )
+    
+    res$context_vectors <- ctx_result$context_vectors
+    
+  } else {
+    ctx_result <- sapply(1:ncol(y), function(i) ahead::computeattention(
+      series = y[,i],
+      attention_type = attention_type,
+      window_size = window_size,
+      decay_factor = decay_factor,
+      temperature = temperature,
+      sigma = sigma,
+      sensitivity = sensitivity,
+      alpha = alpha,
+      beta = beta
+    )$context_vectors)
+    res<- ahead::ridge2f(
+      y = y,
+      h = h,
+      xreg = ctx_result,
+      ...
+    )
+    res$context_vectors <- ctx_result
+  }
   
   return(res)
 }

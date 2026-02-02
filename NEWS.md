@@ -1,3 +1,8 @@
+# version 0.32.0
+
+- Add `contextridge2f` for adding context to `ridge2f` forecasting. 
+- Add `stackeridge2f` for time series stacked generalization
+
 # version 0.25.0
 
 - Implement ANY MODEL+GARCH(1, 1) forecasting for stocks (stochastic volatility models) 
