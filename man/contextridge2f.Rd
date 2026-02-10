@@ -7,7 +7,6 @@
 contextridge2f(
   y,
   h = 5L,
-  split_fraction = 0.8,
   attention_type = "exponential",
   window_size = 3,
   decay_factor = 5,
@@ -64,40 +63,15 @@ the training data using various attention mechanisms and then used to
 enhance the forecast model.
 }
 \details{
-The function works as follows:
-\enumerate{
-\item Split the time series into training and testing sets according to
-\code{split_fraction}.
-\item Compute attention-based context vectors from the training data using
-the specified attention mechanism.
-\item Recursively generate forecasts for the testing horizon, updating the
-context vectors at each step by:
-\itemize{
-\item Appending the new forecast to the series
-\item Recomputing attention on the extended series
-\item Using the updated context vector as external regressor
-}
-\item Return the final ridge2f model fitted on the testing data.
-}
-
 This approach allows the model to leverage temporal dependencies captured
 by attention mechanisms, potentially improving forecast accuracy by
 incorporating weighted historical information.
 }
 \examples{
-\dontrun{
-# Univariate example with exponential attention
-result1 <- contextridge2f(fpp::insurance, h = 10, 
-                          split_fraction = 0.8,
-                          attention_type = "exponential",
-                          decay_factor = 5.0)
 
-# With hybrid attention
-result2 <- contextridge2f(fpp::insurance, h = 10,
-                          attention_type = "hybrid",
-                          decay_factor = 5.0,
-                          sensitivity = 1.0)
-}
+plot(contextridge2f(AirPassengers, h = 15, lags = 15, attention_type = "exponential"))
+
+plot(contextridge2f(fdeaths, h = 20, lags = 15, attention_type = "exponential"))
 
 }
 \seealso{

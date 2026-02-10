@@ -331,28 +331,28 @@ print.summary.synthetic_ts <- function(x, ...) {
   cat(sprintf("    X-squared = %.4f, df = %d, p-value = %.4f\n", 
               lb_test$statistic, lb_test$parameter, lb_test$p.value))
   cat("    H0: No residual autocorrelation (p > 0.05 indicates adequate model)\n")
-  cat("    Result:", ifelse(lb_test$p.value > 0.05, "✓ ADEQUATE", "✗ INADEQUATE"), "\n\n")
+  cat("    Result:", ifelse(lb_test$p.value > 0.05, " ADEQUATE", " INADEQUATE"), "\n\n")
   
   # Shapiro-Wilk test
   sw_test <- x$statistical_tests$shapiro_wilk
   cat("  Shapiro-Wilk Test for Normality:\n")
   cat(sprintf("    W = %.4f, p-value = %.4f\n", sw_test$statistic, sw_test$p.value))
   cat("    H0: Residuals are normally distributed (p > 0.05 indicates normality)\n")
-  cat("    Result:", ifelse(sw_test$p.value > 0.05, "✓ NORMAL", "✗ NON-NORMAL"), "\n\n")
+  cat("    Result:", ifelse(sw_test$p.value > 0.05, " NORMAL", " NON-NORMAL"), "\n\n")
   
   # ARCH test
   arch_test <- x$statistical_tests$arch_effect
   cat("  ARCH Test for Heteroscedasticity:\n")
   cat(sprintf("    LM = %.4f, p-value = %.4f\n", arch_test$statistic, arch_test$p.value))
   cat("    H0: No ARCH effects (p > 0.05 indicates homoscedasticity)\n")
-  cat("    Result:", ifelse(arch_test$p.value > 0.05, "✓ HOMOSCEDASTIC", "✗ HETEROSCEDASTIC"), "\n\n")
+  cat("    Result:", ifelse(arch_test$p.value > 0.05, " HOMOSCEDASTIC", " HETEROSCEDASTIC"), "\n\n")
   
   # Kolmogorov-Smirnov test
   ks_test <- x$statistical_tests$distribution_similarity
   cat("  Kolmogorov-Smirnov Test for Distribution Similarity:\n")
   cat(sprintf("    D = %.4f, p-value = %.4f\n", ks_test$statistic, ks_test$p.value))
   cat("    H0: Original and synthetic data come from same distribution\n")
-  cat("    Result:", ifelse(ks_test$p.value > 0.05, "✓ SIMILAR DISTRIBUTIONS", "✗ DIFFERENT DISTRIBUTIONS"), "\n\n")
+  cat("    Result:", ifelse(ks_test$p.value > 0.05, " SIMILAR DISTRIBUTIONS", " DIFFERENT DISTRIBUTIONS"), "\n\n")
   
   # Overall assessment
   cat("OVERALL ASSESSMENT:\n")
