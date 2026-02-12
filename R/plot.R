@@ -11,12 +11,12 @@
 #'
 #' @examples
 #'
-#' require(fpp)
+#' require(fpp2)
 #'
-#' fit_obj_VAR <- ahead::varf(fpp::insurance, lags = 2,
+#' fit_obj_VAR <- ahead::varf(fpp2::insurance, lags = 2,
 #' h = 10, level = 95)
 #'
-#' fit_obj_ridge2 <- ahead::ridge2f(fpp::insurance, lags = 2,
+#' fit_obj_ridge2 <- ahead::ridge2f(fpp2::insurance, lags = 2,
 #' h = 10, level = 95)
 #'
 #' par(mfrow=c(2, 2))
@@ -25,7 +25,7 @@
 #' plot(fit_obj_ridge2, "Quotes")
 #' plot(fit_obj_ridge2, "TV.advert")
 #'
-#' obj <- ahead::ridge2f(fpp::insurance, h = 10, type_pi = "blockbootstrap",
+#' obj <- ahead::ridge2f(fpp2::insurance, h = 10, type_pi = "blockbootstrap",
 #' block_length=5, B = 10)
 #' par(mfrow=c(1, 2))
 #' plot(obj, selected_series = "Quotes", type = "sims",

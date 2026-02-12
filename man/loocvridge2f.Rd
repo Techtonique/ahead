@@ -106,14 +106,13 @@ LOOCV for Random Vector functional link network model with 2 regularization para
 }
 \examples{
 
-require(fpp)
+require(fpp2)
 
-print(ahead::loocvridge2f(fpp::insurance))
-print(ahead::loocvridge2f(fpp::usconsumption))
+print(ahead::loocvridge2f(fpp2::insurance))
 
-#foo <- function(xx) ahead::loocvridge2f(fpp::insurance, lambda_1=10^xx[1], lambda_2=10^xx[2])
+#foo <- function(xx) ahead::loocvridge2f(fpp2::insurance, lambda_1=10^xx[1], lambda_2=10^xx[2])
 #(opt <- stats::nlminb(objective=foo, lower=c(-10,-10), upper=c(10,10), start=c(0, 0)))
-#print(ahead::loocvridge2f(fpp::insurance, lambda_1=10^opt$par[1], lambda_2=10^opt$par[2]))
+#print(ahead::loocvridge2f(fpp2::insurance, lambda_1=10^opt$par[1], lambda_2=10^opt$par[2]))
 
 }
 \references{

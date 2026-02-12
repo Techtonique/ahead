@@ -10,7 +10,7 @@ vignette: >
 `ahead` is a package for __univariate__ and __multivariate time series forecasting__. Five forecasting methods are implemented so far, as of October 13th, 2021.
 
 - `armagarchf`: **univariate** time series forecasting method using simulation of an ARMA(1, 1) - GARCH(1, 1) 
-- `dynrmf`: **univariate** time series forecasting method adapted from [`forecast::nnetar`](https://otexts.com/fpp2/nnetar.html#neural-network-autoregression) to support any 
+- `dynrmf`: **univariate** time series forecasting method adapted from [`forecast::nnetar`](https://otexts.com/fpp/nnetar.html#neural-network-autoregression) to support any 
 Statistical/Machine learning model (such as Ridge Regression, Random Forest, Support Vector Machines, etc)
 - `eatf`: **univariate** time series forecasting method based on combinations of `forecast::ets`, `forecast::auto.arima`, and `forecast::thetaf`
 - `ridge2f`: **multivariate** time series forecasting method, based on __quasi-randomized networks__ and presented in [this paper](https://www.mdpi.com/2227-9091/6/1/22)
@@ -57,7 +57,7 @@ And here are the packages that will be used in this vignette:
 
 ```{r include=FALSE}
 library(ahead)
-library(fpp)
+library(fpp2)
 library(datasets)
 library(randomForest)
 library(e1071)
@@ -65,7 +65,7 @@ library(e1071)
 
 ```R
 library(ahead)
-library(fpp)
+library(fpp2)
 library(datasets)
 library(randomForest)
 library(e1071)
@@ -110,17 +110,17 @@ to type `?ridge2f` or `?varf` in R console for more details on both functions.
 # Forecast using ridge2
 # With 2 time series lags, an horizon of 10, 
 # and a 95% prediction interval
- fit_obj_ridge2 <- ahead::ridge2f(fpp::insurance, lags = 2,
+ fit_obj_ridge2 <- ahead::ridge2f(fpp2::insurance, lags = 2,
                                   h = 10, level = 95)
 
 
 # Forecast using VAR
- fit_obj_VAR <- ahead::varf(fpp::insurance, lags = 2,
+ fit_obj_VAR <- ahead::varf(fpp2::insurance, lags = 2,
                             h = 10, level = 95)
 
  
 # Plotting forecasts 
-# fpp::insurance contains 2 time series, Quotes and TV.advert 
+# fpp2::insurance contains 2 time series, Quotes and TV.advert 
  plot(fit_obj_ridge2, "Quotes")
  plot(fit_obj_VAR, "Quotes")
  plot(fit_obj_ridge2, "TV.advert")

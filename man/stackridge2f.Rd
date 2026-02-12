@@ -50,7 +50,7 @@ and combines them into the feature matrix.
 \dontrun{
 
 # Univariate example with default ridge2f base learner
-result1 <- stackridge2f(fpp::insurance, h = 10, 
+result1 <- stackridge2f(fpp2::insurance, h = 10, 
                         split_fraction = 0.5)
 }                         
 }

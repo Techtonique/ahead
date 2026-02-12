@@ -41,15 +41,10 @@ Vector Autoregressive model adapted from vars::VAR (only for benchmarking)
 }
 \examples{
 
-require(fpp)
+require(fpp2)
 
-print(varf(fpp::insurance, lags=2, h=10))
+print(varf(fpp2::insurance, lags=2, h=10))
 
-res <- varf(fpp::usconsumption, h=20, lags=2)
-
-par(mfrow=c(1, 2))
-plot(res, "consumption")
-plot(res, "income")
 
 }
 \references{

@@ -59,7 +59,7 @@ library(ahead)
 
 ```R
 library(ahead)
-library(fpp)
+library(fpp2)
 ```
 
 # 1 - Get and transform data

@@ -40,7 +40,7 @@ For univariate and multivariate time series.
 ##### 1 - 1 Example 1: with `dynrmf` (type `?dynrmf` in R console for more details) and Random Forest
 
 ```R
- require(fpp)
+ require(fpp2)
  
  par(mfrow=c(3, 2))
  plot(dynrmf(USAccDeaths, h=20, level=95, fit_func = randomForest::randomForest,
@@ -85,12 +85,11 @@ With `ridge2f` (type `?ridge2f` in R console for more details), the model from :
  functional link neural networks. Risks, 6(1), 22.
 
 ```R
- require(fpp)
+ require(fpp2)
 
- print(ahead::ridge2f(fpp::insurance)$mean)
- print(ahead::ridge2f(fpp::usconsumption)$lower)
+ print(ahead::ridge2f(fpp2::insurance)$mean)
 
- res <- ahead::ridge2f(fpp::insurance, lags=2)
+ res <- ahead::ridge2f(fpp2::insurance, lags=2)
  par(mfrow=c(1, 2))
  plot(res, "Quotes")
  plot(res, "TV.advert")

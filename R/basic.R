@@ -29,23 +29,23 @@
 #'
 #' @examples
 #'
-#' require(fpp)
+#' require(fpp2)
 #'
-#' res <- ahead::basicf(fpp::insurance, h=10)
+#' res <- ahead::basicf(fpp2::insurance, h=10)
 #' par(mfrow=c(1, 2))
 #' plot(res, "TV.advert")
 #' plot(res, "Quotes")
 #'
 #'
-#' res <- ahead::basicf(fpp::insurance, method="rw", h=10)
+#' res <- ahead::basicf(fpp2::insurance, method="rw", h=10)
 #' par(mfrow=c(1, 2))
 #' plot(res, "TV.advert")
 #' plot(res, "Quotes")
 #'
 #'
 #' # block bootstrap
-#' res3 <- ahead::basicf(fpp::insurance, h=10, type_pi = "bootstrap", B=10)
-#' res5 <- ahead::basicf(fpp::insurance, h=10, type_pi = "blockbootstrap", B=10,
+#' res3 <- ahead::basicf(fpp2::insurance, h=10, type_pi = "bootstrap", B=10)
+#' res5 <- ahead::basicf(fpp2::insurance, h=10, type_pi = "blockbootstrap", B=10,
 #'                       block_length = 4)
 #'
 #' print(res3$sims[[2]])
@@ -59,7 +59,7 @@
 #'
 #'
 #' # moving block bootstrap
-#' res6 <- ahead::basicf(fpp::insurance, h=10,
+#' res6 <- ahead::basicf(fpp2::insurance, h=10,
 #'                       type_pi = "movingblockbootstrap", B=10,
 #'                       block_length = 4, method = "rw")
 #'

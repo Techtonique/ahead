@@ -18,9 +18,9 @@ Obtain simulations (when relevant) from a selected time series
 }
 \examples{
 
-require(fpp)
+require(fpp2)
 
-obj <- ahead::ridge2f(fpp::insurance, h = 7,
+obj <- ahead::ridge2f(fpp2::insurance, h = 7,
                       type_pi = "bootstrap", B = 5)
 print(getsimulations(obj, selected_series = "TV.advert"))
 print(getsimulations(obj, selected_series = "Quotes"))

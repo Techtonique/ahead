@@ -105,29 +105,28 @@ Random Vector functional link network model with 2 regularization parameters
 }
 \examples{
 
-require(fpp)
+require(fpp2)
 
-print(ahead::ridge2f(fpp::insurance)$mean)
-print(ahead::ridge2f(fpp::usconsumption)$lower)
+print(ahead::ridge2f(fpp2::insurance)$mean)
 
-res <- ahead::ridge2f(fpp::insurance, h=10, lags=2)
+res <- ahead::ridge2f(fpp2::insurance, h=10, lags=2)
 par(mfrow=c(1, 2))
 plot(res, "Quotes")
 plot(res, "TV.advert")
 
 # include a trend (just for the example)
-xreg <- as.numeric(time(fpp::insurance))
-res2 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+xreg <- as.numeric(time(fpp2::insurance))
+res2 <- ahead::ridge2f(fpp2::insurance, xreg=xreg,
 h=10, lags=2)
 par(mfrow=c(1, 2))
 plot(res2, "Quotes")
 plot(res2, "TV.advert")
 
 # block bootstrap
-xreg <- as.numeric(time(fpp::insurance))
-res3 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+xreg <- as.numeric(time(fpp2::insurance))
+res3 <- ahead::ridge2f(fpp2::insurance, xreg=xreg,
                       h=10, lags=1L, type_pi = "bootstrap", B=10)
-res5 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+res5 <- ahead::ridge2f(fpp2::insurance, xreg=xreg,
                       h=10, lags=1L, type_pi = "blockbootstrap", B=10,
                       block_length = 4)
 
@@ -141,16 +140,9 @@ plot(res5, "Quotes")
 plot(res5, "TV.advert")
 
 
-res4 <- ahead::ridge2f(fpp::usconsumption, h=20, lags=2L,
-lambda_2=1)
-par(mfrow=c(1, 2))
-plot(res4, "income")
-plot(res4, "consumption")
-
-
 # moving block bootstrap
-xreg <- as.numeric(time(fpp::insurance))
-res6 <- ahead::ridge2f(fpp::insurance, xreg=xreg,
+xreg <- as.numeric(time(fpp2::insurance))
+res6 <- ahead::ridge2f(fpp2::insurance, xreg=xreg,
                       h=10, lags=1L,
                       type_pi = "movingblockbootstrap", B=10,
                       block_length = 4)

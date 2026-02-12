@@ -72,12 +72,12 @@ And here are the packages that will be used in this vignette:
 
 ```{r include=FALSE}
 library(ahead)
-library(fpp)
+library(fpp2)
 ```
 
 ``` r
 library(ahead)
-library(fpp)
+library(fpp2)
 ```
 
 # 1 - Prediction intervals based on Gaussian distribution (meh, but quick)
@@ -87,7 +87,7 @@ library(fpp)
 ```{r "gaussian-default", fig.width=7.2}
 h <- 10L # forecasting horizon
 
-(res1 <- ahead::ridge2f(fpp::insurance, h = h))
+(res1 <- ahead::ridge2f(fpp2::insurance, h = h))
 
 print(summary(res1$residuals))
 
@@ -102,8 +102,8 @@ plot(res1, "TV.advert")
 ## 1 - 2 With external regressors
 
 ```{r "gaussian-xreg", fig.width=7.2}
-xreg <- as.numeric(time(fpp::insurance))
-(res2 <- ahead::ridge2f(fpp::insurance, xreg = xreg, h = h))
+xreg <- as.numeric(time(fpp2::insurance))
+(res2 <- ahead::ridge2f(fpp2::insurance, xreg = xreg, h = h))
 
 print(summary(res2$residuals))
 
@@ -119,7 +119,7 @@ plot(res2, "TV.advert")
 
 ```{r, "gaussian-xreg-kmeans", fig.width=7.2}
 centers <- 2L
-(res3 <- ahead::ridge2f(fpp::insurance, xreg = xreg, centers = centers, h = h))
+(res3 <- ahead::ridge2f(fpp2::insurance, xreg = xreg, centers = centers, h = h))
 
 print(summary(res3$residuals))
 
@@ -135,7 +135,7 @@ plot(res3, "TV.advert")
 
 ```{r, "gaussian-kmeans", fig.width=7.2}
 centers <- 2L
-(res10 <- ahead::ridge2f(fpp::insurance, centers = centers, h = h))
+(res10 <- ahead::ridge2f(fpp2::insurance, centers = centers, h = h))
 
 print(summary(res10$residuals))
 
@@ -153,7 +153,7 @@ plot(res10, "TV.advert")
 
 ```{r "bootstrap-default", fig.width=7.2}
 B <- 10L # number of bootstrap replications -- increase this
-(res4 <- ahead::ridge2f(fpp::insurance, 
+(res4 <- ahead::ridge2f(fpp2::insurance, 
                         type_pi = "bootstrap", B = B, h = h))
 
 print(summary(res4$residuals))
@@ -169,7 +169,7 @@ plot(res4, "TV.advert")
 ## 2 - 2 With external regressors
 
 ```{r "bootstrap-xreg", fig.width=7.2}
-(res5 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
+(res5 <- ahead::ridge2f(fpp2::insurance, xreg = xreg, 
                         type_pi = "bootstrap", B = B, h = h))
 
 print(summary(res5$residuals))
@@ -185,7 +185,7 @@ plot(res5, "TV.advert")
 ## 2 - 3 With external regressors and K-Means clustering
 
 ```{r "bootstrap-xreg-clustering", fig.width=7.2, eval=FALSE}
-(res6 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
+(res6 <- ahead::ridge2f(fpp2::insurance, xreg = xreg, 
                         centers = centers, 
                         type_pi = "bootstrap", B = B, h = h))
 
@@ -203,7 +203,7 @@ plot(res6, "TV.advert")
 
 ```{r, "bootstrap-kmeans", fig.width=7.2}
 centers <- 2L
-(res11 <- ahead::ridge2f(fpp::insurance, 
+(res11 <- ahead::ridge2f(fpp2::insurance, 
                          centers = centers, 
                          type_pi = "bootstrap", B = B, h = h))
 
@@ -223,7 +223,7 @@ plot(res11, "TV.advert")
 
 ```{r "blockbootstrap-default", fig.width=7.2}
 block_length <- 5L
-(res7 <- ahead::ridge2f(fpp::insurance, 
+(res7 <- ahead::ridge2f(fpp2::insurance, 
                         type_pi = "blockbootstrap", 
                         block_length = block_length,
                         B = B, h = h))
@@ -241,7 +241,7 @@ plot(res7, "TV.advert")
 ## 3 - 2 With external regressors
 
 ```{r "blockbootstrap-xreg", fig.width=7.2}
-(res8 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
+(res8 <- ahead::ridge2f(fpp2::insurance, xreg = xreg, 
                         type_pi = "blockbootstrap", 
                         block_length = block_length,
                         B = B, h = h))
@@ -259,7 +259,7 @@ plot(res8, "TV.advert")
 ## 3 - 3 With external regressors and K-Means clustering
 
 ```{r blockbootstrap-xreg-clustering, fig.width=7.2}
-(res9 <- ahead::ridge2f(fpp::insurance, 
+(res9 <- ahead::ridge2f(fpp2::insurance, 
                         xreg = xreg, centers = centers, 
                         type_pi = "blockbootstrap", 
                         block_length = block_length,
@@ -278,7 +278,7 @@ plot(res9, "TV.advert")
 ## 3 - 4 With K-Means clustering
 
 ```{r, "blockbootstrap-kmeans", fig.width=7.2}
-(res12 <- ahead::ridge2f(fpp::insurance, 
+(res12 <- ahead::ridge2f(fpp2::insurance, 
                          centers = centers, 
                          type_pi = "blockbootstrap", 
                          block_length = block_length,
@@ -297,7 +297,7 @@ plot(res12, "TV.advert")
 ## 3 - 5 Using the median instead of the mean in bootstrap aggregation
 
 ```{r, "blockbootstrap-median-kmeans", fig.width=7.2}
-(res13 <- ahead::ridge2f(fpp::insurance, 
+(res13 <- ahead::ridge2f(fpp2::insurance, 
                          centers = centers, 
                          type_pi = "blockbootstrap", 
                          type_aggregation = "median",
@@ -321,7 +321,7 @@ plot(res13, "TV.advert")
 
 ```{r "movingblockbootstrap-default", fig.width=7.2}
 block_length <- 5L
-(res16 <- ahead::ridge2f(fpp::insurance, 
+(res16 <- ahead::ridge2f(fpp2::insurance, 
                         type_pi = "movingblockbootstrap", 
                         block_length = block_length,
                         B = B, h = h))
@@ -339,7 +339,7 @@ plot(res16, "TV.advert")
 ## 4 - 2 With external regressors
 
 ```{r "movingblockbootstrap-xreg", fig.width=7.2}
-(res8 <- ahead::ridge2f(fpp::insurance, xreg = xreg, 
+(res8 <- ahead::ridge2f(fpp2::insurance, xreg = xreg, 
                         type_pi = "movingblockbootstrap", 
                         block_length = block_length,
                         B = B, h = h))
@@ -357,7 +357,7 @@ plot(res8, "TV.advert", type = "dist")
 ## 4 - 3 With external regressors and K-Means clustering
 
 ```{r "movingblockbootstrap-xreg-clustering", fig.width=7.2}
-(res15 <- ahead::ridge2f(fpp::insurance, 
+(res15 <- ahead::ridge2f(fpp2::insurance, 
                         xreg = xreg, centers = centers, 
                         type_pi = "movingblockbootstrap", 
                         block_length = block_length,
@@ -376,7 +376,7 @@ plot(res15, "TV.advert")
 ## 4 - 4 With K-Means clustering
 
 ```{r, "movingblockbootstrap-kmeans", fig.width=7.2}
-(res12 <- ahead::ridge2f(fpp::insurance, 
+(res12 <- ahead::ridge2f(fpp2::insurance, 
                          centers = centers, 
                          type_pi = "movingblockbootstrap", 
                          block_length = block_length,
@@ -395,7 +395,7 @@ plot(res12, "TV.advert", type = "sims")
 ## 4 - 5 Using the median instead of the mean in bootstrap aggregation
 
 ```{r, "movingblockbootstrap-median-kmeans", fig.width=7.2}
-(res14 <- ahead::ridge2f(fpp::insurance, 
+(res14 <- ahead::ridge2f(fpp2::insurance, 
                          centers = centers, 
                          type_pi = "movingblockbootstrap", 
                          type_aggregation = "median",
@@ -416,7 +416,7 @@ plot(res14, "TV.advert")
 # 5 - Prediction intervals based on R-Vine copula simulation
 
 ```{r, "RVineCopula", fig.width=7.2}
-(obj <- ahead::ridge2f(fpp::insurance, 
+(obj <- ahead::ridge2f(fpp2::insurance, 
                          type_pi = "rvinecopula", 
                          B = B, h = h))
 

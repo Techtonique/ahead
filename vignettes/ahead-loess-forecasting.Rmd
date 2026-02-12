@@ -63,7 +63,7 @@ And here are the packages that will be used in this vignette:
 
 ```{r include=FALSE}
 library(ahead)
-library(fpp)
+library(fpp2)
 library(datasets)
 library(randomForest)
 library(e1071)
