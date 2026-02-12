@@ -31,6 +31,12 @@ importFrom("stats", "as.ts", "complete.cases", "ecdf", "end", "frequency",
 importFrom("utils", "tail")
 importFrom("utils", "install.packages", "installed.packages")
 importFrom("stats", "approx", "coef", "density", "fitted")
+importFrom("grDevices", "dev.off", "rgb")
+importFrom("graphics", "curve", "grid", "hist", "legend")
+importFrom("stats", "Box.test", "acf", "cor", "decompose", "dnorm",
+             "embed", "is.mts", "ks.test", "lm", "na.omit", "pchisq",
+             "qqline", "qqnorm", "qqplot", "qt", "shapiro.test")
+importFrom("utils", "head")
 import(forecast)
 import(ggplot2)
 export("armagarchf")

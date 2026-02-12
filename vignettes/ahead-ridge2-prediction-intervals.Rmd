@@ -415,7 +415,7 @@ plot(res14, "TV.advert")
 
 # 5 - Prediction intervals based on R-Vine copula simulation
 
-```{r, "RVineCopula", fig.width=7.2}
+```{r, "RVineCopula", fig.width=7.2, eval=FALSE}
 (obj <- ahead::ridge2f(fpp2::insurance, 
                          type_pi = "rvinecopula", 
                          B = B, h = h))
