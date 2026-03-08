@@ -285,14 +285,14 @@ plot_dynrmf_shap_waterfall <- function(shap,
 # xreg_train <- window(xreg, start = start(split$training), end = end(split$training))
 # xreg_test <- window(xreg, start = start(split$testing),  end = end(split$testing))
 # 
-# shap <- dynrmf_shap(
+# shap <- ahead::dynrmf_shap(
 #   y            = split$training,
 #   xreg_fit     = xreg_train,
 #   xreg_predict = xreg_test,
 #   fit_func     = e1071::svm
 # )
 # 
-# p1 <- plot_dynrmf_shap_waterfall(shap, title = "Baseline scenario")
+# p1 <- ahead::plot_dynrmf_shap_waterfall(shap, title = "Baseline scenario")
 # 
 # xreg_pess <- xreg_test
 # xreg_pess[,"Income"] <- -1;  
@@ -305,7 +305,7 @@ plot_dynrmf_shap_waterfall <- function(shap,
 #   fit_func     = e1071::svm
 # )
 # 
-# p2 <- plot_dynrmf_shap_waterfall(shap_pess, title = "Pessimistic scenario")
+# p2 <- ahead::plot_dynrmf_shap_waterfall(shap_pess, title = "Pessimistic scenario")
 # 
 # xreg_opt  <- xreg_test
 # xreg_opt[,"Income"]  <-  2;  
