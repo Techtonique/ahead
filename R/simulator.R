@@ -46,7 +46,6 @@ simulator <- function(FUN, y, h, level=95,
                                 ...)
   training_resids <- residuals(obj_fcast)
   scaled_training_resids <- base::scale(training_resids)
-  xm <- attr(scaled_training_resids, "scaled:center")
   xsd <- attr(scaled_training_resids, "scaled:scale")
 
    if (method == "fitdistr")
