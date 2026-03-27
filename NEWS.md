@@ -1,3 +1,7 @@
+# version 0.36.0
+
+- Add sensitivity analysis to `ahead::dynrmf`
+
 # version 0.32.0
 
 - Add `contextridge2f` for adding context to `ridge2f` forecasting. 

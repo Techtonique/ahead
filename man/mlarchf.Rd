@@ -11,6 +11,7 @@ mlarchf(
   model_residuals = forecast::meanf,
   fit_func = ahead::ridge,
   predict_func = predict,
+  conformal = FALSE,
   lags_vol = 10L,
   type_pi = c("surrogate", "bootstrap", "kde"),
   type_sim_conformalize = c("surrogate", "block-bootstrap", "bootstrap", "kde",
@@ -38,6 +39,8 @@ mlarchf(
 \item{fit_func}{Fitting function for the variance model (default: \code{ahead::ridge})}
 
 \item{predict_func}{Prediction function for the variance model (default: \code{predict})}
+
+\item{conformal}{A boolean; either use conformal prediction or not}
 
 \item{lags_vol}{Number of lags for squared residuals regression}
 
@@ -74,7 +77,24 @@ Conformalized Forecasting using Machine Learning (and statistical) models with A
 
 y <- fpp2::goog200
 
-# Default model for volatility (Ridge regression for volatility)
-(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L))
+par(mfrow=c(2, 2))
+
+(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=TRUE))
 plot(obj_ridge)
+print(mean(obj_ridge$upper - obj_ridge$lower))
+
+(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=FALSE))
+plot(obj_ridge)
+print(mean(obj_ridge$upper - obj_ridge$lower))
+
+(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=TRUE, stat_model=forecast::thetaf, ml = FALSE))
+plot(obj_ridge)
+print(mean(obj_ridge$upper - obj_ridge$lower))
+
+(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=FALSE, stat_model=forecast::thetaf, ml = FALSE))
+plot(obj_ridge)
+print(mean(obj_ridge$upper - obj_ridge$lower))
+
+par(mfrow=c(1, 1))
+
 }

@@ -28,6 +28,8 @@
 #'
 #' y <- fpp2::goog200
 #'
+#' par(mfrow=c(2, 2))
+#' 
 #' (obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=TRUE))
 #' plot(obj_ridge)
 #' print(mean(obj_ridge$upper - obj_ridge$lower))
@@ -35,6 +37,16 @@
 #' (obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=FALSE))
 #' plot(obj_ridge)
 #' print(mean(obj_ridge$upper - obj_ridge$lower))
+#' 
+#' (obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=TRUE, stat_model=forecast::thetaf, ml = FALSE))
+#' plot(obj_ridge)
+#' print(mean(obj_ridge$upper - obj_ridge$lower))
+#' 
+#' (obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=FALSE, stat_model=forecast::thetaf, ml = FALSE))
+#' plot(obj_ridge)
+#' print(mean(obj_ridge$upper - obj_ridge$lower))
+#' 
+#' par(mfrow=c(1, 1))
 #' 
 mlarchf <- function(y,
                     h = 10L,
@@ -128,7 +140,7 @@ mlarchf <- function(y,
       }
       
       fit_sigma <- ahead::mlf(
-        log(resids^2),
+        log(resids^2+1e-6),
         lags = lags_vol,
         fit_func = fit_func,
         predict_func = predict_func,
@@ -194,7 +206,7 @@ mlarchf <- function(y,
         FUN = fit_func_sigma,
         method = type_sim_conformalize,
         nsim = B,
-        y = log(resids^2),
+        y = log(resids^2+1e-6),
         h = h
       )
       z <- resids / sqrt(exp(fitted(fit_sigma)))
