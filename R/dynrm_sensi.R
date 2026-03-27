@@ -23,6 +23,19 @@
 #'   \item{split}{List with training and testing sets of y.}
 #' }
 #' 
+#' @examples 
+#' 
+#' sensitivity_results_auto <- ahead::dynrmf_sensi(
+#'   y = fpp2::uschange[, "Consumption"],
+#'   xreg = fpp2::uschange[, "Income"],
+#'   h = 10
+#' )
+#' 
+#' plot1 <- ahead::plot_dynrmf_sensitivity(sensitivity_results_auto, 
+#'                           title = "Sensitivity of Consumption to Income",
+#'                           y_label = "Effect (ΔConsumption / ΔIncome)")
+#' print(plot1)
+#' 
 #' @export
 dynrmf_sensi <- function(y, xreg, h = NULL, level = 99, zero = 1e-4, ...) {
   
@@ -157,7 +170,7 @@ plot_dynrmf_sensitivity <- function(sensitivity_results,
 #'                           y_label = "Effect (ΔConsumption / ΔIncome)")
 #' print(plot1)
 #' 
-#' #' Example 2: TV Advertising vs Insurance Quotes
+#' # Example 2: TV Advertising vs Insurance Quotes
 #' sensitivity_results_tv <- ahead::dynrmf_sensi(
 #'   y = fpp2::insurance[, "Quotes"],
 #'   xreg = fpp2::insurance[, "TV.advert"],

@@ -37,3 +37,17 @@ A list containing:
 This function computes the sensitivity of a forecasted time series (\code{y})
 to small perturbations in an external regressor (\code{xreg}) using the \code{dynrmf} function.
 }
+\examples{
+
+sensitivity_results_auto <- ahead::dynrmf_sensi(
+  y = fpp2::uschange[, "Consumption"],
+  xreg = fpp2::uschange[, "Income"],
+  h = 10
+)
+
+plot1 <- ahead::plot_dynrmf_sensitivity(sensitivity_results_auto, 
+                          title = "Sensitivity of Consumption to Income",
+                          y_label = "Effect (ΔConsumption / ΔIncome)")
+print(plot1)
+
+}
