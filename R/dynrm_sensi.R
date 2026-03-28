@@ -60,7 +60,8 @@ dynrmf_sensi <- function(y, xreg, h = NULL, level = 99, zero = 1e-4, ...) {
   # Base forecast without xreg
   central_forecast <- ahead::dynrmf(y = y_train,
                                     level = level,
-                                    h = h)
+                                    h = h, 
+                                    ...)
   
   # Forecast with actual xreg
   central_forecast_xreg <- ahead::dynrmf(y = y_train,
@@ -79,13 +80,15 @@ dynrmf_sensi <- function(y, xreg, h = NULL, level = 99, zero = 1e-4, ...) {
                                     xreg_fit = xreg_train,
                                     xreg_predict = xreg_test + hh,
                                     level = level,
-                                    h = h)
+                                    h = h, 
+                                    ...)
   
   forecast_minus_hh <- ahead::dynrmf(y = y_train,
                                      xreg_fit = xreg_train,
                                      xreg_predict = xreg_test - hh,
                                      level = level,
-                                     h = h)
+                                     h = h, 
+                                     ...)
   
   # Compute sensitivity effects
   effects_mean <- (forecast_plus_hh$mean - forecast_minus_hh$mean) / (2 * hh)
