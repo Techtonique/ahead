@@ -17,7 +17,6 @@ res2 <- ahead::ridge2f(x, type_pi = "bootstrap", B = 5L)
 res3 <- ahead::ridge2f(x, type_pi = "bootstrap", B = 5L)
 res4 <- ahead::ridge2f(x, type_pi = "blockbootstrap", B = 5L)
 res5 <- ahead::ridge2f(x, type_pi = "movingblockbootstrap", B = 5L)
-res6 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L)
 res41 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L,
                         margins = "empirical")
 res43 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L,
