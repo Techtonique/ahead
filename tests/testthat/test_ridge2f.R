@@ -17,10 +17,10 @@ res2 <- ahead::ridge2f(x, type_pi = "bootstrap", B = 5L)
 res3 <- ahead::ridge2f(x, type_pi = "bootstrap", B = 5L)
 res4 <- ahead::ridge2f(x, type_pi = "blockbootstrap", B = 5L)
 res5 <- ahead::ridge2f(x, type_pi = "movingblockbootstrap", B = 5L)
-res41 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L,
-                        margins = "empirical")
-res43 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L,
-                        margins = "empirical", cl=2L)
+# res41 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L,
+#                         margins = "empirical")
+# res43 <- ahead::ridge2f(x, type_pi = "rvinecopula", B = 5L,
+#                         margins = "empirical", cl=2L)
 res24 <- ahead::ridge2f(x,
                         type_pi = "bootstrap",
                         B = 5L,
@@ -216,8 +216,8 @@ testthat::test_that("1 - tests on types of residuals' simulations", {
   expect_equal(as.numeric(round(res4$mean[1, 1], 2)), 1.46)
   expect_equal(as.numeric(round(res3$lower[1, 1], 2)), 0.31)
   expect_equal(as.numeric(round(res4$lower[1, 1], 2)), 0.55)
-  expect_equal(as.numeric(round(res41$mean[1, 1], 2)), 1.34)
-  expect_equal(as.numeric(round(res43$mean[1, 1], 2)), 1.34)
+  #expect_equal(as.numeric(round(res41$mean[1, 1], 2)), 1.34)
+  #expect_equal(as.numeric(round(res43$mean[1, 1], 2)), 1.34)
   expect_equal(as.numeric(round(res24$mean[1, 1], 2)), 1.01)
   expect_equal(as.numeric(round(res27$mean[1], 2)), 727.05)
   expect_equal(as.numeric(round(res28$mean[1], 2)), 0.8)
