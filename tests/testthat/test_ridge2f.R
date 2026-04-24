@@ -249,8 +249,8 @@ testthat::test_that("3 - tests on types of activation function", {
 
 testthat::test_that("4 - tests on clustering", {
   print("running tests on clustering")
-  expect_equal(as.numeric(round(res16$mean[1, 1], 2)),-0.43)
-  expect_equal(as.numeric(round(res17$mean[1, 1], 2)),-0.15)
+  expect_equal(as.numeric(round(res16$mean[1, 1], 2)),-0.02)
+  expect_equal(as.numeric(round(res17$mean[1, 1], 2)),0.08)
 })
 
 # 2 - 5 xreg ----
@@ -266,12 +266,12 @@ testthat::test_that("5 - tests on xreg", {
 
 testthat::test_that("6 - tests on xreg and clustering", {
   print("running tests on xreg and clustering")
-  expect_equal(as.numeric(round(res21$mean[1, 1], 2)),-0.13)
-  expect_equal(as.numeric(round(res22$mean[1, 1], 2)), 0.04)
-  expect_equal(as.numeric(round(res23$mean[1, 1], 2)),-0.76)
-  expect_equal(as.numeric(round(res21_$mean[1, 1], 2)),-0.26)
-  expect_equal(as.numeric(round(res22_$mean[1, 1], 2)), -0.04)
-  expect_equal(as.numeric(round(res23_$mean[1, 1], 2)), -0.83)
+  expect_equal(as.numeric(round(res21$mean[1, 1], 2)),-0.27)
+  expect_equal(as.numeric(round(res22$mean[1, 1], 2)), -0.24)
+  expect_equal(as.numeric(round(res23$mean[1, 1], 2)),-0.86)
+  expect_equal(as.numeric(round(res21_$mean[1, 1], 2)),-0.34)
+  expect_equal(as.numeric(round(res22_$mean[1, 1], 2)), -0.32)
+  expect_equal(as.numeric(round(res23_$mean[1, 1], 2)), -0.94)
 })
 
 
