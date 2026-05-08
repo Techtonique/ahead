@@ -47,7 +47,7 @@ sensitivity_results_auto <- ahead::dynrmf_sensi(
 
 plot1 <- ahead::plot_dynrmf_sensitivity(sensitivity_results_auto, 
                           title = "Sensitivity of Consumption to Income",
-                          y_label = "Effect (ΔConsumption / ΔIncome)")
+                          y_label = "Effect (DeltaConsumption / DeltaIncome)")
 print(plot1)
 
 }

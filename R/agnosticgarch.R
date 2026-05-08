@@ -6,7 +6,7 @@
 #' @param FUN forecasting function for the main model; 
 #' default \code{ahead::dynrmf}
 #' @param seed reproducibility seed
-#' @param ... 
+#' @param ... Additional arguments passed to ...
 #' 
 #' @return An object of class "forecast"; a list containing the following elements:
 #'

@@ -61,7 +61,7 @@ fitforecast <- function(y,
                         agg = c("mean", "median"),
                         vol = c("constant", "garch"),
                         type_sim = c("kde", "surrogate", "bootstrap", 
-                                     "meboot", "gan"),
+                                     "meboot"),
                         ...)
 {
   method <- match.arg(method)
@@ -461,32 +461,6 @@ fitforecast <- function(y,
         
         }
       }
-    }
-    
-    if (type_sim == "gan") {
-      # Architecture functions
-      generator_unimodal <- function(latent_dim = 1) {
-        keras_model_sequential(input_shape = latent_dim, name = "seq_gen") |> 
-          layer_dense(units = 1, activation = "linear")
-      }
-      
-      discriminator_unimodal <- function(dim = 1) {
-        keras_model_sequential(input_shape = dim, name = "seq_disc") |> 
-          layer_dense(units = 8, activation = "relu") |>
-          layer_dense(units = 1, activation = "sigmoid")
-      }
-      
-      start <- proc.time()[3]
-      result1 <- train_gan(
-        train_dat = train_dat,
-        generator_fn = generator_unimodal,
-        discriminator_fn = discriminator_unimodal,
-        n_iter = 5,
-        epochs_per_iter = 100,
-        num_resamples = B
-      )
-      result1$resamples
-      
     }
     
     sims <-

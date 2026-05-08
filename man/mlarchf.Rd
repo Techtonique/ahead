@@ -87,11 +87,13 @@ print(mean(obj_ridge$upper - obj_ridge$lower))
 plot(obj_ridge)
 print(mean(obj_ridge$upper - obj_ridge$lower))
 
-(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=TRUE, stat_model=forecast::thetaf, ml = FALSE))
+(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=TRUE, 
+stat_model=forecast::thetaf, ml = FALSE))
 plot(obj_ridge)
 print(mean(obj_ridge$upper - obj_ridge$lower))
 
-(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=FALSE, stat_model=forecast::thetaf, ml = FALSE))
+(obj_ridge <- ahead::mlarchf(y, h=20L, B=500L, conformal=FALSE, 
+stat_model=forecast::thetaf, ml = FALSE))
 plot(obj_ridge)
 print(mean(obj_ridge$upper - obj_ridge$lower))
 

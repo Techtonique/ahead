@@ -33,7 +33,7 @@
 #' 
 #' plot1 <- ahead::plot_dynrmf_sensitivity(sensitivity_results_auto, 
 #'                           title = "Sensitivity of Consumption to Income",
-#'                           y_label = "Effect (ΔConsumption / ΔIncome)")
+#'                           y_label = "Effect (DeltaConsumption / DeltaIncome)")
 #' print(plot1)
 #' 
 #' @export
@@ -122,14 +122,14 @@ dynrmf_sensi <- function(y, xreg, h = NULL, level = 99, zero = 1e-4, ...) {
 #' \dontrun{
 #' plot1 <- plot_dynrmf_sensitivity(res, 
 #'                           title = "Sensitivity of Consumption to Income",
-#'                           y_label = "Effect (ΔConsumption / ΔIncome)")
+#'                           y_label = "Effect (DeltaConsumption / DeltaIncome)")
 #' print(plot1)
 #' }
 #' 
 #' @export
 plot_dynrmf_sensitivity <- function(sensitivity_results, 
                              title = "First-Order Sensitivity Effect",
-                             y_label = "Effect (ΔY / ΔX)",
+                             y_label = "Effect (DeltaY / DeltaX)",
                              x_label = "Forecast Horizon") {
   
   h <- sensitivity_results$h
@@ -145,11 +145,11 @@ plot_dynrmf_sensitivity <- function(sensitivity_results,
   }
   
   df_main <- data.frame(
-    Horizon = horizon,
+    horizon = horizon,
     Effect = effects_mean
   )
   
-  ggplot(df_main, aes(x = Horizon, y = Effect)) +
+  ggplot(df_main, aes(x = horizon, y = Effect)) +
     geom_line(color = "blue", size = 1) +
     geom_point(color = "red", size = 2) +
     geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
@@ -170,7 +170,7 @@ plot_dynrmf_sensitivity <- function(sensitivity_results,
 #' 
 #' plot1 <- ahead::plot_dynrmf_sensitivity(sensitivity_results_auto, 
 #'                           title = "Sensitivity of Consumption to Income",
-#'                           y_label = "Effect (ΔConsumption / ΔIncome)")
+#'                           y_label = "Effect (DeltaConsumption / DeltaIncome)")
 #' print(plot1)
 #' 
 #' # Example 2: TV Advertising vs Insurance Quotes
@@ -182,5 +182,5 @@ plot_dynrmf_sensitivity <- function(sensitivity_results,
 #' 
 #' plot3 <- plot_dynrmf_sensitivity(sensitivity_results_tv,
 #'                           title = "Sensitivity of Insurance Quotes to TV Advertising",
-#'                           y_label = "Effect (ΔQuotes / ΔTV.advert)")
+#'                           y_label = "Effect (DeltaQuotes / DeltaTV.advert)")
 #' print(plot3)

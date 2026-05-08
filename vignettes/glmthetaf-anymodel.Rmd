@@ -1,8 +1,8 @@
 ---
-title: "Generalized Linear Model Theta Forecast"
+title: "Generalized Linear Model Theta Forecast for any model"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Generalized Linear Model Theta Forecast}
+  %\VignetteIndexEntry{Generalized Linear Model Theta Forecast for any model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

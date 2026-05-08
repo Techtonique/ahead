@@ -364,11 +364,11 @@ print.summary.synthetic_ts <- function(x, ...) {
   ))
   cat(sprintf("  %d/4 tests passed adequacy criteria (p > 0.05)\n", adequate_tests))
   if (adequate_tests >= 3) {
-    cat("  ✅ Model appears ADEQUATE for synthetic data generation\n")
+    cat(" Model appears ADEQUATE for synthetic data generation\n")
   } else if (adequate_tests >= 2) {
-    cat("  ⚠️  Model shows some INADEQUACIES\n")
+    cat("  Model shows some INADEQUACIES\n")
   } else {
-    cat("  ❌ Model appears INADEQUATE for synthetic data generation\n")
+    cat("  Model appears INADEQUATE for synthetic data generation\n")
   }
 }
 

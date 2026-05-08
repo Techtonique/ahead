@@ -7,7 +7,7 @@
 plot_dynrmf_sensitivity(
   sensitivity_results,
   title = "First-Order Sensitivity Effect",
-  y_label = "Effect (ΔY / ΔX)",
+  y_label = "Effect (DeltaY / DeltaX)",
   x_label = "Forecast Horizon"
 )
 }
@@ -30,7 +30,7 @@ This function plots the computed sensitivity effects over the forecast horizon.
 \dontrun{
 plot1 <- plot_dynrmf_sensitivity(res, 
                           title = "Sensitivity of Consumption to Income",
-                          y_label = "Effect (ΔConsumption / ΔIncome)")
+                          y_label = "Effect (DeltaConsumption / DeltaIncome)")
 print(plot1)
 }
 

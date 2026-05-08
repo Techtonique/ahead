@@ -20,7 +20,7 @@ fitforecast(
   gap = 3L,
   agg = c("mean", "median"),
   vol = c("constant", "garch"),
-  type_sim = c("kde", "surrogate", "bootstrap", "meboot", "gan"),
+  type_sim = c("kde", "surrogate", "bootstrap", "meboot"),
   ...
 )
 }

@@ -59,8 +59,8 @@ ahead::comb_OLS(data)
 
 }
 \seealso{
-\code{\link[ForecastCombinations]{Forecast_comb}},
-\code{\link{foreccomb}},
+\code{Forecast_comb},
+\code{foreccomb},
 \code{\link{plot.ForecastComb::foreccomb_res}},
 \code{\link{summary.ForecastComb::foreccomb_res}},
 \code{\link[forecast]{accuracy}}

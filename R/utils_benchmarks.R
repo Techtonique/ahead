@@ -111,37 +111,6 @@ fit_garch <- function(eps)
   ))
 }
 
-garch11f <- function(y,
-                     h = 5,
-                     B = 10L,
-                     seed = 123)
-{
-  set.seed(seed)
-  if (!is.ts(y))
-    y <- ts(y)
-  start_y <- stats::start(y)
-  frequency_y <- stats::frequency(y)
-  tspy <- tsp(y)
-  start_preds <- tspy[2] + 1 / tspy[3]
-  cat("y: \n", y, "\n")
-  fit <- rugarch::ugarchfit(
-    data = y,
-    spec = rugarch::ugarchspec(),
-    solver = "nlminb",
-    distribution.model = "norm"
-  )
-  res <- rugarch::ugarchsim(fit, n.sim = h, m.sim = B)
-  print(res@simulation$seriesSim)
-  return(list(
-    fitted = ts(
-      as.numeric(fitted(fit)),
-      start = start_y,
-      frequency = frequency_y
-    ),
-    sims = as.matrix(res@simulation$seriesSim)
-  ))
-}
-
 winkler_score <- function(obj, actual, level = 95) {
   alpha <- 1 - level / 100
   lt <- obj$lower

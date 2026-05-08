@@ -25,7 +25,7 @@ default \code{ahead::dynrmf}}
 
 \item{seed}{reproducibility seed}
 
-\item{...}{}
+\item{...}{Additional arguments passed to ...}
 }
 \value{
 An object of class "forecast"; a list containing the following elements:
