@@ -28,7 +28,7 @@ conformalize <- function(FUN, y, h, level=95,
                          method = c("block-bootstrap", "surrogate", 
                                     "kde", "bootstrap", "fitdistr", 
                                     "meboot"),
-                         nsim = 100L, 
+                         nsim = NULL, 
                          block_size = 5,
                          seed = 123L, 
                          B = NULL,
@@ -45,7 +45,11 @@ conformalize <- function(FUN, y, h, level=95,
   y_calib <- splitted_y$testing
   n_calib <- length(idx_calib)
   if (!is.null(B))
-    B <- nsim 
+  {
+   nsim <- B  
+  } else { # if B not provided, must provide nsim
+    stopifnot(!is.null(nsim))
+  }
   
   calib_resids <- ahead::genericforecast(y=y_train, h=n_calib, 
                               level=level, FUN=FUN, 
