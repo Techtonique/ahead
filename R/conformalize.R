@@ -28,7 +28,7 @@ conformalize <- function(FUN, y, h, level=95,
                          method = c("block-bootstrap", "surrogate", 
                                     "kde", "bootstrap", "fitdistr", 
                                     "meboot"),
-                         nsim = NULL, 
+                         nsim = 250L, 
                          block_size = 5,
                          seed = 123L, 
                          B = NULL,
@@ -46,9 +46,9 @@ conformalize <- function(FUN, y, h, level=95,
   n_calib <- length(idx_calib)
   if (!is.null(B))
   {
+    if (!is.null(nsim) && B != nsim)
+      warning("input nsim overwritten by B")
    nsim <- B  
-  } else { # if B not provided, must provide nsim
-    stopifnot(!is.null(nsim))
   }
   
   calib_resids <- ahead::genericforecast(y=y_train, h=n_calib, 
