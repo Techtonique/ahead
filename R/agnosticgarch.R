@@ -48,6 +48,7 @@ agnosticgarchf <- function(y,
   eps <- residuals(obj_mean)
   eps_prev <- eps[length(eps)]
   # Fit GARCH to residuals
+  check_suggested("fGarch")
   base::suppressWarnings(
     obj_garch <- fGarch::garchFit(
       formula =  ~ garch(1, 1),
