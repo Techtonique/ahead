@@ -16,6 +16,7 @@ initial_window = 10L,  horizon = 10L, fixed_window = FALSE,
 tune_length = 5, summary_function = NULL, 
 verbose=TRUE)
 {
+  check_suggested("caret")
   df <- data.frame(y=y, x)
   if (is.null(summary_function))
   {
@@ -53,6 +54,7 @@ verbose=TRUE)
 predict_func <- function(obj, newx)
 {
   colnames(newx) <- paste0("X", seq_len(ncol(newx)))
+  check_suggested("caret")
   as.numeric(caret::predict.train(object=obj, 
                                   newdata=newx, 
                                   type = "raw"))
