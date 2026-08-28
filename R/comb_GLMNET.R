@@ -58,6 +58,9 @@ comb_GLMNET <- function(x, custom_error = NULL) {
     prediction_matrix <- x$Forecasts_Train
     modelnames <- x$modelnames
 
+    check_suggested("glmnet")
+    check_suggested("ForecastComb")
+    
     lin_model <- glmnet::cv.glmnet(x = as.matrix(prediction_matrix), y = as.numeric(observed_vector))    
     weights <- as.numeric(drop(coef(lin_model, s = "lambda.min")))
     intercept <- weights[1]
