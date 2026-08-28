@@ -18,7 +18,7 @@ check_suggested <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop(
       sprintf(
-        "Package '%s' is required. Install it with install.packages('%s', repos = c('https://techtonique.r-universe.dev', getOption('repos'))).",
+        "Package '%s' is required. Install it with install.packages('%s', repos = c('https://techtonique.r-universe.dev', 'https://cloud.r-project.org')).",
         pkg, pkg
       ),
       call. = FALSE
