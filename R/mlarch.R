@@ -302,7 +302,7 @@ mlarchf <- function(y,
       }
       
       fit_sigma <- ahead::mlf(
-        log(resids^2),
+        log(resids^2 + 1e-6),
         lags = lags_vol,
         fit_func = fit_func,
         predict_func = predict_func,

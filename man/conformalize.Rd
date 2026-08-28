@@ -10,7 +10,7 @@ conformalize(
   h,
   level = 95,
   method = c("block-bootstrap", "surrogate", "kde", "bootstrap", "fitdistr", "meboot"),
-  nsim = 100L,
+  nsim = 250L,
   block_size = 5,
   seed = 123L,
   B = NULL,
