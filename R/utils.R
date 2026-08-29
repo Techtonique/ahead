@@ -827,6 +827,7 @@ select_residuals_dist <- function(resids,
   uniformize <- match.arg(uniformize)
   distro <- match.arg(distro)
   fitted_residuals_distr <- NULL
+  check_suggested("VineCopula")
 
   if (identical(distro, "normal"))
   {
@@ -882,6 +883,7 @@ simulate_rvine <- function(obj, RVM_U,
 
   # simulate copula
   set.seed(seed)
+  check_suggested("VineCopula")
   rvine_simulation <- VineCopula::RVineSim(N = h, RVM = RVM_U)
 
   if (identical(distro, "normal"))
