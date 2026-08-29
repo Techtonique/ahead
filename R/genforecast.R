@@ -26,6 +26,8 @@
 #' 
 genericforecast <- function(FUN, y, h, level=95, ...)
 {
+  check_suggested("forecast")
+  
   obj <- try(do.call(what=FUN, args=list(y = y, h=h, level=level, ...)), 
              silent = TRUE) # forecast::thetaf e.g 
 
