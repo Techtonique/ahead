@@ -47,6 +47,8 @@
 comb_Ridge <- function(x, custom_error = NULL) {
     if (!inherits(x, "foreccomb"))
         stop("Data must be class 'foreccomb'. See ?foreccomb, to bring data in correct format.", call. = FALSE)
+    check_suggested("forecast")
+    check_suggested("ForecastComb")
     observed_vector <- x$Actual_Train
     prediction_matrix <- x$Forecasts_Train
     modelnames <- x$modelnames
