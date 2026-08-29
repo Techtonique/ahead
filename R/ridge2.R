@@ -636,7 +636,7 @@ ridge2f <- function(y,
         }
 
         close(pb)
-        snow::stopCluster(cl_SOCK)
+        parallel::stopCluster(cl_SOCK)
 
       }
     }

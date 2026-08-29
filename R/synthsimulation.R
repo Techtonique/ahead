@@ -54,7 +54,7 @@ generate_synthetic_ts <- function(y,
       if (is_multivariate) {
         function(x, ...) {
           if (is.null(formula)) {
-            tslm(x ~ trend + season, ...)
+            forecast::tslm(x ~ trend + season, ...)
           } else {
             tslm(formula, data = x, ...)
           }
@@ -72,9 +72,9 @@ generate_synthetic_ts <- function(y,
     "tslm" = {
       function(x, ...) {
         if (is.null(formula)) {
-          tslm(x ~ trend + season, ...)
+          forecast::tslm(x ~ trend + season, ...)
         } else {
-          tslm(formula, data = x, ...)
+          forecast::tslm(formula, data = x, ...)
         }
       }
     },
@@ -91,7 +91,7 @@ generate_synthetic_ts <- function(y,
       if (is.null(order)) {
         stop("order must be provided when model_type = 'arima'")
       }
-      function(x, ...) Arima(x, order = order, seasonal = seasonal, ...)
+      function(x, ...) forecast::Arima(x, order = order, seasonal = seasonal, ...)
     },
     "custom" = {
       if (is.null(model_func)) {

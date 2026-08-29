@@ -8,6 +8,7 @@ vignette: >
 ---
 
 ```{r fig.width=7.5}
+library(forecast)
 
 (res2 <- ahead::mlf(AirPassengers, h=25L, lags=15L, 
 type_pi="kde", B=250L))

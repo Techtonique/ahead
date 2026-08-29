@@ -132,6 +132,8 @@ plot_dynrmf_sensitivity <- function(sensitivity_results,
                              y_label = "Effect (DeltaY / DeltaX)",
                              x_label = "Forecast Horizon") {
   
+  check_suggested("ggplot2")
+  
   h <- sensitivity_results$h
   horizon <- 1:h
   effects_mean <- as.numeric(sensitivity_results$effects_mean)
@@ -149,12 +151,12 @@ plot_dynrmf_sensitivity <- function(sensitivity_results,
     Effect = effects_mean
   )
   
-  ggplot(df_main, aes(x = horizon, y = Effect)) +
-    geom_line(color = "blue", size = 1) +
-    geom_point(color = "red", size = 2) +
-    geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
-    labs(title = title, x = x_label, y = y_label) +
-    theme_minimal(base_size = 14)
+  ggplot2::ggplot(df_main, ggplot2::aes(x = horizon, y = Effect)) +
+    ggplot2::geom_line(color = "blue", size = 1) +
+    ggplot2::geom_point(color = "red", size = 2) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+    ggplot2::labs(title = title, x = x_label, y = y_label) +
+    ggplot2::theme_minimal(base_size = 14)
 }
 
 #' # ============================================

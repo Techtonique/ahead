@@ -45,8 +45,6 @@ check: clean setwd ## check package
 clean: ## remove all build, and artifacts
 	rm -f .Rhistory
 	rm -f *.RData
-	rm -f *.Rproj
-	rm -rf .Rproj.user
 	rm -f src/*.o
 	rm -f src/*.so
 	rm -f vignettes/*.html

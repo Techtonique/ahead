@@ -217,7 +217,7 @@ glmthetaf <- function (
   x <- as.ts(x)
   m <- frequency(x)
   seasonal <- FALSE
-  if (m > 1 && !is.constant(x) && n > 2 * m) {
+  if (m > 1 && !forecast::is.constant(x) && n > 2 * m) {
     r <- as.numeric(acf(x, lag.max = m, plot = FALSE)$acf)[-1]
     stat <- sqrt((1 + 2 * sum(r[-m]^2)) / n)
     seasonal <- (abs(r[m]) / stat > qnorm(0.95))
@@ -226,13 +226,13 @@ glmthetaf <- function (
   
   if (seasonal) {
     decomp <- decompose(x, type = "multiplicative")
-    if (any(abs(seasonal(decomp)) < 1e-04))
+    if (any(abs(forecast::seasonal(decomp)) < 1e-04))
       warning("Seasonal indexes close to zero. Using non-seasonal Theta method")
     else
-      x <- seasadj(decomp)
+      x <- forecast::seasadj(decomp)
   }
   
-  fcast <- ses(x, h = h)
+  fcast <- forecast::ses(x, h = h)
   alpha <- pmax(1e-10, fcast$model$par["alpha"])
   time_idx <- 0:(n - 1)
   df <- data.frame(y = x, t = time_idx)

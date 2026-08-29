@@ -176,7 +176,7 @@ eatf <- function(y, h = 5,
                                 start = start(y),
                                 frequency = frequency(y))
         if (inherits(out$residuals, "try-error")) {
-          out$residuals <- ts(drop(tcolSums(resids*weights)),
+          out$residuals <- ts(drop(colSums(resids*weights)),
                                 start = start(y),
                                 frequency = frequency(y))
         }                        

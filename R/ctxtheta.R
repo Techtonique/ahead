@@ -81,6 +81,7 @@ ctxthetaf <- function(y,
   stopifnot(h > 0)
   stopifnot(is.numeric(theta))
   type_pi <- match.arg(type_pi)
+  check_suggested("forecast")
   
   if (type_pi != "gaussian")
   {
@@ -112,7 +113,7 @@ ctxthetaf <- function(y,
   n <- length(x)
   x <- as.ts(x)
   m <- frequency(x)
-  if (m > 1 && !is.constant(x) && n > 2 * m) {
+  if (m > 1 && !forecast::is.constant(x) && n > 2 * m) {
     r <- as.numeric(acf(x, lag.max = m, plot = FALSE)$acf)[-1]
     stat <- sqrt((1 + 2 * sum(r[-m]^2)) / n)
     seasonal <- (abs(r[m]) / stat > qnorm(0.95))
@@ -124,14 +125,12 @@ ctxthetaf <- function(y,
   origx <- x
   if (seasonal) {
     decomp <- decompose(x, type = "multiplicative")
-    if (any(abs(seasonal(decomp)) < 1e-4)) {
+    if (any(abs(forecast::seasonal(decomp)) < 1e-4)) {
       warning("Seasonal indexes close to zero. Using non-seasonal Theta method")
     } else {
-      x <- seasadj(decomp)
+      x <- forecast::seasadj(decomp)
     }
   }
-
-  check_suggested("forecast")
   
   # Find theta lines
   fcast <- forecast::ses(x, h = h)

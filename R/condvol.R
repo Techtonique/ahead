@@ -176,8 +176,6 @@ condvolf <- function(
     
   } else if (innovation == "student") {
 
-    check_suggested("MASS")
-    
     # Student-t innovations with fitted degrees of freedom
     fit_t <- tryCatch(
       MASS::fitdistr(z, densfun = "t"),

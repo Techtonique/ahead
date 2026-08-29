@@ -1,2 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^docs$
+^doc$
+^CONTRIBUTING\.md$
+^Makefile$
+^_pkgdown\.yml$
+^biblio\.bib$
+^\.github$
