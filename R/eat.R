@@ -94,6 +94,8 @@ eatf <- function(y, h = 5,
                  type_pi = c("gaussian", "E", "A", "T"),
                  ...) {
 
+  check_suggested("forecast")
+
   stopifnot(length(level) == 1)
 
   method <- match.arg(method)

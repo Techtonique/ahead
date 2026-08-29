@@ -23,6 +23,8 @@ generate_synthetic_ts <- function(y,
                                   n_sim = 1000,
                                   seed = NULL,
                                   ...) {
+
+  check_suggested("forecast")
   
   # Input validation
   if (!inherits(y, "ts")) {

@@ -179,6 +179,8 @@ plot_dynrmf_shap_waterfall <- function(shap,
                                 colors  = list(pos  = "#4575b4",
                                                neg  = "#d73027",
                                                base = "#878787")) {
+
+  check_suggested("ggplot2")
   
   stopifnot(inherits(shap, "dynrmf_shap"))
   

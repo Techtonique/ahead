@@ -156,6 +156,8 @@ dynrm_fit <- function(y,
                       seed = 123,
                       ...) {
 
+  check_suggested("forecast")
+  
   yname <- deparse(substitute(y))
 
   # transform data
@@ -460,6 +462,7 @@ dynrm_predict <- function(out,
   # print("out$x")
   # print(out$x)
   # print("\n")
+  check_suggested("forecast")
 
   tspx <- tsp(out$x)
 

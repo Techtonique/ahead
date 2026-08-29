@@ -63,6 +63,7 @@
 comb_OLS <- function(x, custom_error = NULL) {
     if (!inherits(x, "foreccomb"))
         stop("Data must be class 'foreccomb'. See ?foreccomb, to bring data in correct format.", call. = FALSE)
+    check_suggested("ForecastComb")
     observed_vector <- x$Actual_Train
     prediction_matrix <- cbind(1, x$Forecasts_Train)
     modelnames <- x$modelnames

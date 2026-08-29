@@ -7,6 +7,7 @@ rsurrogate <- function(x,
                        n = length(x),
                        p = 1,
                        seed = 123) {
+  check_suggested("tseries")
   if (n > length(x))
   {
     stop("For surrogates, must have number of predictions < number of training observations")
@@ -36,6 +37,7 @@ rsurrogate <- function(x,
 #'
 rfitdistr <- function(x, n=length(x), p=1)
 {
+  check_suggested("misc")
   mean_x <- mean(x)
   sd_x <- sd(x)
   scaled_x <- (x - mean_x)/sd_x
@@ -88,6 +90,7 @@ direct_sampling <- function(data = NULL, n = 100L,
 
   if (identical(method, "surrogate"))
   {
+    check_suggested("tseries")
     return(sample(tseries::surrogate(data, ns = 1, ...),
                   size = n,
                   replace = TRUE))
@@ -95,6 +98,7 @@ direct_sampling <- function(data = NULL, n = 100L,
 
   if (identical(method, "bootstrap"))
   {
+    check_suggested("tseries")
     return(sample(tseries::tsbootstrap(data, nb = 1, type = "block", b = 1, ...),
                   size = n,
                   replace = TRUE))

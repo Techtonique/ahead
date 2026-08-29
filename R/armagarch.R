@@ -46,6 +46,7 @@ armagarchf <- function(y,
   eps <- stats::residuals(obj_arma)
   eps_prev <- eps[length(eps)]
   # Fit GARCH to residuals
+  check_suggested("fGarch")
   base::suppressWarnings(
     obj_garch <- fGarch::garchFit(
       formula =  ~ garch(1, 1),
@@ -84,6 +85,7 @@ armagarchf <- function(y,
           ))
     } else {
       stopifnot(is.numeric(cl))
+      check_suggested("parallel")
       cluster <- parallel::makeCluster(getOption("cl.cores", cl))
       res <-
         parallel::parSapply(

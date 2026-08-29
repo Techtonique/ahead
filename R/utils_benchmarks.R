@@ -103,6 +103,7 @@ splitts  <- compiler::cmpfun(splitts)
 
 fit_garch <- function(eps)
 {
+  check_suggested("fGarch")
   return(fGarch::garchFit(
     formula =  ~ garch(1, 1),
     data = eps,

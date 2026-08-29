@@ -64,6 +64,7 @@ fitforecast <- function(y,
                                      "meboot"),
                         ...)
 {
+  check_suggested("forecast")
   method <- match.arg(method)
   agg <- match.arg(agg)
   vol <- match.arg(vol)
@@ -447,6 +448,7 @@ fitforecast <- function(y,
       if (type_sim == "surrogate") {
         if (vol == "constant")
         {
+          check_suggested("simulatetimeseries")
           scaled_calibrated_residuals <- base::scale(calibrated_raw_residuals,
                                                      center = TRUE,
                                                      scale = TRUE)

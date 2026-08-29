@@ -31,6 +31,7 @@ mlf <- function(y, h = 5, level = 95, lags = 15L,
                 show_progress=TRUE,
                 ...)
 {
+  check_suggested("tseries")
   set.seed(seed)
   n <- length(y)
   freq_x <- frequency(y)

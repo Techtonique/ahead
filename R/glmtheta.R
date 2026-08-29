@@ -44,6 +44,10 @@ glmthetaf <- function (
     ...
 )
 {
+  check_suggested("forecast")
+  check_suggested("misc")
+  check_suggested("tseries")
+    
   type_pi <- match.arg(type_pi)
   attention_type <- match.arg(attention_type)
   attention_method <- match.arg(attention_method)

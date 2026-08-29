@@ -175,6 +175,8 @@ condvolf <- function(
     zsim <- matrix(rnorm(h * B), nrow = h, ncol = B)
     
   } else if (innovation == "student") {
+
+    check_suggested("MASS")
     
     # Student-t innovations with fitted degrees of freedom
     fit_t <- tryCatch(

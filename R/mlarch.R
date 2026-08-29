@@ -71,6 +71,11 @@ mlarchf <- function(y,
                     clustering_method = "kmeans",
                     ...)
 {
+  check_suggested("caret")
+  check_suggested("cclust")
+  check_suggested("misc")
+  check_suggested("tseries")
+  
   if (!is.ts(y))
   {
     y <- ts(y)

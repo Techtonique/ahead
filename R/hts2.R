@@ -20,6 +20,7 @@
   #' @param h Forecast horizon
   #' @return Forecast vector
   simple_forecast <- function(y, h) {
+    check_suggested("forecast")
     tryCatch({
       fit <- ets(ts(y))
       as.numeric(forecast(fit, h = h)$mean)

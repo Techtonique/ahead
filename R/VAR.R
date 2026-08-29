@@ -105,7 +105,7 @@ fit_var_mts <- function(x,
   # for penalization == "none" only
 {
   series_names <- colnames(x)
-
+  check_suggested("vars")
   # unrestricted VAR algo from package 'vars'
     type_VAR <- match.arg(type_VAR)
     fit_obj <- vars::VAR(y = x, p = lags, type = type_VAR,

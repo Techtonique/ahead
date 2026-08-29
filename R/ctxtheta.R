@@ -130,6 +130,8 @@ ctxthetaf <- function(y,
       x <- seasadj(decomp)
     }
   }
+
+  check_suggested("forecast")
   
   # Find theta lines
   fcast <- forecast::ses(x, h = h)
