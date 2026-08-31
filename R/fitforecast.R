@@ -109,7 +109,7 @@ fitforecast <- function(y,
       ets = forecast::ets,
       tbats = forecast::tbats,
       tslm = function (y)
-        tslm(y ~ trend + season)
+        forecast::tslm(y ~ trend + season)
     )
     
     fcast_func <- function(y)
