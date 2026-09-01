@@ -56,7 +56,7 @@ plot.foreccomb_res <- function(x, which=1,...) {
 
         p <- ggplot2::ggplot(data = pl, ggplot2::aes(x = Index)) + ggplot2::geom_line(aes(y = Actual, colour = "ACTUAL"), size = 0.5) + ggplot2::geom_line(ggplot2::aes(y = Combined_Fit, colour = "COMBINED (FIT)"),
             size = 0.8) + ggplot2::scale_x_continuous(breaks = round(seq(0, max(pl$Index), by = nrow(pl)/10), 0)) + ggplot2::scale_colour_manual(name = "Series", values = cols) + ggplot2::guides(colour = guide_legend(override.aes = list(size = c(0.5,
-            0.8)))) + xlab("Index") + ylab(paste0(method, "\n Fitted Values/Forescasts")) + ggtitle(paste0(method, " Forecast Combination \n Actual vs. Fitted/Test Set Forecasts")) +
+            0.8)))) + ggplot2::xlab("Index") + ggplot2::ylab(paste0(method, "\n Fitted Values/Forescasts")) + ggplot2::ggtitle(paste0(method, " Forecast Combination \n Actual vs. Fitted/Test Set Forecasts")) +
           ggplot2::theme(plot.title = element_text(hjust = 0.5)) + ggplot2::theme(plot.title = element_text(size = 16, face = "bold")) + ggplot2::theme(legend.title = element_text(colour = "black", size = 12, face = "bold"))
         p
     } else {
@@ -72,11 +72,11 @@ plot.foreccomb_res <- function(x, which=1,...) {
             pl[, 4] <- c(rep(NA, length(fit)), forec)
             pl[length(observed_vector), 4] <- pl[length(observed_vector), 3]
 
-            p <- ggplot2::ggplot(data = pl, ggplot2::aes(x = Index)) + ggplot2::geom_line(aes(y = Actual, colour = "ACTUAL"), size = 0.5) + ggplot2::geom_line(aes(y = c(Combined_Fit), colour = "COMBINED (FIT)"),
+            p <- ggplot2::ggplot(data = pl, ggplot2::aes(x = Index)) + ggplot2::geom_line(ggplot2::aes(y = Actual, colour = "ACTUAL"), size = 0.5) + ggplot2::geom_line(aes(y = c(Combined_Fit), colour = "COMBINED (FIT)"),
                 na.rm = TRUE, size = 0.8) + ggplot2::geom_line(aes(y = c(Combined_Forecast), colour = "COMBINED (FORECAST)"), na.rm = TRUE, size = 1.5) + ggplot2::scale_x_continuous(breaks = round(seq(0,
                 max(pl$Index), by = nrow(pl)/10), 0)) + ggplot2::scale_colour_manual(name = "Series", values = cols) + ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(size = c(0.5,
                 0.8, 1.5)))) + ggplot2::xlab("Index") + ggplot2::ylab(paste0(method, "\n Fitted Values/Forecasts")) + ggplot2::ggtitle(paste0(method, " Forecast Combination \n Actual vs. Fitted/Test Set Forecast")) +
-              ggplot2::theme(plot.title = element_text(hjust = 0.5)) + ggplot2::theme(plot.title = element_text(size = 16, face = "bold")) + ggplot2::theme(legend.title = element_text(colour = "black", size = 12, face = "bold")) +
+              ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::theme(plot.title = element_text(size = 16, face = "bold")) + ggplot2::theme(legend.title = element_text(colour = "black", size = 12, face = "bold")) +
               ggplot2::geom_vline(xintercept = length(observed_vector), size = 1, linetype = "longdash", colour = "black")
             p
         } else {

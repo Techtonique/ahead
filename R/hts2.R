@@ -22,8 +22,8 @@
   simple_forecast <- function(y, h) {
     check_suggested("forecast")
     tryCatch({
-      fit <- ets(ts(y))
-      as.numeric(forecast(fit, h = h)$mean)
+      fit <- forecast::ets(ts(y))
+      as.numeric(forecast::forecast(fit, h = h)$mean)
     }, error = function(e) {
       rep(tail(y, 1), h)  # Fallback to naive
     })

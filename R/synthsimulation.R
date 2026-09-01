@@ -56,7 +56,7 @@ generate_synthetic_ts <- function(y,
           if (is.null(formula)) {
             forecast::tslm(x ~ trend + season, ...)
           } else {
-            tslm(formula, data = x, ...)
+            forecast::tslm(formula, data = x, ...)
           }
         }
       } else {
