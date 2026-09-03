@@ -8,6 +8,8 @@ comb_GLMNET(x, custom_error = NULL)
 }
 \arguments{
 \item{x}{An object of class 'foreccomb'. Contains training set (actual values + matrix of model forecasts) and optionally a test set.}
+
+\item{custom_error}{Custom error function}
 }
 \value{
 Returns an object of class \code{ForecastComb::foreccomb_res} with the following components:
