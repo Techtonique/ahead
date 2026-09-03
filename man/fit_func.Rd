@@ -31,6 +31,8 @@ fit_func(
 
 \item{tune_length}{Length of the tuning grid}
 
+\item{summary_function}{A summary function}
+
 \item{verbose}{Whether to print the model summary}
 }
 \value{

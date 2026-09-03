@@ -42,6 +42,8 @@ glmthetaf(
 
 \item{x}{The time series data}
 
+\item{type_pi}{Type of prediction intervals}
+
 \item{attention}{Logical flag for using attention mechanism}
 
 \item{attention_type}{The type of attention mechanism to use}

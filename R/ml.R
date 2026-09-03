@@ -12,6 +12,7 @@
 #' @param type_pi Type of prediction interval
 #' @param B Number of bootstrap replications or number of simulations
 #' @param agg "mean" or "median" (aggregation method)
+#' @param seed  reproducibility seed 
 #' @param show_progress show progress bar for stacking, if \code{stacking_models} if not \code{NULL}
 #' @param ... additional parameters passed to the fitting function \code{fit_func}
 #'

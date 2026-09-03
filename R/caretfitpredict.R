@@ -8,6 +8,7 @@
 #' @param horizon The forecast horizon
 #' @param fixed_window Whether to use a fixed window size
 #' @param tune_length Length of the tuning grid
+#' @param summary_function A summary function
 #' @param verbose Whether to print the model summary
 #' @return A model object
 #' @export
@@ -45,11 +46,8 @@ verbose=TRUE)
 
 #' Predict univariate time series using caret ML model(for use with \code{dynrmf})
 #' 
-#' @param x A matrix of predictors
-#' @param y A vector of responses
-#' @param method The caret method to use for fitting the model
-#' @param verbose Whether to print the model summary
-#' @return A model object
+#' @param obj Fitted object
+#' @param newx Test set data
 #' @export
 predict_func <- function(obj, newx)
 {

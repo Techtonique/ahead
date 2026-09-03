@@ -157,7 +157,41 @@
     )
   }
 
-  #' Plot forecast results with simulation intervals
+  #' Plot hierarchical time series forecast
+  #'
+  #' Plots a historical series (either the total series or a chosen bottom-level
+  #' series of a hierarchical time series) alongside its point forecast, mean
+  #' forecast (from simulations), and prediction interval, as produced by a
+  #' hierarchical forecasting routine. A vertical line marks the train/test
+  #' split point.
+  #'
+  #' @param result a list containing forecast results, with elements
+  #' \code{point_forecasts} (list with \code{total} and \code{bottom} components),
+  #' \code{mean_forecasts} (list with \code{total} and \code{bottom} components),
+  #' \code{prediction_intervals} (list with \code{total}, a matrix with columns
+  #' \code{"lower"}/\code{"upper"}, and \code{bottom}, a list with \code{lower}
+  #' and \code{upper} matrices, one column per bottom series), and
+  #' \code{split_info} (list with \code{split_point} and \code{alpha})
+  #' @param hts a hierarchical time series object containing \code{total}
+  #' (the historical total series) and \code{bts} (a matrix of historical
+  #' bottom-level series, one column per series)
+  #' @param series_type character string; either \code{"total"} to plot the
+  #' total series, or any other value to plot a bottom-level series
+  #' (default \code{"total"})
+  #' @param series_idx integer; index of the bottom-level series to plot when
+  #' \code{series_type != "total"} (default \code{1})
+  #'
+  #' @return No return value; called for the side effect of producing a plot
+  #'
+  #' @author T. Moudiki
+  #'
+  #' @export
+  #'
+  #' @examples
+  #'
+  #' # plot_hts_forecast(result, hts, series_type = "total")
+  #' # plot_hts_forecast(result, hts, series_type = "bottom", series_idx = 2)
+  #'
   plot_hts_forecast <- function(result, hts, series_type = "total", series_idx = 1) {
     
     if (series_type == "total") {
@@ -204,8 +238,40 @@
           lty = c(1, 1, 2, 1, 2), lwd = c(2, 2, 2, 8, 1))
   }
 
-  #' Plot simulation paths
-  #' @export 
+  #' Plot simulation paths for a hierarchical time series forecast
+  #'
+  #' Plots a subset of simulated forecast paths (either for the total series or
+  #' a chosen bottom-level series) over the forecast horizon, along with the
+  #' mean simulated path and a prediction interval derived from the empirical
+  #' quantiles of the simulations.
+  #'
+  #' @param result a list containing forecast results, with elements
+  #' \code{simulations} (list with \code{total}, an \code{h x n_sim} matrix,
+  #' and \code{bottom}, an \code{h x n_series x n_sim} array) and
+  #' \code{split_info} (list with \code{alpha}, the significance level used
+  #' for the prediction interval)
+  #' @param series_type character string; either \code{"total"} to plot
+  #' simulations of the total series, or any other value to plot simulations
+  #' of a bottom-level series (default \code{"total"})
+  #' @param series_idx integer; index of the bottom-level series to plot when
+  #' \code{series_type != "total"} (default \code{1})
+  #' @param n_paths integer; maximum number of individual simulation paths to
+  #' display (default \code{50})
+  #' @param main character string; plot title. If \code{NULL} (the default),
+  #' a title is generated automatically based on \code{series_type} and
+  #' \code{series_idx}
+  #'
+  #' @return No return value; called for the side effect of producing a plot
+  #'
+  #' @author T. Moudiki
+  #'
+  #' @export
+  #'
+  #' @examples
+  #'
+  #' # plot_simulations(result, series_type = "total", n_paths = 50)
+  #' # plot_simulations(result, series_type = "bottom", series_idx = 2)
+  #'
   plot_simulations <- function(result, series_type = "total", series_idx = 1, 
                               n_paths = 50, main = NULL) {
     

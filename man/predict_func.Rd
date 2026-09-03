@@ -7,16 +7,9 @@
 predict_func(obj, newx)
 }
 \arguments{
-\item{x}{A matrix of predictors}
+\item{obj}{Fitted object}
 
-\item{y}{A vector of responses}
-
-\item{method}{The caret method to use for fitting the model}
-
-\item{verbose}{Whether to print the model summary}
-}
-\value{
-A model object
+\item{newx}{Test set data}
 }
 \description{
 Predict univariate time series using caret ML model(for use with \code{dynrmf})

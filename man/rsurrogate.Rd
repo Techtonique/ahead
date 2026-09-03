@@ -2,10 +2,39 @@
 % Please edit documentation in R/sampling.R
 \name{rsurrogate}
 \alias{rsurrogate}
-\title{Simulate using surrogate data}
+\title{Random generation of surrogate series}
 \usage{
 rsurrogate(x, n = length(x), p = 1, seed = 123)
 }
+\arguments{
+\item{x}{a numeric vector (the original time series) from which
+surrogates are generated}
+
+\item{n}{number of observations to return per surrogate path; must not
+exceed \code{length(x)} (default \code{length(x)})}
+
+\item{p}{number of surrogate paths to generate (default \code{1})}
+
+\item{seed}{reproducibility seed (default \code{123})}
+}
+\value{
+A numeric vector or matrix of length/dimension \code{n} (rows)
+by \code{p} (columns) containing the simulated surrogate series
+}
 \description{
-Simulate using surrogate data
+Generates surrogate time series from an input series \code{x} using the
+phase-randomized Fourier transform (FFT) method implemented in
+\code{tseries::surrogate}. Surrogates preserve the linear (spectral)
+properties of the original series while randomizing its phase structure,
+and can be used as an alternative to parametric simulation for generating
+plausible future/alternative paths.
+}
+\examples{
+
+x <- rnorm(100)
+res <- rsurrogate(x, n = 10, p = 5)
+
+}
+\author{
+T. Moudiki
 }

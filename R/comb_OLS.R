@@ -25,6 +25,7 @@
 #' The results are stored in an object of class 'ForecastComb::foreccomb_res', for which separate plot and summary functions are provided.
 #'
 #' @param x An object of class 'foreccomb'. Contains training set (actual values + matrix of model forecasts) and optionally a test set.
+#' @param custom_error Custom error function
 #'
 #' @return Returns an object of class \code{ForecastComb::foreccomb_res} with the following components:
 #' \item{Method}{Returns the best-fit forecast combination method.}

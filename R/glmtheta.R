@@ -7,6 +7,7 @@
 #' @param predict_func The function to use for predict the other models (not GLMs)
 #' @param fan Logical flag for fan plot
 #' @param x The time series data
+#' @param type_pi Type of prediction intervals 
 #' @param attention Logical flag for using attention mechanism
 #' @param attention_type The type of attention mechanism to use
 #' @param attention_method The method for computing attention-based adjustments: "heuristic" (original) or "historical" (new evidence-based)

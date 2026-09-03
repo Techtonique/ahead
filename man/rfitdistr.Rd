@@ -2,10 +2,38 @@
 % Please edit documentation in R/sampling.R
 \name{rfitdistr}
 \alias{rfitdistr}
-\title{Simulate from parametric distribution}
+\title{Random generation from a fitted distribution}
 \usage{
 rfitdistr(x, n = length(x), p = 1)
 }
+\arguments{
+\item{x}{a numeric vector used to fit the distribution (the vector is
+centered and scaled internally before fitting)}
+
+\item{n}{number of observations to simulate per column/path
+(default \code{length(x)})}
+
+\item{p}{number of columns/paths to simulate; if \code{p <= 1}, a vector
+of length \code{n} is returned, otherwise a matrix of dimension
+\code{n x p} is returned (default \code{1})}
+}
+\value{
+If \code{p <= 1}, a numeric vector of length \code{n} containing
+simulated values. If \code{p > 1}, a numeric matrix with \code{n} rows and
+\code{p} columns containing simulated values.
+}
 \description{
-Simulate from parametric distribution
+Fits a parametric distribution to a (standardized) input vector using
+\code{misc::fit_param_dist}, and generates random draws from the fitted
+distribution. Useful for simulating residuals or innovations whose
+distribution is estimated from data rather than assumed.
+}
+\examples{
+
+x <- rnorm(100)
+res <- rfitdistr(x, n = 10, p = 5)
+
+}
+\author{
+T. Moudiki
 }

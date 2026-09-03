@@ -7,6 +7,7 @@
 #' @param cl an integer; the number of clusters for parallel execution
 #' @param dist distribution of innovations ("student" or "gaussian")
 #' @param seed reproducibility seed
+#' @param ... Additional arguments passed to \code{fGarch::garchFit}
 #'
 #' @return An object of class "forecast"; a list containing the following elements:
 #'

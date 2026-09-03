@@ -19,8 +19,6 @@ rmultivariate(
 \item{n}{The number of samples to draw.}
 
 \item{block_size}{The size of the blocks to use for the block bootstrap.}
-
-\item{...}{Additional arguments to pass to the density function.}
 }
 \description{
 Simulate multivariate data

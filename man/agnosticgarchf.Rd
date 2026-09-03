@@ -25,7 +25,7 @@ default \code{ahead::dynrmf}}
 
 \item{seed}{reproducibility seed}
 
-\item{...}{Additional arguments passed to ...}
+\item{...}{Additional arguments passed to the forecasting function and \code{fGarch::garchFit}}
 }
 \value{
 An object of class "forecast"; a list containing the following elements:

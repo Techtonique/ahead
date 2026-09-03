@@ -29,6 +29,8 @@ armagarchf(
 \item{dist}{distribution of innovations ("student" or "gaussian")}
 
 \item{seed}{reproducibility seed}
+
+\item{...}{Additional arguments passed to \code{fGarch::garchFit}}
 }
 \value{
 An object of class "forecast"; a list containing the following elements:

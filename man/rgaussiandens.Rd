@@ -14,8 +14,6 @@ rgaussiandens(x, n = length(x), p = 1, seed = 32124)
 \item{p}{Integer. Number of replicates (default: 1).}
 
 \item{seed}{Integer. Random seed for reproducibility (default: 123).}
-
-\item{method}{Character. Sampling method: "antithetic" or "traditional".}
 }
 \value{
 A vector or matrix of samples from the estimated density.

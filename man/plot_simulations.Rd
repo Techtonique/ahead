@@ -2,7 +2,7 @@
 % Please edit documentation in R/hts2.R
 \name{plot_simulations}
 \alias{plot_simulations}
-\title{Plot simulation paths}
+\title{Plot simulation paths for a hierarchical time series forecast}
 \usage{
 plot_simulations(
   result,
@@ -12,6 +12,42 @@ plot_simulations(
   main = NULL
 )
 }
+\arguments{
+\item{result}{a list containing forecast results, with elements
+\code{simulations} (list with \code{total}, an \code{h x n_sim} matrix,
+and \code{bottom}, an \code{h x n_series x n_sim} array) and
+\code{split_info} (list with \code{alpha}, the significance level used
+for the prediction interval)}
+
+\item{series_type}{character string; either \code{"total"} to plot
+simulations of the total series, or any other value to plot simulations
+of a bottom-level series (default \code{"total"})}
+
+\item{series_idx}{integer; index of the bottom-level series to plot when
+\code{series_type != "total"} (default \code{1})}
+
+\item{n_paths}{integer; maximum number of individual simulation paths to
+display (default \code{50})}
+
+\item{main}{character string; plot title. If \code{NULL} (the default),
+a title is generated automatically based on \code{series_type} and
+\code{series_idx}}
+}
+\value{
+No return value; called for the side effect of producing a plot
+}
 \description{
-Plot simulation paths
+Plots a subset of simulated forecast paths (either for the total series or
+a chosen bottom-level series) over the forecast horizon, along with the
+mean simulated path and a prediction interval derived from the empirical
+quantiles of the simulations.
+}
+\examples{
+
+# plot_simulations(result, series_type = "total", n_paths = 50)
+# plot_simulations(result, series_type = "bottom", series_idx = 2)
+
+}
+\author{
+T. Moudiki
 }

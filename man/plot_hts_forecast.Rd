@@ -2,10 +2,46 @@
 % Please edit documentation in R/hts2.R
 \name{plot_hts_forecast}
 \alias{plot_hts_forecast}
-\title{Plot forecast results with simulation intervals}
+\title{Plot hierarchical time series forecast}
 \usage{
 plot_hts_forecast(result, hts, series_type = "total", series_idx = 1)
 }
+\arguments{
+\item{result}{a list containing forecast results, with elements
+\code{point_forecasts} (list with \code{total} and \code{bottom} components),
+\code{mean_forecasts} (list with \code{total} and \code{bottom} components),
+\code{prediction_intervals} (list with \code{total}, a matrix with columns
+\code{"lower"}/\code{"upper"}, and \code{bottom}, a list with \code{lower}
+and \code{upper} matrices, one column per bottom series), and
+\code{split_info} (list with \code{split_point} and \code{alpha})}
+
+\item{hts}{a hierarchical time series object containing \code{total}
+(the historical total series) and \code{bts} (a matrix of historical
+bottom-level series, one column per series)}
+
+\item{series_type}{character string; either \code{"total"} to plot the
+total series, or any other value to plot a bottom-level series
+(default \code{"total"})}
+
+\item{series_idx}{integer; index of the bottom-level series to plot when
+\code{series_type != "total"} (default \code{1})}
+}
+\value{
+No return value; called for the side effect of producing a plot
+}
 \description{
-Plot forecast results with simulation intervals
+Plots a historical series (either the total series or a chosen bottom-level
+series of a hierarchical time series) alongside its point forecast, mean
+forecast (from simulations), and prediction interval, as produced by a
+hierarchical forecasting routine. A vertical line marks the train/test
+split point.
+}
+\examples{
+
+# plot_hts_forecast(result, hts, series_type = "total")
+# plot_hts_forecast(result, hts, series_type = "bottom", series_idx = 2)
+
+}
+\author{
+T. Moudiki
 }

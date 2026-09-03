@@ -47,6 +47,8 @@ mlf(
 
 \item{agg}{"mean" or "median" (aggregation method)}
 
+\item{seed}{reproducibility seed}
+
 \item{show_progress}{show progress bar for stacking, if \code{stacking_models} if not \code{NULL}}
 
 \item{...}{additional parameters passed to the fitting function \code{fit_func}}

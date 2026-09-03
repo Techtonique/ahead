@@ -15,7 +15,6 @@ debug_print <- function(x) {
 #' @param n Integer. Number of samples per replicate (default: length of x).
 #' @param p Integer. Number of replicates (default: 1).
 #' @param seed Integer. Random seed for reproducibility (default: 123).
-#' @param method Character. Sampling method: "antithetic" or "traditional".
 #'
 #' @return A vector or matrix of samples from the estimated density.
 #'

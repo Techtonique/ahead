@@ -1,7 +1,32 @@
 
-#' Simulate using surrogate data
+
+#' Random generation of surrogate series
+#'
+#' Generates surrogate time series from an input series \code{x} using the
+#' phase-randomized Fourier transform (FFT) method implemented in
+#' \code{tseries::surrogate}. Surrogates preserve the linear (spectral)
+#' properties of the original series while randomizing its phase structure,
+#' and can be used as an alternative to parametric simulation for generating
+#' plausible future/alternative paths.
+#'
+#' @param x a numeric vector (the original time series) from which
+#' surrogates are generated
+#' @param n number of observations to return per surrogate path; must not
+#' exceed \code{length(x)} (default \code{length(x)})
+#' @param p number of surrogate paths to generate (default \code{1})
+#' @param seed reproducibility seed (default \code{123})
+#'
+#' @return A numeric vector or matrix of length/dimension \code{n} (rows)
+#' by \code{p} (columns) containing the simulated surrogate series
+#'
+#' @author T. Moudiki
 #'
 #' @export
+#'
+#' @examples
+#'
+#' x <- rnorm(100)
+#' res <- rsurrogate(x, n = 10, p = 5)
 #'
 rsurrogate <- function(x,
                        n = length(x),
@@ -31,9 +56,33 @@ rsurrogate <- function(x,
 
 # fitdistr ------
 
-#' Simulate from parametric distribution
+#' Random generation from a fitted distribution
+#'
+#' Fits a parametric distribution to a (standardized) input vector using
+#' \code{misc::fit_param_dist}, and generates random draws from the fitted
+#' distribution. Useful for simulating residuals or innovations whose
+#' distribution is estimated from data rather than assumed.
+#'
+#' @param x a numeric vector used to fit the distribution (the vector is
+#' centered and scaled internally before fitting)
+#' @param n number of observations to simulate per column/path
+#' (default \code{length(x)})
+#' @param p number of columns/paths to simulate; if \code{p <= 1}, a vector
+#' of length \code{n} is returned, otherwise a matrix of dimension
+#' \code{n x p} is returned (default \code{1})
+#'
+#' @return If \code{p <= 1}, a numeric vector of length \code{n} containing
+#' simulated values. If \code{p > 1}, a numeric matrix with \code{n} rows and
+#' \code{p} columns containing simulated values.
+#'
+#' @author T. Moudiki
 #'
 #' @export
+#'
+#' @examples
+#'
+#' x <- rnorm(100)
+#' res <- rfitdistr(x, n = 10, p = 5)
 #'
 rfitdistr <- function(x, n=length(x), p=1)
 {
@@ -114,7 +163,6 @@ direct_sampling <- function(data = NULL, n = 100L,
 #' @param method The method to use for sampling.
 #' @param n The number of samples to draw.
 #' @param block_size The size of the blocks to use for the block bootstrap.
-#' @param ... Additional arguments to pass to the density function.
 #'
 #' @export
 #'

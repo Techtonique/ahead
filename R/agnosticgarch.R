@@ -6,7 +6,7 @@
 #' @param FUN forecasting function for the main model; 
 #' default \code{ahead::dynrmf}
 #' @param seed reproducibility seed
-#' @param ... Additional arguments passed to ...
+#' @param ... Additional arguments passed to the forecasting function and \code{fGarch::garchFit}
 #' 
 #' @return An object of class "forecast"; a list containing the following elements:
 #'
@@ -74,8 +74,8 @@ agnosticgarchf <- function(y,
     if (dist_ %in% c("norm", "QMLE")) {
       z <- qnorm(1 - alpha/2)
     } else if (dist_ == "std") {
-      nu <- coef(fit)["nu"]
-      if (is.na(nu)) nu <- fit@fit$par["nu"]  # safeguard
+      nu <- coef(obj_garch)["shape"]
+      if (is.na(nu)) nu <- obj_garch@fit$par["shape"]  # safeguard
       z <- qt(1 - alpha/2, df = nu)
     } else if (dist_ == "ged") {
       # GED is trickier; fGarch doesn't export qged easily

@@ -35,7 +35,7 @@ buildsite: setwd ## create a website for the package
 	Rscript -e "pkgdown::build_site('.')"
 	cp -rf docs/* ~/Documents/Pro_Website/Techtonique.github.io/ahead/
 
-check: clean setwd ## check package 
+check: clean setwd docs ## check package 
 	@read -p "Enter options (e.g: --no-tests --no-examples) or leave empty: " pckgcheckoptions; \
 	if [ -z "$$pckgcheckoptions" ]; then \
 		Rscript -e "try(devtools::check('.'), silent=TRUE)" && exit 0; \
