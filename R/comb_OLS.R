@@ -20,7 +20,7 @@
 #' hard. Another issue, documented in Nowotarski et al. (2014), is the method's unstable behavior
 #' when predictors are highly correlated (which is the norm in forecast combination): Minor fluctuations in the sample
 #' can cause major shifts of the coefficient vector (\sQuote{bouncing betas}) -- often causing poor out-of-sample performance.
-#' This issue is addressed by the \code{\link{comb_LAD}} method that is more robust to outliers.
+#' This issue is addressed by the \code{\link{ForecastComb::comb_LAD}} method that is more robust to outliers.
 #'
 #' The results are stored in an object of class 'ForecastComb::foreccomb_res', for which separate plot and summary functions are provided.
 #'
