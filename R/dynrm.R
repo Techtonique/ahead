@@ -551,13 +551,11 @@ dynrm_predict <- function(out,
       # print(newdata_)
       # cat("\n")
 
-      preds <- try(as.numeric(out$predict_func(out$model,
-                                               newdata = newdata_)[1]), # do not change (ever)
+      preds <- try(as.numeric(out$predict_func(out$model, newdata_)[1]), # do not change (ever)
                    silent = TRUE)
       if (inherits(preds, "try-error"))
       {
-        preds <- try(as.numeric(out$predict_func(out$model,
-                                                 newx = newdata_)[1]), # do not change (ever)
+        preds <- try(as.numeric(out$predict_func(out$model, newdata_)[1]), # do not change (ever)
                      silent = TRUE)
         if (inherits(preds, "try-error"))
         {

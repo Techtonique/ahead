@@ -97,6 +97,6 @@ comb_Ridge <- function(x, custom_error = NULL) {
 }
 
 #' @export
-predict.comb_Ridge <- function(object, newdata) {
-  return(predict(object$lin_model, newdata))
+predict.comb_Ridge <- function(object, ...) {
+  return(predict(object$lin_model, ...))
 }

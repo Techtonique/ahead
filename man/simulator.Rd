@@ -47,10 +47,12 @@ any forecasting function.
 }
 \examples{
 
+
+
 y <- fdeaths
 h <- 25L
 obj <- simulator(FUN=forecast::thetaf, y, h); plot(obj)
-obj <- simulator(FUN=forecast::auto.arima, y, h); plot(obj)
+# obj <- simulator(FUN=forecast::auto.arima, y, h); plot(obj)
 obj <- simulator(FUN=forecast::ets, y, h); plot(obj)
  
 }

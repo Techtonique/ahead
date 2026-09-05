@@ -111,7 +111,7 @@ comb_OLS <- function(x, custom_error = NULL) {
 }
 
 #' @export
-predict.comb_OLS <- function(object, newdata) {
+predict.comb_OLS <- function(object, ...) {
   coef <- c(object$Intercept, object$Weights)  
-  return(drop(cbind(1, newdata) %*% coef))
+  return(drop(cbind(1, ...) %*% coef))
 }

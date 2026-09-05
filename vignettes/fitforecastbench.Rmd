@@ -19,8 +19,6 @@ obj1 <- ahead::fitforecast(AirPassengers)
 obj2 <- ahead::fitforecast(AirPassengers, 
                            conformalize = TRUE)
 obj3 <- ahead::fitforecast(USAccDeaths, method = "dynrmf")
-obj4 <- ahead::fitforecast(USAccDeaths, 
-                           conformalize = TRUE, method = "dynrmf")
 obj6 <- ahead::fitforecast(USAccDeaths, 
                            conformalize = TRUE, method = "te")
 
@@ -37,9 +35,7 @@ par(mfrow=c(1, 2))
 obj2$plot()
 obj2$plot("simulations")
 
-par(mfrow=c(1, 2))
 obj3$plot()
-obj4$plot()
 
 obj6$plot()
 ```

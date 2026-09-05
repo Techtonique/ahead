@@ -188,10 +188,105 @@ dropout_layer <- function(X, dropout = 0, seed = 123)
   }
 }
 
-# MASS::fitdistr, but with stats::nlminb -----
+#' Fit a Univariate Distribution to Data via Maximum Likelihood
+#'
+#' A lightweight, \code{stats::fitdistr}-inspired routine that fits the
+#' parameters of a one-dimensional distribution to a numeric vector by
+#' maximum likelihood, using \code{stats::nlminb} as the optimizer. Common
+#' distributions can be specified by name (in which case sensible defaults
+#' and closed-form/starting-value shortcuts are used where available), or an
+#' arbitrary density function can be supplied directly.
+#'
+#' @details
+#' If \code{densfun} is a function, it is called internally as
+#' \code{densfun(x, <named parameters from start/parm>, ..., log = )}, with
+#' matching done by name — so no reordering of \code{densfun}'s formals is
+#' required. The negative log-likelihood is minimized with
+#' \code{stats::nlminb}, using \code{densfun}'s own \code{log = TRUE} density
+#' when it exposes a \code{log} argument (for numerical stability), and
+#' falling back to summing \code{log(density)} otherwise.
+#'
+#' If \code{densfun} is a character string, it is matched (case-insensitively)
+#' against a fixed set of supported distributions: \code{"beta"},
+#' \code{"cauchy"}, \code{"chi-squared"}, \code{"exponential"}, \code{"f"},
+#' \code{"gamma"}, \code{"geometric"}, \code{"log-normal"} /
+#' \code{"lognormal"}, \code{"logistic"}, \code{"negative binomial"},
+#' \code{"normal"}, \code{"poisson"}, \code{"t"}, and \code{"weibull"}. An
+#' unrecognized name raises an error.
+#'
+#' Two distributions receive special handling:
+#' \itemize{
+#'   \item \strong{normal}: the mean and (bias-corrected) standard deviation
+#'     are computed in closed form (no optimization is performed), and
+#'     supplying \code{start} for this distribution is not supported and
+#'     raises an error.
+#'   \item \strong{t}: if \code{start} is not supplied, it defaults to
+#'     \code{list(m = median(x), s = IQR(x) / 2, df = 10)}, with any of
+#'     \code{m}, \code{s}, \code{df} passed via \code{...} removed from the
+#'     default starting list. The Student-t density is evaluated via an
+#'     internal location-scale helper (\code{mydt}) built on
+#'     \code{stats::dt}.
+#' }
+#'
+#' For all other distributions, \code{start} must be supplied as a named
+#' list of initial parameter values matching \code{densfun}'s parameters.
+#'
+#' Note: the \code{seed} argument is accepted but is not currently used
+#' inside the function body (the optimization is deterministic given
+#' \code{start}).
+#'
+#' @param x A non-empty numeric vector of observations to fit. Must not
+#'   contain \code{NA}, \code{NaN}, or infinite values.
+#' @param densfun Either a character string naming one of the supported
+#'   distributions (see Details), or a density function taking \code{x} as
+#'   its first argument, followed by the distribution's parameters, and
+#'   optionally a \code{log} argument.
+#' @param start Optional named list of starting values for the distribution's
+#'   parameters, passed on to the density function by name. Required
+#'   (and must be a named list) unless \code{densfun} is \code{"normal"} or
+#'   \code{"t"}, for which defaults are supplied automatically. Ignored (and
+#'   an error is raised if supplied) for \code{"normal"}.
+#' @param seed Integer; random seed. Currently accepted for interface
+#'   compatibility but not used internally. Defaults to \code{123}.
+#' @param ... Additional arguments passed on to \code{densfun} (e.g. fixed
+#'   parameters not being estimated, such as \code{lower}/\code{upper} bounds
+#'   for some distributions, which are excluded when checking for
+#'   user-supplied starting parameters).
+#'
+#' @return
+#' For \code{densfun = "normal"}, an object of class \code{"fitdistr"}, a
+#' list with components:
+#' \describe{
+#'   \item{estimate}{Named numeric vector of estimated mean and standard deviation.}
+#'   \item{sd}{Named numeric vector of standard errors of the estimates.}
+#'   \item{vcov}{Variance-covariance matrix of the estimates.}
+#'   \item{n}{Number of observations.}
+#'   \item{loglik}{Log-likelihood at the estimate.}
+#' }
+#'
+#' For all other distributions, a plain list with components:
+#' \describe{
+#'   \item{estimate}{Numeric vector of estimated parameters, as returned by \code{stats::nlminb}.}
+#'   \item{convergence}{Convergence code returned by \code{stats::nlminb} (\code{0} indicates success).}
+#'   \item{objective}{Value of the (negative log-likelihood) objective function at the solution.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(1)
+#' x <- rnorm(100, mean = 5, sd = 2)
+#'
+#' # Named distribution, closed-form normal fit
+#' fitdistr_ahead(x, "normal")
+#'
+#' # Named distribution with default starting values (t distribution)
+#' fitdistr_ahead(x, "t")
+#'
+#' # Custom density function with explicit starting values
+#' fitdistr_ahead(x, stats::dgamma, start = list(shape = 1, rate = 1))
+#' }
 #'
 #' @export
-#'
 fitdistr_ahead <- function (x, densfun, start = NULL, seed = 123, ...)
 {
   # dens() dispatches to densfun(x, <named parms>, ..., log = )
@@ -554,6 +649,37 @@ quantile_scp <- function(abs_residuals, alpha) {
   sort(abs_residuals, partial = k)[k]
 }
 
+#' Remove Missing Values from a Time Series via Linear Interpolation
+#'
+#' Replaces \code{NA} values in a \code{ts} object with linearly interpolated
+#' values, using the non-missing observations as anchor points. The result
+#' preserves the original time series' start time and frequency.
+#'
+#' @details
+#' If \code{y} contains no missing values, it is returned unchanged. Otherwise,
+#' \code{stats::approx} is used to linearly interpolate the missing entries
+#' based on the time index (\code{stats::time(y)}) and the non-missing values,
+#' evaluated at every time point in \code{y} (so any \code{NA} at the very
+#' start or end of the series may itself remain \code{NA}, per the default
+#' behavior of \code{approx}, since there are no bracketing points to
+#' interpolate from). The interpolated values are then reassembled into a new
+#' \code{ts} object with the same \code{start} and \code{frequency} as the
+#' input.
+#'
+#' @param y A univariate time series object of class \code{ts}. An error is
+#'   raised if \code{y} is not a \code{ts} object.
+#'
+#' @return A \code{ts} object of the same length, \code{start}, and
+#'   \code{frequency} as \code{y}, with internal \code{NA} values replaced by
+#'   linearly interpolated values. If \code{y} has no missing values, \code{y}
+#'   is returned as-is.
+#'
+#' @examples
+#' \dontrun{
+#' y <- ts(c(1, 2, NA, 4, 5, NA, 7), start = c(2020, 1), frequency = 12)
+#' removenas(y)
+#' }
+#'
 #' @export
 removenas <- function(y) {
   # Check if input is a time series object
@@ -594,7 +720,77 @@ remove_zero_cols <- function(x, with_index = FALSE)
 }
 
 # Fit Ridge regression -----
-#' @export
+
+#' Fit Ridge Regression Across a Grid of Penalty Values
+#'
+#' Fits ridge regression (adapted from \code{MASS::lm.ridge}) of \code{y} on
+#' \code{x} for one or several ridge penalty (\code{lambda}) values
+#' simultaneously, using an SVD-based solution path. Predictors are centered
+#' and scaled internally (columns with zero or undefined standard deviation
+#' are left unscaled), and both generalized cross-validation (GCV) and BIC
+#' are computed for each \code{lambda} to help with penalty selection.
+#'
+#' @details
+#' The predictor matrix \code{x} is coerced to a matrix (as a single column
+#' if it has only one column or one row) and centered/scaled by column means
+#' and standard deviations; columns with zero or \code{NA} standard deviation
+#' are assigned a scale of \code{1} to avoid division by zero. The response
+#' \code{y} is mean-centered. Ridge coefficients for the full \code{lambda}
+#' grid are then computed in one pass via the singular value decomposition
+#' of the scaled, centered design matrix (\code{La.svd}), following the same
+#' approach as \code{MASS::lm.ridge}.
+#'
+#' For each value of \code{lambda}, the function also computes:
+#' \itemize{
+#'   \item fitted values (on the original scale of \code{y});
+#'   \item residuals;
+#'   \item the generalized cross-validation (GCV) score, used to select
+#'     \code{best_lam} as the \code{lambda} minimizing GCV;
+#'   \item the Bayesian information criterion (BIC).
+#' }
+#'
+#' When \code{length(lambda) > 1}, \code{coef} and \code{fitted_values} are
+#' returned as matrices with one column per \code{lambda} (column names set
+#' to the corresponding \code{lambda} values); when a single \code{lambda} is
+#' supplied, they are returned as vectors.
+#'
+#' @param x A numeric matrix (or vector/data frame coercible to a matrix) of
+#'   predictors, with observations in rows and variables in columns.
+#' @param y A numeric response vector, of the same length as \code{nrow(x)}.
+#' @param lambda A numeric vector of ridge penalty values to fit. Defaults to
+#'   a grid of 100 values log-spaced between \code{1e-10} and \code{1e10}.
+#'
+#' @return An object of class \code{"ridge"}, a list with components:
+#' \describe{
+#'   \item{coef}{Ridge regression coefficients; a vector if a single
+#'     \code{lambda} was supplied, otherwise a matrix with one column per
+#'     \code{lambda}.}
+#'   \item{ym}{Mean of the response \code{y}, used for centering.}
+#'   \item{xm}{Column means of \code{x}, used for centering.}
+#'   \item{xsd}{Column standard deviations of \code{x} used for scaling
+#'     (zero/\code{NA} values replaced by \code{1}).}
+#'   \item{lambda}{The \code{lambda} grid used.}
+#'   \item{best_lam}{The value of \code{lambda} minimizing the GCV score.}
+#'   \item{fitted_values}{Fitted values on the original scale of \code{y};
+#'     a vector or a matrix with one column per \code{lambda}.}
+#'   \item{residuals}{Residuals (centered \code{y} minus centered fitted
+#'     values); a vector or matrix matching \code{fitted_values}.}
+#'   \item{GCV}{Generalized cross-validation score for each \code{lambda}.}
+#'   \item{BIC}{Bayesian information criterion for each \code{lambda}.}
+#'   \item{x}{The (unscaled) predictor matrix used for fitting.}
+#'   \item{y}{The original response vector.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(1)
+#' x <- matrix(rnorm(100 * 5), ncol = 5)
+#' y <- x %*% c(1, 0, -1, 0, 2) + rnorm(100)
+#' fit <- ridge(x, y)
+#' fit$best_lam
+#' plot(fit$lambda, fit$GCV, log = "x", type = "l")
+#' }
+#'
 #' @export
 ridge <- function(x, y, lambda=10^seq(-10, 10,
                                           length.out = 100))
@@ -685,16 +881,16 @@ ridge <- function(x, y, lambda=10^seq(-10, 10,
 }
 
 #' @export
-predict.ridge <- function(object, newx)
+predict.ridge <- function(object, ...)
 {
   if (length(object$lambda) > 1)
   {
-    res <- try(drop(base::scale(newx, center=object$xm,
+    res <- try(drop(base::scale(..., center=object$xm,
                                 scale=object$xsd)%*%object$coef[,which.min(object$GCV)] + object$ym),
                silent = TRUE)
     if (inherits(res, "try-error"))
     {
-      res <- try(drop(base::scale(newx, center=object$xm,
+      res <- try(drop(base::scale(..., center=object$xm,
                                   scale=object$xsd)%*%object$coef[which.min(object$GCV)] + object$ym),
                  silent = TRUE)
       return(res)
@@ -702,7 +898,7 @@ predict.ridge <- function(object, newx)
       return(res)
     }
   }  else {
-    return(drop(base::scale(newx, center=object$xm,
+    return(drop(base::scale(..., center=object$xm,
                             scale=object$xsd)%*%object$coef + object$ym))
   }
 }

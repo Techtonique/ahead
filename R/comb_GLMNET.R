@@ -104,6 +104,6 @@ comb_GLMNET <- function(x, custom_error = NULL) {
 }
 
 #' @export
-predict.comb_GLMNET <- function(object, newx) {
-  return(drop(predict(object$lin_model, newx, s = "lambda.min")))
+predict.comb_GLMNET <- function(object, ...) {
+  return(drop(predict(object$lin_model, ..., s = "lambda.min")))
 }

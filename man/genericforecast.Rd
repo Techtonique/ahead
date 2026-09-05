@@ -29,7 +29,7 @@ y <- fdeaths
 h <- 25L
 plot(ahead::genericforecast(FUN=forecast::thetaf, y, h))
 plot(ahead::genericforecast(FUN=ahead::dynrmf, y, h))
-plot(ahead::genericforecast(FUN=forecast::tbats, y=y, h=h, use.box.cox = TRUE, use.trend=FALSE))
-plot(ahead::genericforecast(FUN=forecast::auto.arima, y, h)) 
+# plot(ahead::genericforecast(FUN=forecast::tbats, y=y, h=h, use.box.cox = TRUE, use.trend=FALSE))
+# plot(ahead::genericforecast(FUN=forecast::auto.arima, y, h)) 
 
 }
