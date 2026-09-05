@@ -65,7 +65,7 @@ plot.foreccomb_res <- function(x, which = 1, ...) {
                                                                                                                                                                                                                                    method,
                                                                                                                                                                                                                                    " Forecast Combination \n Actual vs. Fitted/Test Set Forecasts"
                                                                                                                                                                                                                                  )) +
-        ggplot2::theme(plot.title = element_text(hjust = 0.5)) + ggplot2::theme(plot.title = element_text(size = 16, face = "bold")) + ggplot2::theme(legend.title = element_text(
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::theme(plot.title = ggplot2::element_text(size = 16, face = "bold")) + ggplot2::theme(legend.title = ggplot2::element_text(
           colour = "black",
           size = 12,
           face = "bold"
@@ -129,7 +129,7 @@ plot.foreccomb_res <- function(x, which = 1, ...) {
         pl[, 4] <- c(rep(NA, length(fit)), forec)
         pl[length(observed_vector), 4] <- pl[length(observed_vector), 3]
         
-        p <- ggplot2::ggplot(data = pl, ggplot2::aes(x = Index)) + ggplot2::geom_line(aes(y = Actual, colour = "ACTUAL"),
+        p <- ggplot2::ggplot(data = pl, ggplot2::aes(x = Index)) + ggplot2::geom_line(ggplot2::aes(y = Actual, colour = "ACTUAL"),
                                                                                       na.rm = TRUE,
                                                                                       size = 0.5) + ggplot2::geom_line(aes(y = c(Combined_Fit), colour = "COMBINED (FIT)"),
                                                                                                                        na.rm = TRUE,
