@@ -1,16 +1,15 @@
 Package: ahead
 Type: Package
 Title: Time Series Forecasting with uncertainty quantification
-Version: 0.38.0
-Date: 2026-08-29
+Version: 0.38.1
+Date: 2026-09-06
 Author: T. Moudiki
 Maintainer: T. Moudiki <thierry.moudiki@gmail.com>
 Description: Univariate and multivariate time series forecasting with uncertainty quantification.
 License: BSD_3_clause + file LICENSE
 Imports:
     Rcpp (>= 1.0.6),
-    misc,
-    foreach,
+    foreach,    
     tseries
 Depends: R (>= 3.5.0)
 Suggests:
@@ -20,6 +19,7 @@ Suggests:
     doSNOW,
     doParallel,
     knitr,
+    forecast,
     rmarkdown,
     testthat,
     fpp2,
@@ -34,6 +34,7 @@ Suggests:
     ForecastComb,
     ranger,
     mboost,
+    misc,
     Mcomp,
     fGarch,
     VineCopula,
@@ -42,9 +43,9 @@ Suggests:
     randtoolbox (>= 1.17),
     simulatetimeseries
 LinkingTo: Rcpp
-RoxygenNote: 7.3.2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Additional_repositories: https://r-packages.techtonique.net
-Remotes: thierrymoudiki/ForecastComb
+Remotes: thierrymoudiki/ForecastComb, thierrymoudiki/misc 
+Config/roxygen2/version: 8.1.0

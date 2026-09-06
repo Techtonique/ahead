@@ -1,4 +1,4 @@
-#' Check that a suggested package is installed
+#' Check that a suggested package is installed, if not, install it 
 #'
 #' Internal helper used to guard functions that depend on packages listed
 #' under \code{Suggests} rather than \code{Imports}. Throws an informative
@@ -14,7 +14,26 @@
 #'   Called for its side effect (throwing an error) otherwise.
 #'
 #' @noRd
-check_suggested <- function(pkg) {
+check_suggested <- function(pkg, ask = interactive()) {
+  if (requireNamespace(pkg, quietly = TRUE)) {
+    return(invisible(TRUE))
+  }
+
+  do_install <- TRUE
+  if (ask) {
+    do_install <- utils::askYesNo(
+      sprintf("Package '%s' is required but not installed. Install it now?", pkg)
+    )
+    do_install <- isTRUE(do_install)
+  }
+
+  if (do_install) {
+    utils::install.packages(
+      pkg,
+      repos = c("https://techtonique.r-universe.dev", "https://cloud.r-project.org")
+    )
+  }
+
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop(
       sprintf(
@@ -24,5 +43,6 @@ check_suggested <- function(pkg) {
       call. = FALSE
     )
   }
+
   invisible(TRUE)
 }
