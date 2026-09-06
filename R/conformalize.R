@@ -19,10 +19,12 @@
 #' 
 #' @examples
 #' 
+#' \dontrun{
 #' y <- fdeaths
 #' h <- 25L
 #' obj <- conformalize(FUN=forecast::ets, y, h); plot(obj)
 #' obj <- conformalize(FUN=HoltWinters, y=y, h=h, seasonal = "mult"); plot(obj)
+#' }
 #' 
 conformalize <- function(FUN, y, h, level=95,
                          method = c("block-bootstrap", "surrogate", 

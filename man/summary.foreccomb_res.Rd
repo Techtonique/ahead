@@ -21,10 +21,6 @@
 combination weights assigned to the individual forecast models, as well as an accuracy evaluation of the combined
 forecast.
 }
-\seealso{
-\code{\link[ForecastComb]{foreccomb}},
-\code{\link[ForecastComb]{plot.foreccomb_res}},
-}
 \author{
 Christoph E. Weiss and Gernot R. Roetzer
 }

@@ -4,20 +4,20 @@
 \alias{splitts}
 \title{Partition a time series object}
 \usage{
-splitts(y, split_prob = 0.5, return_indices = FALSE, ...)
+splitts(y, split_prob = 0.5, return_indices = FALSE)
 }
 \arguments{
 \item{y}{A time series object}
 
-\item{split_prob}{Splitting ratio}
+\item{split_prob}{A float; Splitting ratio}
 
-\item{return_indices}{if TRUE, returns series' indices, otherwise, time series objects}
+\item{return_indices}{A boolean; if TRUE, returns series' indices, otherwise, time series objects}
 }
 \description{
 Partition a time series object
 }
 \examples{
 
-misc::splitts(ts(1:10))
+ahead::splitts(ts(1:10))
 
 }

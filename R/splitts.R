@@ -1,18 +1,15 @@
 #' Partition a time series object
 #' 
 #' @param y A time series object
-#' @param split_prob Splitting ratio 
-#' @param return_indices if TRUE, returns series' indices, otherwise, time series objects
+#' @param split_prob A float; Splitting ratio 
+#' @param return_indices A boolean; if TRUE, returns series' indices, otherwise, time series objects
 #' 
 #' @export
 #' @examples
 #' 
-#' misc::splitts(ts(1:10))
+#' ahead::splitts(ts(1:10))
 #' 
-splitts <-
-  function(y,
-           split_prob = 0.5,
-           return_indices = FALSE)
+splitts <- function(y, split_prob = 0.5, return_indices = FALSE)
   {
     n_y <- base::ifelse(test = is.null(dim(y)),
                         yes = length(y),

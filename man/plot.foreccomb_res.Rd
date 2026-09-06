@@ -21,10 +21,6 @@ Produces plots for the results of a forecast combination method. Either
 an actual vs. fitted plot (\code{which = 1}) or a barplot of the combination weights
 (\code{which = 2}).
 }
-\seealso{
-\code{\link[ForecastComb]{foreccomb}},
-\code{\link[ForecastComb]{summary.foreccomb_res}}
-}
 \author{
 adapted from Christoph E. Weiss and Gernot R. Roetzer (ForecastComb)
 }

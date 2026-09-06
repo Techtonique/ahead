@@ -54,6 +54,8 @@ Basic forecasting functions for multivariate time series
 }
 \examples{
 
+\dontrun{
+
 require(fpp2)
 
 res <- ahead::basicf(fpp2::insurance, h=10)
@@ -91,5 +93,7 @@ res6 <- ahead::basicf(fpp2::insurance, h=10,
 par(mfrow=c(1, 2))
 plot(res6, "Quotes")
 plot(res6, "TV.advert")
+
+}
 
 }

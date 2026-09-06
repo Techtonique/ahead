@@ -11,10 +11,6 @@
 #' @param ... potential further arguments (require by generic)
 #'
 #'
-#' @seealso
-#' \code{\link[ForecastComb]{foreccomb}},
-#' \code{\link[ForecastComb]{plot.foreccomb_res}},
-#'
 #' @author Christoph E. Weiss and Gernot R. Roetzer
 #'
 #' @import forecast

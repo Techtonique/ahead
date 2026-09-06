@@ -33,13 +33,6 @@
 #' data<-ForecastComb::foreccomb(train_o, train_p, test_o, test_p)
 #' ahead::comb_Ridge(data)
 #'
-#' @seealso
-#' \code{Forecast_comb},
-#' \code{foreccomb},
-#' \code{\link{plot.ForecastComb::foreccomb_res}},
-#' \code{\link{summary.ForecastComb::foreccomb_res}},
-#' \code{\link[forecast]{accuracy}}
-#'
 #' @keywords models
 #'
 #' @import forecast

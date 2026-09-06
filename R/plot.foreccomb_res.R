@@ -12,9 +12,6 @@
 #'
 #' @return A plot for the foreccomb_res class.
 #'
-#' @seealso
-#' \code{\link[ForecastComb]{foreccomb}},
-#' \code{\link[ForecastComb]{summary.foreccomb_res}}
 #'
 #' @author adapted from Christoph E. Weiss and Gernot R. Roetzer (ForecastComb)
 #'

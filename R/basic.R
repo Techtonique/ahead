@@ -28,6 +28,8 @@
 #' @export
 #'
 #' @examples
+#' 
+#' \dontrun{
 #'
 #' require(fpp2)
 #'
@@ -66,6 +68,8 @@
 #' par(mfrow=c(1, 2))
 #' plot(res6, "Quotes")
 #' plot(res6, "TV.advert")
+#' 
+#' }
 #'
 basicf <- function(y,
                    h = 5,

@@ -24,6 +24,8 @@
 #'
 #' @examples
 #' 
+#' \dontrun{
+#' 
 #' library(ForecastComb)
 #' 
 #' data(electricity)
@@ -38,14 +40,9 @@
 #' test_pred <- electricity[85:123, forecasting_methods]
 #' data <- ForecastComb::foreccomb(train_obs, train_pred, test_obs, test_pred)
 #' 
-#' # obj <- ahead::comb_GLMNET(data))
-#'
-#' @seealso
-#' \code{Forecast_comb},
-#' \code{foreccomb},
-#' \code{\link{plot.ForecastComb::foreccomb_res}},
-#' \code{\link{summary.ForecastComb::foreccomb_res}},
-#' \code{\link[forecast]{accuracy}}
+#' obj <- ahead::comb_GLMNET(data))
+#' 
+#' }
 #'
 #' @keywords models
 #'
