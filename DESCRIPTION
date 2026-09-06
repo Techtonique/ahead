@@ -19,7 +19,6 @@ Suggests:
     doSNOW,
     doParallel,
     knitr,
-    forecast,
     rmarkdown,
     testthat,
     fpp2,
