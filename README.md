@@ -4,9 +4,6 @@
 Univariate and multivariate time series forecasting, with uncertainty quantification.
 
 [![Documentation](https://img.shields.io/badge/documentation-is_here-green)](https://techtonique.github.io/ahead/index.html)
-![Downloads](https://r-packages.techtonique.net/badges/downloads/last-month/ahead.svg)
-![Total Downloads](https://r-packages.techtonique.net/badges/downloads/grand-total/ahead.svg?color=brightgreen)
-
 
 ### Installation
 
