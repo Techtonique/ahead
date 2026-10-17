@@ -13,6 +13,7 @@
 #' @param block_size Block size for block-bootstrap.
 #' @param seed Seed for reproducibility.
 #' @param B Alias for \code{nsim}
+#' @param split_prob Splitting ratio (default is \code{0.5})
 #' @param ... Additional arguments to be passed to the forecasting function.
 #' 
 #' @return An object of class \code{forecast}.
@@ -34,6 +35,7 @@ conformalize <- function(FUN, y, h, level=95,
                          block_size = 5,
                          seed = 123L, 
                          B = NULL,
+                         split_prob = 0.5,
                          ...)
 {
   method <- match.arg(method)
@@ -42,7 +44,9 @@ conformalize <- function(FUN, y, h, level=95,
   half_n <- ceiling(n/2)
   idx_train <- seq_len(half_n)
   idx_calib <- setdiff(seq_len(n), idx_train)
-  splitted_y <- misc::splitts(y)
+  stopifnot(split_prob >= 0.1, split_prob <= 0.9)
+  splitted_y <- misc::splitts(y = y, 
+                              split_prob = split_prob)
   y_train <- splitted_y$training
   y_calib <- splitted_y$testing
   n_calib <- length(idx_calib)
