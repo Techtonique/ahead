@@ -36,6 +36,7 @@ conformalize <- function(FUN, y, h, level=95,
                          B = NULL,
                          ...)
 {
+  check_suggested("misc")
   method <- match.arg(method)
   n <- length(y)
   freq_x <- frequency(y)
